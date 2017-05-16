@@ -778,7 +778,7 @@ sub checkTVLanguageAndDesignation(theElement, taggedValueName)
 					exit for 
 				end if   
 				if currentTaggedValue.Name = "language" and currentTaggedValue.Value= "" then 
-					Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] \ tag ["& currentTaggedValue.Name &"] lacks a value. [19109:2015 /req/multi-lingual/package]") '[/krav/taggedValueSpråk] 
+					Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] tag ["& currentTaggedValue.Name &"] lacks a value. [19109:2015 /req/multi-lingual/package]") '[/krav/taggedValueSpråk] 
 					globalErrorCounter = globalErrorCounter + 1 
 					taggedValueLanguageMissing = false 
 					exit for 
@@ -791,7 +791,7 @@ sub checkTVLanguageAndDesignation(theElement, taggedValueName)
 		end if 
 	end if 
 
-	if taggedValueName = "designation" or taggedValueName ="definition" then
+	if taggedValueName = "designation" then 'or taggedValueName ="definition" 
 
 		if not theElement is nothing and Len(taggedValueName) > 0 then
 		
@@ -827,7 +827,7 @@ sub checkTVLanguageAndDesignation(theElement, taggedValueName)
 						end if
 						
 						if not (checkAtMark and checkQuoteMark) then
-							Session.Output("Error: Package [«" &theElement.Stereotype& "» " &theElement.Name&"] \ tag [" &taggedValueName& "] has an illegal value.  Expected value ""{" &taggedValueName& "}""@{language code} [/krav/taggedValueSpråk]")
+							Session.Output("Error: Package [«" &theElement.Stereotype& "» " &theElement.Name&"] tag [" &taggedValueName& "] has an illegal value.  Expected value ""{" &taggedValueName& "}""@{language code} [19109:2015 /req/multi-lingual/package]")
 							globalErrorCounter = globalErrorCounter + 1 
 						end if 
 					
@@ -841,25 +841,26 @@ sub checkTVLanguageAndDesignation(theElement, taggedValueName)
 
 						if InStr(designationContent, """") then
 							if globalLogLevelIsWarning then
-								Session.Output("Warning: Package [«" &theElement.Stereotype& "» " &theElement.Name&"] \ tag [" &taggedValueName& "] has a value ["&currentExistingTaggedValue1.Value&"] that contains illegal use of quotation marks.")
+								Session.Output("Warning: Package [«" &theElement.Stereotype& "» " &theElement.Name&"] tag [" &taggedValueName& "] has a value ["&currentExistingTaggedValue1.Value&"] that contains illegal use of quotation marks.")
 								globalWarningCounter = globalWarningCounter + 1 
 							end if	
 						end if
 					else
-						Session.Output("Error: Package [«" &theElement.Stereotype& "» " &theElement.Name& "] \ tag [" &taggedValueName& "] has no value [/krav/taggedValueSpråk]") 
+						Session.Output("Error: Package [«" &theElement.Stereotype& "» " &theElement.Name& "] tag [" &taggedValueName& "] has no value [19109:2015 /req/multi-lingual/package]") 
 						globalErrorCounter = globalErrorCounter + 1
 					end if
 				end if 						
 			next
 			if UCase(theElement.Stereotype) = UCase("applicationSchema") then
 				if not valueExists then
-					Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] does not have a " &taggedValueName& " tag [/krav/taggedValueSpråk]")
+					Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] does not have a " &taggedValueName& " tag [19109:2015 /req/multi-lingual/package]")
 					globalErrorCounter = globalErrorCounter + 1
-				else
-					if not enDesignation then
-						Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] \ tag [" &taggedValueName& "] lacks a value for English. Expected value ""{English " &taggedValueName& "}""@en [/krav/taggedValueSpråk]")
-						globalErrorCounter = globalErrorCounter + 1
-					end if
+' SOSIREQ - English designation
+'				else
+'					if not enDesignation then
+'						Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] \ tag [" &taggedValueName& "] lacks a value for English. Expected value ""{English " &taggedValueName& "}""@en [/krav/taggedValueSpråk]")
+'						globalErrorCounter = globalErrorCounter + 1
+'					end if
 				end if
 			end if
 		end if 
