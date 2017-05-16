@@ -70,7 +70,7 @@
 '			classes and associations start with upper case 
 '	/krav/SOSI-modellregister/applikasjonsskjema/status
 '			Check if the ApplicationSchema-package got a tagged value named "SOSI_modellstatus" and checks if it is a valid value
-'   /krav/SOSI-modellregister/applikasjonsskjema/versjonsnummer
+'   SOSIREQ /krav/SOSI-modellregister/applikasjonsskjema/versjonsnummer
 '           Check if the last part of the package name is a version number.  Ignores the text "Utkast" for this check
 '   /krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast
 '			Check if packages with SOSI_modellstatus tag "utkast" has "Utkast" in package name. Also do the reverse check.
@@ -99,6 +99,7 @@
 '	/req/general/feature
 ' 			Check that no FeatureTypes inherits from a class named GM_Object or TM_object. 
 '			Not implemented: Check that FeatureTypes within a ApplicationSchema have unique names.
+'	19109:2015 /req/uml/integration
 '			Check correct handling of package dependency and check that there are no applicationSchemas in the package hierarchy below start package for this script.
 '			Not implemented yet: Check of package hierarchy of external referenced packages for more than one applicationSchema. Check of package hierachy above start package for more applicationSchemas.
 '	/krav/17
@@ -2528,75 +2529,76 @@ end sub
 
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' SOSIREQ
 ' Script Name: checkEndingOfPackageName
 ' Author: Sara Henriksen, Åsmund Tjora	
 ' Purpose: check if the package name ends with a version number. The version number could be a date or a serial number. Returns an error if the version 
 ' number contains anything other than 0-2 dots or numbers. 
 ' Packages under development should have the text "Utkast" as the final element, after the version number. 
 ' Date: 25.08.16 (original version) 10.01.17 (Updated version)
-sub checkEndingOfPackageName(thePackage)
-	if UCase(thePackage.Element.Stereotype)="APPLICATIONSCHEMA" then
-		'find the last part of the package name, after "-" 
-		dim startContent, endContent, stringContent, cleanContent 		
-		
-		'remove any "Utkast" part of the name 
-		cleanContent=replace(UCase(thePackage.Name), "UTKAST", "")
-		
-		endContent = len(cleanContent)
-	
-		startContent = InStr(cleanContent, "-") 
-	
-		stringContent = mid(cleanContent, startContent+1, endContent) 	
-		dim versionNumberInPackageName
-		versionNumberInPackageName = false 
-		'count number of dots, only allowed to use max two. 
-		dim dotCounter
-		dotCounter = 0
-
-		'check that the package name contains a "-", and thats it is just number(s) and "." after. 
-		if InStr(thePackage.Name, "-") then 			
-			'if the string is numeric or it has dots, set the valueOk true 
-			if  InStr(stringContent, ".")  or IsNumeric(stringContent)  then
-				versionNumberInPackageName = true 
-				dim i, tegn 
-				for i = 1 to len(stringContent) 
-					tegn = Mid(stringContent,i,1)
-					if tegn = "." then
-						dotCounter = dotCounter  + 1 
-					end if 
-				next 
-				'count number of dots. If it's more than 2 return an error. 
-				if dotCounter < 3 then 
-					versionNumberInPackageName = true
-				else 
-					versionNumberInPackageName = false
-				end if
-			end if 
-		end if 
-
-		'check the string for letters and symbols. If the package name contains one of the following, then return an error. 
-		if inStr(UCase(stringContent), "A") or inStr(UCase(stringContent), "B") or inStr(UCase(stringContent), "C") or inStr(UCase(stringContent), "D") or inStr(UCase(stringContent), "E") or inStr(UCase(stringContent), "F") or inStr(UCase(stringContent), "G") or inStr(UCase(stringContent), "H") or inStr(UCase(stringContent), "I") or inStr(UCase(stringContent), "J") or inStr(UCase(stringContent), "K") or inStr(UCase(stringContent), "L")  then 
-			versionNumberInPackageName = false
-		end if 	
-		if inStr(UCase(stringContent), "M") or inStr(UCase(stringContent), "N") or inStr(UCase(stringContent), "O") or inStr(UCase(stringContent), "P") or inStr(UCase(stringContent), "Q") or inStr(UCase(stringContent), "R") or inStr(UCase(stringContent), "S") or inStr(UCase(stringContent), "T") or inStr(UCase(stringContent), "U") or inStr(UCase(stringContent), "V") or inStr(UCase(stringContent), "W") or inStr(UCase(stringContent), "X") then          
-			versionNumberInPackageName = false
-		end if 
-		if inStr(UCase(stringContent), "Y") or inStr(UCase(stringContent), "Z") or inStr(UCase(stringContent), "Æ") or inStr(UCase(stringContent), "Ø") or inStr(UCase(stringContent), "Å") then 
-			versionNumberInPackageName = false
-		end if 
-		if inStr(stringContent, ",") or inStr(stringContent, "!") or inStr(stringContent, "@") or inStr(stringContent, "%") or inStr(stringContent, "&") or inStr(stringContent, """") or inStr(stringContent, "#") or inStr(stringContent, "$") or inStr(stringContent, "'") or inStr(stringContent, "(") or inStr(stringContent, ")") or inStr(stringContent, "*") or inStr(stringContent, "+") or inStr(stringContent, "/") then        
-			versionNumberInPackageName = false
-		end if
-		if inStr(stringContent, ":") or inStr(stringContent, ";") or inStr(stringContent, ">") or inStr(stringContent, "<") or inStr(stringContent, "=") then
-			versionNumberInPackageName = false
-		end if 
-	
-		if versionNumberInPackageName = false  then  
-			Session.Output("Error: Package ["&thePackage.Name&"] does not have a name ending with a version number. [/krav/SOSI-modellregister/applikasjonsskjema/versjonsnummer]")
-			globalErrorCounter = globalErrorCounter + 1	
-		end if 
-	end if	
-end sub 
+'sub checkEndingOfPackageName(thePackage)
+'	if UCase(thePackage.Element.Stereotype)="APPLICATIONSCHEMA" then
+'		'find the last part of the package name, after "-" 
+'		dim startContent, endContent, stringContent, cleanContent 		
+'		
+'		'remove any "Utkast" part of the name 
+'		cleanContent=replace(UCase(thePackage.Name), "UTKAST", "")
+'		
+'		endContent = len(cleanContent)
+'	
+'		startContent = InStr(cleanContent, "-") 
+'	
+'		stringContent = mid(cleanContent, startContent+1, endContent) 	
+'		dim versionNumberInPackageName
+'		versionNumberInPackageName = false 
+'		'count number of dots, only allowed to use max two. 
+'		dim dotCounter
+'		dotCounter = 0
+'
+'		'check that the package name contains a "-", and thats it is just number(s) and "." after. 
+'		if InStr(thePackage.Name, "-") then 			
+'			'if the string is numeric or it has dots, set the valueOk true 
+'			if  InStr(stringContent, ".")  or IsNumeric(stringContent)  then
+'				versionNumberInPackageName = true 
+'				dim i, tegn 
+'				for i = 1 to len(stringContent) 
+'					tegn = Mid(stringContent,i,1)
+'					if tegn = "." then
+'						dotCounter = dotCounter  + 1 
+'					end if 
+'				next 
+'				'count number of dots. If it's more than 2 return an error. 
+'				if dotCounter < 3 then 
+'					versionNumberInPackageName = true
+'				else 
+'					versionNumberInPackageName = false
+'				end if
+'			end if 
+'		end if 
+'
+'		'check the string for letters and symbols. If the package name contains one of the following, then return an error. 
+'		if inStr(UCase(stringContent), "A") or inStr(UCase(stringContent), "B") or inStr(UCase(stringContent), "C") or inStr(UCase(stringContent), "D") or inStr(UCase(stringContent), "E") or inStr(UCase(stringContent), "F") or inStr(UCase(stringContent), "G") or inStr(UCase(stringContent), "H") or inStr(UCase(stringContent), "I") or inStr(UCase(stringContent), "J") or inStr(UCase(stringContent), "K") or inStr(UCase(stringContent), "L")  then 
+'			versionNumberInPackageName = false
+'		end if 	
+'		if inStr(UCase(stringContent), "M") or inStr(UCase(stringContent), "N") or inStr(UCase(stringContent), "O") or inStr(UCase(stringContent), "P") or inStr(UCase(stringContent), "Q") or inStr(UCase(stringContent), "R") or inStr(UCase(stringContent), "S") or inStr(UCase(stringContent), "T") or inStr(UCase(stringContent), "U") or inStr(UCase(stringContent), "V") or inStr(UCase(stringContent), "W") or inStr(UCase(stringContent), "X") then          
+'			versionNumberInPackageName = false
+'		end if 
+'		if inStr(UCase(stringContent), "Y") or inStr(UCase(stringContent), "Z") or inStr(UCase(stringContent), "Æ") or inStr(UCase(stringContent), "Ø") or inStr(UCase(stringContent), "Å") then 
+'			versionNumberInPackageName = false
+'		end if 
+'		if inStr(stringContent, ",") or inStr(stringContent, "!") or inStr(stringContent, "@") or inStr(stringContent, "%") or inStr(stringContent, "&") or inStr(stringContent, """") or inStr(stringContent, "#") or inStr(stringContent, "$") or inStr(stringContent, "'") or inStr(stringContent, "(") or inStr(stringContent, ")") or inStr(stringContent, "*") or inStr(stringContent, "+") or inStr(stringContent, "/") then        
+'			versionNumberInPackageName = false
+'		end if
+'		if inStr(stringContent, ":") or inStr(stringContent, ";") or inStr(stringContent, ">") or inStr(stringContent, "<") or inStr(stringContent, "=") then
+'			versionNumberInPackageName = false
+'		end if 
+'	
+'		if versionNumberInPackageName = false  then  
+'			Session.Output("Error: Package ["&thePackage.Name&"] does not have a name ending with a version number. [/krav/SOSI-modellregister/applikasjonsskjema/versjonsnummer]")
+'			globalErrorCounter = globalErrorCounter + 1	
+'		end if 
+'	end if	
+'end sub 
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
@@ -3154,7 +3156,7 @@ sub FindInvalidElementsInPackage(package)
 		end if	
 	end if
 
-	call checkEndingOfPackageName(package)
+' SOSIREQ	call checkEndingOfPackageName(package)
 	call checkUtkast(package)
 	
 	call checkSubPackageStereotype(package)
