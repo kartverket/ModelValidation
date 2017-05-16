@@ -78,7 +78,7 @@
 '			To check if a constraint lacks name or definition. 
 '  	/req/uml/packaging:
 '     		To check if the value of the version-tag (tagged values) for an ApplicationSchema-package is empty or not. 
-'	/req/uml/structure
+'	19109:2015 /req/uml/structure
 '			Check that all abstract classes in application schema has at least one instantiable subclass within the same schema.  Check that no classes in application schema has stereotype interface
 '   /anbefaling/1:
 '			Checks every initial values in codeLists and enumerations for a package. If one or more initial values are numeric in one list, 
@@ -2721,7 +2721,7 @@ sub checkUniqueFeatureTypeNames()
 
 sub checkInstantiable(theClass)
 	if (UCase(theClass.Stereotype) = "INTERFACE" or theClass.Type = "Interface") then
-		Session.Output("Error:  Class [«" &theClass.Stereotype& "» " &theClass.Name& "].  Interface stereotype for classes is not allowed in ApplicationSchema. [/req/uml/structure]")
+		Session.Output("Error:  Class [«" &theClass.Stereotype& "» " &theClass.Name& "].  Interface stereotype for classes is not allowed in ApplicationSchema. [19109:2015 /req/uml/structure]")
 		globalErrorCounter = globalErrorCounter + 1
 	end if
 	if theClass.Abstract = "1" then
@@ -2744,7 +2744,7 @@ sub checkInstantiable(theClass)
 			end if
 		next
 		if not (hasSpecializations and specInSameApplicationSchema) then
-			Session.Output("Error: Class [«" &theClass.Stereotype& "» " &theClass.Name& "]. Abstract class does not have any instantiable specializations in the ApplicationSchema. [/req/uml/structure]")
+			Session.Output("Error: Class [«" &theClass.Stereotype& "» " &theClass.Name& "]. Abstract class does not have any instantiable specializations in the ApplicationSchema. [19109:2015 /req/uml/structure]")
 			globalErrorCounter = globalErrorCounter + 1
 		end if
 	end if
