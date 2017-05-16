@@ -54,7 +54,8 @@
 '	/krav/flerspråklighet/element:		
 ' 			if tagged value: "designation", "description" or "definition" exists, the value of the tag must end with "@<language-code>". 
 ' 			Checks attributes, operations, (roles), (constraints) and objecttypes 
-'	/krav/flerspråklighet/pakke:
+'	SOSIREQ /krav/flerspråklighet/pakke:
+'	19109:2015 /req/multi-lingual/package
 '			Check if the ApplicationSchema-package got a tagged value named "language" (error message if that is not the case) 
 '			and if the value of it is empty or not (error message if empty). 
 ' 			And if there are designation-tags, checks that they have correct structure: "{name}"@{language}
@@ -762,28 +763,29 @@ sub checkTVLanguageAndDesignation(theElement, taggedValueName)
  			for packageTaggedValuesCounter = 0 to packageTaggedValues.Count - 1 
  				dim currentTaggedValue as EA.TaggedValue 
  				set currentTaggedValue = packageTaggedValues.GetAt(packageTaggedValuesCounter) 
-				
-				'check if the provided tagged value exist
+
+' SOSIREQ - check for "no" or "en" in [language] tag.				
+'				'check if the provided tagged value exist
 				if (currentTaggedValue.Name = "language") and not (currentTaggedValue.Value= "") then 
 					'check if the value is no or en, if not, retrun a warning 
-					if not mid(StrReverse(currentTaggedValue.Value),1,2) = "ne" and not mid(StrReverse(currentTaggedValue.Value),1,2) = "on" then	
-						if globalLogLevelIsWarning then
-							Session.Output("Warning: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] \ tag ["&currentTaggedvalue.Name& "] has a value which is not <no> or <en>. [/krav/flerspråklighet/pakke][/krav/taggedValueSpråk]")
-							globalWarningCounter = globalWarningCounter + 1 
-						end if
-					end if
+'					if not mid(StrReverse(currentTaggedValue.Value),1,2) = "ne" and not mid(StrReverse(currentTaggedValue.Value),1,2) = "on" then	
+'						if globalLogLevelIsWarning then
+'							Session.Output("Warning: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] \ tag ["&currentTaggedvalue.Name& "] has a value which is not <no> or <en>. [/krav/flerspråklighet/pakke][/krav/taggedValueSpråk]")
+'							globalWarningCounter = globalWarningCounter + 1 
+'						end if
+'					end if
 					taggedValueLanguageMissing = false 
 					exit for 
 				end if   
 				if currentTaggedValue.Name = "language" and currentTaggedValue.Value= "" then 
-					Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] \ tag ["& currentTaggedValue.Name &"] lacks a value. [/krav/flerspråklighet/pakke][/krav/taggedValueSpråk]") 
+					Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] \ tag ["& currentTaggedValue.Name &"] lacks a value. [19109:2015 /req/multi-lingual/package]") '[/krav/taggedValueSpråk] 
 					globalErrorCounter = globalErrorCounter + 1 
 					taggedValueLanguageMissing = false 
 					exit for 
 				end if 
  			next 
 			if taggedValueLanguageMissing then 
-				Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] lacks a [language] tag. [/krav/flerspråklighet/pakke][/krav/taggedValueSpråk]") 
+				Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] lacks a [language] tag. [19109:2015 /req/multi-lingual/package]") '[/krav/taggedValueSpråk] 
 				globalErrorCounter = globalErrorCounter + 1 
 			end if 
 		end if 
@@ -3192,6 +3194,7 @@ sub FindInvalidElementsInPackage(package)
 	end if 
 	'iterate the diagrams in the package and count those named "Hoveddiagram" [/krav/hoveddiagram/detaljering/navning]
 	Call FindHoveddiagramsInAS(package)
+'	SOSIREQ call CheckOversiktsdiagram(package)
 					
 	'check packages' stereotype for right use of lower- and uppercase [/anbefaling/styleGuide] 	
 	call checkStereotypes(package)		 
