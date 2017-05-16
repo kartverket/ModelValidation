@@ -55,7 +55,7 @@
 ' 			if tagged value: "designation", "description" or "definition" exists, the value of the tag must end with "@<language-code>". 
 ' 			Checks attributes, operations, (roles), (constraints) and objecttypes 
 '	SOSIREQ /krav/flerspråklighet/pakke:
-'	19109:2015 /req/multi-lingual/package
+'	19109:2015 /req/multi-lingual/package:
 '			Check if the ApplicationSchema-package got a tagged value named "language" (error message if that is not the case) 
 '			and if the value of it is empty or not (error message if empty). 
 ' 			And if there are designation-tags, checks that they have correct structure: "{name}"@{language}
@@ -851,18 +851,19 @@ sub checkTVLanguageAndDesignation(theElement, taggedValueName)
 					end if
 				end if 						
 			next
-			if UCase(theElement.Stereotype) = UCase("applicationSchema") then
-				if not valueExists then
-					Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] does not have a " &taggedValueName& " tag [19109:2015 /req/multi-lingual/package]")
-					globalErrorCounter = globalErrorCounter + 1
 ' SOSIREQ - English designation
+'			if UCase(theElement.Stereotype) = UCase("applicationSchema") then
+'				if not valueExists then
+'					Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] does not have a " &taggedValueName& " tag [/krav/taggedValueSpråk]")
+'					globalErrorCounter = globalErrorCounter + 1
+'
 '				else
 '					if not enDesignation then
 '						Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] \ tag [" &taggedValueName& "] lacks a value for English. Expected value ""{English " &taggedValueName& "}""@en [/krav/taggedValueSpråk]")
 '						globalErrorCounter = globalErrorCounter + 1
 '					end if
-				end if
-			end if
+'				end if
+'			end if
 		end if 
 	end if
 end sub 
