@@ -99,7 +99,6 @@
 '	/req/general/feature
 ' 			Check that no FeatureTypes inherits from a class named GM_Object or TM_object. 
 '			Not implemented: Check that FeatureTypes within a ApplicationSchema have unique names.
-'	/req/uml/integration
 '			Check correct handling of package dependency and check that there are no applicationSchemas in the package hierarchy below start package for this script.
 '			Not implemented yet: Check of package hierarchy of external referenced packages for more than one applicationSchema. Check of package hierachy above start package for more applicationSchemas.
 '	/krav/17
@@ -2802,7 +2801,7 @@ sub checkPackageDependency(thePackage)
 	for each packageElementID in globalListPackageElementIDsOfPackageDependencies
 		set investigatedPackage=Repository.GetElementByID(packageElementID)
 		if not UCase(investigatedPackage.Stereotype)="APPLICATIONSCHEMA" then
-			Session.Output("Warning: Dependency to package [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] found.  Dependencies shall only be to ApplicationSchema packages or Standard schemas. Ignore this warning if [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] is a standard schema [req/uml/integration]")
+			Session.Output("Warning: Dependency to package [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] found.  Dependencies shall only be to ApplicationSchema packages or Standard schemas. Ignore this warning if [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] is a standard schema [19109:2015 req/uml/integration]")
 			globalWarningCounter = globalWarningCounter + 1
 		end if
 	next
@@ -2988,11 +2987,11 @@ sub findPackagesToBeReferenced()
 		
 		
 		if tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy.count = 0 and tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.count = 0 then
-			Session.Output("Error: Missing dependency for package ["& Repository.GetPackageByID(tempPackageIDOfPotentialPackageToBeReferenced).Name &"] (or any of its superpackages) containing external referenced class [" &currentExternalElement.Name& "] [/req/uml/integration]")
+			Session.Output("Error: Missing dependency for package ["& Repository.GetPackageByID(tempPackageIDOfPotentialPackageToBeReferenced).Name &"] (or any of its superpackages) containing external referenced class [" &currentExternalElement.Name& "] [19109:2015 /req/uml/integration]")
 			globalErrorCounter = globalErrorCounter + 1
 		end if
 		if tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy.count > 0 and tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.count = 0 then
-			Session.Output("Error: Missing dependency for package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [/req/uml/integration]")
+			Session.Output("Error: Missing dependency for package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [19109:2015 /req/uml/integration]")
 			globalErrorCounter = globalErrorCounter + 1
 		end if
 		
@@ -3002,7 +3001,7 @@ sub findPackagesToBeReferenced()
 			packageIDOfFirstAppSchemaPackageFoundInHierarchy = tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)
 			dim packageIDOfReferencedPackage
 			if not tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.contains(packageIDOfFirstAppSchemaPackageFoundInHierarchy) then
-				Session.Output("Error: Missing dependency for package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [/req/uml/integration]")
+				Session.Output("Error: Missing dependency for package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [19109:2015 /req/uml/integration]")
 				Session.Output("       Please exchange the modelled dependency to the following package(s) because of an existing applicationSchema package in the package hierarchy:")
 				globalErrorCounter = globalErrorCounter + 1
 				for each packageIDOfReferencedPackage in tmpListPackageIDsOfReferencedPackagesFoundInHierarchy
@@ -3010,7 +3009,7 @@ sub findPackagesToBeReferenced()
 					
 				next
 			elseif tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.contains(packageIDOfFirstAppSchemaPackageFoundInHierarchy) and tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.count > 1 then
-				Session.Output("Error: Found redundant dependency related to package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [/req/uml/integration]")
+				Session.Output("Error: Found redundant dependency related to package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [19109:2015 /req/uml/integration]")
 				Session.Output("       Please remove additional modelled dependency to the following package(s) in the same package hierarchy:")
 				globalErrorCounter = globalErrorCounter + 1
 				for each packageIDOfReferencedPackage in tmpListPackageIDsOfReferencedPackagesFoundInHierarchy
@@ -3125,7 +3124,7 @@ sub CheckSubPackageStereotype(rootPackage)
 	
 	for each subPackage in subPackageList
 		if UCase(subPackage.Element.Stereotype)="APPLICATIONSCHEMA" then
-			Session.Output("Error: Package [«" &subPackage.Element.Stereotype& "» " &subPackage.Name& "]. Package with stereotype ApplicationSchema cannot contain subpackages with stereotype ApplicationSchema. [/req/uml/integration]")
+			Session.Output("Error: Package [«" &subPackage.Element.Stereotype& "» " &subPackage.Name& "]. Package with stereotype ApplicationSchema cannot contain subpackages with stereotype ApplicationSchema. [19109:2015 /req/uml/integration]")
 			globalErrorCounter = globalErrorCounter + 1
 		end if	
 	next
