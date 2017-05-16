@@ -59,10 +59,10 @@
 '			Check if the ApplicationSchema-package got a tagged value named "language" (error message if that is not the case) 
 '			and if the value of it is empty or not (error message if empty). 
 ' 			And if there are designation-tags, checks that they have correct structure: "{name}"@{language}
-' 	/krav/hoveddiagram/detaljering/navnining 
+' 	SOSIREQ /krav/hoveddiagram/detaljering/navnining 
 '			Check if a package with stereotype applicationSchema has more than one diagram called "Hoveddiagram", if so, checks that theres more characters
 ' 			in the name after "Hoveddiagram". If there is several "Hoveddiagram"s and one or more diagrams just named "Hoveddiagram" it returns an error. 
-'  	/krav/hoveddiagram/navning: 
+'  	SOSIREQ /krav/hoveddiagram/navning: 
 '			Check if an application-schema has less than one diagram named "Hoveddiagram", if so, returns an error 
 ' 	SOSIREQ /krav/oversiktsdiagram:
 '			Check that a package with more than one diagram with name starting with "Hoveddiagram" also has at least one diagram called "Oversiktsdiagram" 
@@ -224,24 +224,24 @@
 														
 								'check uniqueness of featureType names
 								checkUniqueFeatureTypeNames()
-	
+								'SOSIREQ
 								'error-message for /krav/hoveddiagram/navning (sub procedure: CheckPackageForHoveddiagram)
 								'if the applicationSchema package got less than one diagram with a name starting with "Hoveddiagram", then return an error 	
-								if 	not foundHoveddiagram  then
-									Session.Output("Error: Neither package [" &startPackageName& "] nor any of it's subpackages has a diagram with a name starting with 'Hoveddiagram' [/krav/hoveddiagram/navning]")
-									globalErrorCounter = globalErrorCounter + 1 
-					
-								end if 	
-							
+								'if 	not foundHoveddiagram  then
+								'	Session.Output("Error: Neither package [" &startPackageName& "] nor any of it's subpackages has a diagram with a name starting with 'Hoveddiagram' [/krav/hoveddiagram/navning]")
+								'	globalErrorCounter = globalErrorCounter + 1 
+								'
+								'end if 	
+								'SOSIREQ
 								'error-message for /krav/hoveddiagram/detaljering/navning (sub: FindHoveddiagramsInAS)
 								'if the applicationSchema package got more than one diagram named "Hoveddiagram", then return an error 
-								if numberOfHoveddiagram > 1 or (numberOfHoveddiagram = 1 and numberOfHoveddiagramWithAdditionalInformationInTheName > 0) then 
-									dim sumOfHoveddiagram 
-									sumOfHoveddiagram = numberOfHoveddiagram + numberOfHoveddiagramWithAdditionalInformationInTheName
-									Session.Output("Error: Package ["&startPackageName&"] has "&sumOfHoveddiagram&" diagrams named 'Hoveddiagram' and "&numberOfHoveddiagram&" of them named exactly 'Hoveddiagram'. When there are multiple diagrams of that type additional information is expected in the diagrams' name. [/krav/hoveddiagram/detaljering/navning]")
-									globalErrorCounter = globalErrorCounter + 1 
-			
-								end if 
+								'if numberOfHoveddiagram > 1 or (numberOfHoveddiagram = 1 and numberOfHoveddiagramWithAdditionalInformationInTheName > 0) then 
+								'	dim sumOfHoveddiagram 
+								'	sumOfHoveddiagram = numberOfHoveddiagram + numberOfHoveddiagramWithAdditionalInformationInTheName
+								'	Session.Output("Error: Package ["&startPackageName&"] has "&sumOfHoveddiagram&" diagrams named 'Hoveddiagram' and "&numberOfHoveddiagram&" of them named exactly 'Hoveddiagram'. When there are multiple diagrams of that type additional information is expected in the diagrams' name. [/krav/hoveddiagram/detaljering/navning]")
+								'	globalErrorCounter = globalErrorCounter + 1 
+								'
+								'end if 
 								'final report
 								Session.Output("-----Report for package ["&startPackageName&"]-----") 		
 								Session.Output("   Number of errors found: " & globalErrorCounter) 
@@ -1295,6 +1295,7 @@ end sub
 
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' SOSIREQ
 ' Script Name: CheckPackageForHoveddiagram
 ' Author: Sara Henriksen
 ' Date: 03.08.16
@@ -1302,25 +1303,26 @@ end sub
 ' /krav/hoveddiagram/navning
 'sub procedure to check if the given package got one or more diagrams with a name starting with "Hoveddiagram", if not, returns an error 
 '@param[in]: package (EA.package) The package containing diagrams potentially with one or more names without "Hoveddiagram".
-sub CheckPackageForHoveddiagram(package)
-	
-	dim diagrams as EA.Collection
-	set diagrams = package.Diagrams
-	'check all digrams in the package 
-	dim i
-	for i = 0 to diagrams.Count - 1
-		dim currentDiagram as EA.Diagram
-		set currentDiagram = diagrams.GetAt( i )
-		'set foundHoveddiagram true if any diagrams have been found with a name starting with "Hoveddiagram"
-		if Mid((currentDiagram.Name),1,12) = "Hoveddiagram"  then 
-			foundHoveddiagram = true 
-		end if	
-	next
-end sub
+'sub CheckPackageForHoveddiagram(package)
+'	
+'	dim diagrams as EA.Collection
+'	set diagrams = package.Diagrams
+'	'check all digrams in the package 
+'	dim i
+'	for i = 0 to diagrams.Count - 1
+'		dim currentDiagram as EA.Diagram
+'		set currentDiagram = diagrams.GetAt( i )
+'		'set foundHoveddiagram true if any diagrams have been found with a name starting with "Hoveddiagram"
+'		if Mid((currentDiagram.Name),1,12) = "Hoveddiagram"  then 
+'			foundHoveddiagram = true 
+'		end if	
+'	next
+'end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' SOSIREQ
 ' Script Name: FindHoveddiagramsInAS
 ' Author: Sara Henriksen
 ' Date: 03.08.16
@@ -1330,29 +1332,29 @@ end sub
 ' sub procedure to check if the given package and its subpackages has more than one diagram with the provided name, if so, return and error if 
 ' the name of the Diagram is nothing more than "Hoveddiagram".
 '@param[in]: package (EA.package) The package potentially containing diagrams with the provided name
-
-sub FindHoveddiagramsInAS(package)
-	
-	dim diagrams as EA.Collection
-	set diagrams = package.Diagrams
-
-	'find all digrams in the package 
-	dim i
-	for i = 0 to diagrams.Count - 1
-		dim currentDiagram as EA.Diagram
-		set currentDiagram = diagrams.GetAt( i )
-				
-		'if the package got less than one diagram with a name starting with "Hoveddiagram", then return an error 
-		if UCase(Mid((currentDiagram.Name),1,12)) = "HOVEDDIAGRAM" and len(currentDiagram.Name) = 12 then 
-			numberOfHoveddiagram = numberOfHoveddiagram + 1 
-		end if	 
-		
-		'count diagrams named 'Hovediagram'
-		if UCase(Mid((currentDiagram.Name),1,12)) = "HOVEDDIAGRAM" and len(currentDiagram.Name) > 12 then 
-			numberOfHoveddiagramWithAdditionalInformationInTheName = numberOfHoveddiagramWithAdditionalInformationInTheName + 1 
-		end if	 
-	next
-end sub
+'
+'sub FindHoveddiagramsInAS(package)
+'	
+'	dim diagrams as EA.Collection
+'	set diagrams = package.Diagrams
+'
+'	'find all digrams in the package 
+'	dim i
+'	for i = 0 to diagrams.Count - 1
+'		dim currentDiagram as EA.Diagram
+'		set currentDiagram = diagrams.GetAt( i )
+'				
+'		'if the package got less than one diagram with a name starting with "Hoveddiagram", then return an error 
+'		if UCase(Mid((currentDiagram.Name),1,12)) = "HOVEDDIAGRAM" and len(currentDiagram.Name) = 12 then 
+'			numberOfHoveddiagram = numberOfHoveddiagram + 1 
+'		end if	 
+'		
+'		'count diagrams named 'Hovediagram'
+'		if UCase(Mid((currentDiagram.Name),1,12)) = "HOVEDDIAGRAM" and len(currentDiagram.Name) > 12 then 
+'			numberOfHoveddiagramWithAdditionalInformationInTheName = numberOfHoveddiagramWithAdditionalInformationInTheName + 1 
+'		end if	 
+'	next
+'end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 
@@ -3190,12 +3192,14 @@ sub FindInvalidElementsInPackage(package)
 	Call checkValueOfTVVersion( package.Element , "version" ) 
 	'iterate the tagged values collection and check if the applicationSchema package has a tagged value "SOSI_modellstatus" that is valid [/krav/SOSI-modellregister/ applikasjonsskjema/status]
 	Call ValidValueSOSI_modellstatus( package.Element , "SOSI_modellstatus" )
-	'iterate the diagrams and checks if there exists one or more diagram names starting with "Hoveddiagram" if not one has been found already [/krav/hoveddiagram/navning]
-	if 	not foundHoveddiagram  then
-		call CheckPackageForHoveddiagram(package)
-	end if 
-	'iterate the diagrams in the package and count those named "Hoveddiagram" [/krav/hoveddiagram/detaljering/navning]
-	Call FindHoveddiagramsInAS(package)
+' SOSIREQ
+	'	'iterate the diagrams and checks if there exists one or more diagram names starting with "Hoveddiagram" if not one has been found already [/krav/hoveddiagram/navning]
+'	if 	not foundHoveddiagram  then
+'		call CheckPackageForHoveddiagram(package)
+'	end if 
+' SOSIREQ
+'	'iterate the diagrams in the package and count those named "Hoveddiagram" [/krav/hoveddiagram/detaljering/navning]
+'	Call FindHoveddiagramsInAS(package)
 '	SOSIREQ call CheckOversiktsdiagram(package)
 					
 	'check packages' stereotype for right use of lower- and uppercase [/anbefaling/styleGuide] 	
@@ -3566,12 +3570,12 @@ globalLogLevelIsWarning = true 'default setting for warning log level is true
  
 dim startClass as EA.Element  'the class which is the starting point for searching for multiple inheritance in the findMultipleInheritance subroutine 
 dim loopCounterMultipleInheritance 'integer value counting number of loops while searching for multiple inheritance
-dim foundHoveddiagram 'boolean to check if a diagram named Hoveddiagram is found. If found, foundHoveddiagram = true  
-foundHoveddiagram = false 
-dim numberOfHoveddiagram 'number of diagrams named Hoveddiagram
-numberOfHoveddiagram = 0
-dim numberOfHoveddiagramWithAdditionalInformationInTheName 'number of diagrams with a name starting with Hoveddiagram and including additional characters  
-numberOfHoveddiagramWithAdditionalInformationInTheName = 0
+' SOSIREQ dim foundHoveddiagram 'boolean to check if a diagram named Hoveddiagram is found. If found, foundHoveddiagram = true  
+' foundHoveddiagram = false 
+' SOSIREQ dim numberOfHoveddiagram 'number of diagrams named Hoveddiagram
+' numberOfHoveddiagram = 0
+' SOSIREQ dim numberOfHoveddiagramWithAdditionalInformationInTheName 'number of diagrams with a name starting with Hoveddiagram and including additional characters  
+' numberOfHoveddiagramWithAdditionalInformationInTheName = 0
 dim globalErrorCounter 'counter for number of errors 
 globalErrorCounter = 0 
 dim globalWarningCounter
