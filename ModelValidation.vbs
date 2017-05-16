@@ -72,7 +72,7 @@
 '			Check if the ApplicationSchema-package got a tagged value named "SOSI_modellstatus" and checks if it is a valid value
 '   SOSIREQ /krav/SOSI-modellregister/applikasjonsskjema/versjonsnummer
 '           Check if the last part of the package name is a version number.  Ignores the text "Utkast" for this check
-'   /krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast
+'   SOSIREQ /krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast
 '			Check if packages with SOSI_modellstatus tag "utkast" has "Utkast" in package name. Also do the reverse check.
 '  	/req/uml/constraint
 '			To check if a constraint lacks name or definition. 
@@ -2662,53 +2662,54 @@ sub checkUniqueFeatureTypeNames()
 
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' SOSIREQ
 ' Script Name: checkUtkast
 ' Author: Åsmund Tjora	
 ' Purpose: check that packages with "Utkast" as part of the package name also has "Utkast" as SOSI_modellstatus tag and that package with the "Utkast"
 ' SOSI_modellstatus tag also has "Utkast" as part of the name. 
 ' Date: 10.01.17 
-sub checkUtkast(thePackage)
-	dim utkastInName, utkastInTag
-	'check if "Utkast" is part of the name
-	if (len(thePackage.Name)=len(replace(UCase(thePackage.Name),"UTKAST",""))) then utkastInName=false else utkastInName=true
-	'check if "utkast" is part of the SOSI_modellstatus tag
-	dim taggedValuesCounter
-	dim SOSI_modellstatusTag
-	dim currentExistingTaggedValue
-	SOSI_modellstatusTag = "Missing Tag"
-	utkastInTag=false
-	for taggedValuesCounter = 0 to thePackage.Element.TaggedValues.Count - 1
-		set currentExistingTaggedValue = thePackage.Element.TaggedValues.GetAt(taggedValuesCounter)			
-		if currentExistingTaggedValue.Name = "SOSI_modellstatus" then
-			if currentExistingTaggedValue.Value = "utkast" then utkastInTag=true
-			SOSI_modellstatusTag=currentExistingTaggedValue.Value
-		end if
-	next
-	
-	if (utkastInName = true and SOSI_modellstatusTag = "") then
-		Session.Output("Error: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "] has Utkast as part of the name, but the tag [SOSI_modellstatus] has no value. Expected value [utkast]. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
-		globalErrorCounter = globalErrorCounter + 1 
-	elseif (utkastInName = true and SOSI_modellstatusTag = "Missing Tag") then
-		Session.Output("Error: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "] has Utkast as part of the name, but the tag [SOSI_modellstatus] is missing. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
-		globalErrorCounter = globalErrorCounter + 1 	
-	elseif (utkastInName=true and utkastInTag=false) then
-		Session.Output("Error: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "] has Utkast as part of the name, but the tag [SOSI_modellstatus] has the value ["&SOSI_modellstatusTag&"]. Expected value [utkast]. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
-		globalErrorCounter = globalErrorCounter + 1 
-	end if
-
-	if (utkastInName=false and utkastInTag=true) then
-		Session.Output("Error: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "] has [SOSI_modellstatus] tag with utkast value, but Utkast is not part of the package name. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
-		globalErrorCounter = globalErrorCounter + 1 
-	end if 
-
-	'check case of name.
-	if utkastInName and globalLogLevelIsWarning then
-		if not(len(replace(thePackage.Name, "Utkast",""))=len(replace(UCase(thePackage.Name),"UTKAST",""))) then
-			Session.Output("Warning: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "]. Unexpected upper/lower case of the Utkast part of the name. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
-			globalWarningCounter = globalWarningCounter + 1
-		end if
-	end if
-end sub
+'sub checkUtkast(thePackage)
+'	dim utkastInName, utkastInTag
+'	'check if "Utkast" is part of the name
+'	if (len(thePackage.Name)=len(replace(UCase(thePackage.Name),"UTKAST",""))) then utkastInName=false else utkastInName=true
+'	'check if "utkast" is part of the SOSI_modellstatus tag
+'	dim taggedValuesCounter
+'	dim SOSI_modellstatusTag
+'	dim currentExistingTaggedValue
+'	SOSI_modellstatusTag = "Missing Tag"
+'	utkastInTag=false
+'	for taggedValuesCounter = 0 to thePackage.Element.TaggedValues.Count - 1
+'		set currentExistingTaggedValue = thePackage.Element.TaggedValues.GetAt(taggedValuesCounter)			
+'		if currentExistingTaggedValue.Name = "SOSI_modellstatus" then
+'			if currentExistingTaggedValue.Value = "utkast" then utkastInTag=true
+'			SOSI_modellstatusTag=currentExistingTaggedValue.Value
+'		end if
+'	next
+'	
+'	if (utkastInName = true and SOSI_modellstatusTag = "") then
+'		Session.Output("Error: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "] has Utkast as part of the name, but the tag [SOSI_modellstatus] has no value. Expected value [utkast]. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
+'		globalErrorCounter = globalErrorCounter + 1 
+'	elseif (utkastInName = true and SOSI_modellstatusTag = "Missing Tag") then
+'		Session.Output("Error: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "] has Utkast as part of the name, but the tag [SOSI_modellstatus] is missing. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
+'		globalErrorCounter = globalErrorCounter + 1 	
+'	elseif (utkastInName=true and utkastInTag=false) then
+'		Session.Output("Error: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "] has Utkast as part of the name, but the tag [SOSI_modellstatus] has the value ["&SOSI_modellstatusTag&"]. Expected value [utkast]. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
+'		globalErrorCounter = globalErrorCounter + 1 
+'	end if
+'
+'	if (utkastInName=false and utkastInTag=true) then
+'		Session.Output("Error: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "] has [SOSI_modellstatus] tag with utkast value, but Utkast is not part of the package name. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
+'		globalErrorCounter = globalErrorCounter + 1 
+'	end if 
+'
+'	'check case of name.
+'	if utkastInName and globalLogLevelIsWarning then
+'		if not(len(replace(thePackage.Name, "Utkast",""))=len(replace(UCase(thePackage.Name),"UTKAST",""))) then
+'			Session.Output("Warning: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "]. Unexpected upper/lower case of the Utkast part of the name. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
+'			globalWarningCounter = globalWarningCounter + 1
+'		end if
+'	end if
+'end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
@@ -3157,7 +3158,7 @@ sub FindInvalidElementsInPackage(package)
 	end if
 
 ' SOSIREQ	call checkEndingOfPackageName(package)
-	call checkUtkast(package)
+' SOSIREQ	call checkUtkast(package)
 	
 	call checkSubPackageStereotype(package)
 	
