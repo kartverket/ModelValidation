@@ -13,7 +13,7 @@
 
 ' Version: 1.2
 
-' Date: 2017-05-16 
+' Date: 2017-05-16 Kent
 
 ' Purpose: Validate model elements according to rules defined in the standard SOSI Regler for UML-modellering 5.0 
 ' Implemented rules: 
