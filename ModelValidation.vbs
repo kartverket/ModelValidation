@@ -102,9 +102,9 @@
 '	19109:2015 /req/uml/integration
 '			Check correct handling of package dependency and check that there are no applicationSchemas in the package hierarchy below start package for this script.
 '			Not implemented yet: Check of package hierarchy of external referenced packages for more than one applicationSchema. Check of package hierachy above start package for more applicationSchemas.
-'	/krav/17
+'	19103:2015 requirement 17
 '			Check that package dependencies are shown in at least one package diagram. 
-'	/krav/21
+'	19103:2015 requirement 21
 '			Check that existing package diagrams show all existing package dependencies.
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
 ' Project Browser Script main function 
@@ -2794,7 +2794,7 @@ sub checkPackageDependency(thePackage)
 	'		if not globalListPackageElementIDsOfPackageDependencies.Contains(packageElementID) then
 	'			Session.Output("Error: Use of element " & investigatedElement.Name & " from package " & investigatedPackage.Name & " is not listed in model dependencies [/req/uml/integration]")
 	'		else
-			Session.Output("Error: Dependency on package [" & investigatedPackage.Name & "] needed for the use of element [" & investigatedElement.Name & "] is not shown in any package diagram [/krav/17][/krav/21]")
+			Session.Output("Error: Dependency on package [" & investigatedPackage.Name & "] needed for the use of element [" & investigatedElement.Name & "] is not shown in any package diagram [19103:2015 requirement 17][19103:2015 requirement 21]")
 			globalErrorCounter=globalErrorCounter+1 
 	'		end if
 		end if
