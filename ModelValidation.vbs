@@ -1390,7 +1390,7 @@ sub CheckOversiktsdiagram(package)
 end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
-
+'SOSIREQ - code for sub below is obsolete
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
 ' Script Name: checkExternalCodelists
 ' Author: Sara Henriksen
@@ -1400,31 +1400,31 @@ end sub
 ' 2 subs, 
 'sub procedure to check if given codelist got the provided tag with value "true", if so, calls another sub procedure
 '@param[in]: theElement (Attribute Class) and TaggedValueName (String)
-
-sub checkExternalCodelists(theElement,  taggedValueName)
-
-	if taggedValueName = "asDictionary" then 
-
-		if not theElement is nothing and Len(taggedValueName) > 0 then
-
-			'iterate trough all tagged values
-			dim currentExistingTaggedValue AS EA.TaggedValue 
-			dim taggedValuesCounter
-			for taggedValuesCounter = 0 to theElement.TaggedValues.Count - 1
-				set currentExistingTaggedValue = theElement.TaggedValues.GetAt(taggedValuesCounter)
-
-				'check if the tagged value exists 
-				if currentExistingTaggedValue.Name = taggedValueName then
-					'check if the value is "true" and if so, calls the subroutine to searching for codeList tags.
-					if currentExistingTaggedValue.Value = "true" then 
-
-						Call CheckCodelistTV(theElement, "codeList")
-					end if 
-				end if 
-			next
-		end if 
-	end if 
-end sub
+'
+'sub checkExternalCodelists(theElement,  taggedValueName)
+'
+'	if taggedValueName = "asDictionary" then 
+'
+'		if not theElement is nothing and Len(taggedValueName) > 0 then
+'
+'			'iterate trough all tagged values
+'			dim currentExistingTaggedValue AS EA.TaggedValue 
+'			dim taggedValuesCounter
+'			for taggedValuesCounter = 0 to theElement.TaggedValues.Count - 1
+'				set currentExistingTaggedValue = theElement.TaggedValues.GetAt(taggedValuesCounter)
+'
+'				'check if the tagged value exists 
+'				if currentExistingTaggedValue.Name = taggedValueName then
+'					'check if the value is "true" and if so, calls the subroutine to searching for codeList tags.
+'					if currentExistingTaggedValue.Value = "true" then 
+'
+'						Call CheckCodelistTV(theElement, "codeList")
+'					end if 
+'				end if 
+'			next
+'		end if 
+'	end if 
+'end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 
@@ -1443,23 +1443,28 @@ sub CheckCodelistTV (theElement,  taggedValueNAME)
 	for taggedValuesCounter = 0 to theElement.TaggedValues.Count - 1
 		set currentExistingTaggedValue = theElement.TaggedValues.GetAt(taggedValuesCounter)
 		'check if the tagged value exists
-		if currentExistingTaggedValue.Name = taggedValueName then
+		if UCase(currentExistingTaggedValue.Name) = UCase(taggedValueName) then
+			'SOSIREQ - code below is obsolete - START
 			'Session.Output("følgende kodeliste:  " &theElement.Name)
-			taggedValueCodeListMissing = false
+			'taggedValueCodeListMissing = false
+			'SOSIREQ - code above is obsolete - END
 			
 			'if the codeList-value is empty, return an error 
 			if currentExistingTaggedValue.Value = "" then 
-				Session.Output("Error: Class [«"&theElement.Stereotype&"» "&theElement.Name& "] \ tag [codeList] lacks value. [/krav/eksternKodeliste]")
-				globalErrorCounter = globalErrorCounter + 1 
+				if globalLogLevelIsWarning then
+					Session.Output("Warning: Class [«"&theElement.Stereotype&"» "&theElement.Name& "] \ tag ["& taggedValueName &"] lacks value. [ISO19103:2015 Recommendation 4]")
+					globalWarningCounter = globalWarningCounter + 1 
+				end if
 			end if 
 		end if 
 	next
-	
+	'SOSIREQ - code below is obsolete - START
 	'if the tagged value "codeList" is missing for an element(codelist), return an error
-	if taggedValueCodeListMissing then
-		Session.Output("Error: Class [«"&theElement.Stereotype&"» "&theElement.Name& "] lacks a [codeList] tag. [/krav/eksternKodeliste]")
-		globalErrorCounter = globalErrorCounter + 1 
-	end if
+	'if taggedValueCodeListMissing then
+	'	Session.Output("Error: Class [«"&theElement.Stereotype&"» "&theElement.Name& "] lacks a [codeList] tag. [/krav/eksternKodeliste]")
+	'	globalErrorCounter = globalErrorCounter + 1 
+	'end if
+	'SOSIREQ - code above is obsolete - END
 end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
@@ -3354,7 +3359,10 @@ sub FindInvalidElementsInPackage(package)
  											
 			if ((currentElement.Type = "Class") and (UCase(currentElement.Stereotype) = "CODELIST")) then
 				'Check if an external codelist has a real URL in the codeList tag [/krav/eksternKodeliste]
-				Call checkExternalCodelists(currentElement,  "asDictionary")
+				'SOSIREQ - code below is obsolete - START
+				'Call checkExternalCodelists(currentElement,  "asDictionary")
+				'SOSIREQ - code above is obsolete - END
+				Call CheckCodelistTV(currentElement, "codeList")
 			end if 
 					
 					
