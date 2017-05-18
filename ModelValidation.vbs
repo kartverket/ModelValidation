@@ -92,8 +92,9 @@
 '			from iso 19103 - check for valid extended types for attributes (URI etc.), builds on iso 19103 Requirement 22.
 '	/krav/22:      
 '			from iso 19103 - check for valid core types for attributes (CharacterString etc.).
-'	/req/uml/feature
-'			featureType classes shall have unique names within the applicationSchema		
+'	[ISO19109:2015 /req/uml/feature]
+'			featureType classes shall have unique names within the applicationSchema	
+'			Not implemented yet: instances of FeatureType shall have generalization with AnyFeature
 '	/krav/taggedValueSpråk 	
 '			Check that ApplicationSchema packages shall have a language tag. Also check that ApplicationSchema have designation and definition tags in English (i.e. tag value ending with @en)
 '	/req/general/feature
@@ -2610,7 +2611,7 @@ end sub
 ' Author: Magnus Karge
 ' Date: 20170110 
 ' Purpose:  sub procedure to check if a given FeatureType's name is unique within the applicationSchema
-''			(the class name shall be unique within the application schema [/req/uml/feature]) 
+''			(the class name shall be unique within the application schema [ISO19109:2015 /req/uml/feature]) 
 ' 			
 ' @param[in]: 	none - uses only global variables FeatureTypeNames and FeatureTypeElementIDs
 sub checkUniqueFeatureTypeNames()
@@ -2646,7 +2647,7 @@ sub checkUniqueFeatureTypeNames()
 		'generate error messages according to content of the temporary array
 		dim tempStoredFeatureType AS EA.Element
 		if temporaryFeatureTypeArray.count > 1 then
-			Session.Output("Error: Found nonunique names for the following classes. [req/uml/feature] [req/general/feature]")
+			Session.Output("Error: Found nonunique names for the following classes. [ISO19109:2015 /req/uml/feature] & [req/general/feature]")
 			'counting one error per name conflict (not one error per class with nonunique name)
 			globalErrorCounter = globalErrorCounter + 1
 			for each tempStoredFeatureType in temporaryFeatureTypeArray
