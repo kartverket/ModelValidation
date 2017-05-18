@@ -1654,7 +1654,7 @@ sub reqGeneralFeature(currentElement, startClass)
 					set superClass = Repository.GetElementByID(connector.SupplierID)
 
 					if UCASE(superClass.Name) = "GM_OBJECT" or UCASE(superClass.Name) = "TM_OBJECT" and UCASE(currentElement.Stereotype) = "FEATURETYPE" and UCASE(superClass.Stereotype) = "FEATURETYPE" then
-					session.output("Error: Class [" & startClass.Name & "] inherits from class [" & superclass.name & "] [req/general/feature]")
+					session.output("Error: Class [" & startClass.Name & "] inherits from class [" & superclass.name & "] [ISO19109:2015 /req/general/feature]")
 					globalErrorCounter = globalErrorCounter + 1
 					else call reqGeneralFeature(superClass, startClass)
 					end if
