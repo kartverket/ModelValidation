@@ -51,9 +51,12 @@
 '			Some parts missing. 2 subs.
 '	/krav/enkelArv
 ' 			To check each class for multiple inheritance 
-'	/krav/flerspråklighet/element:		
+'	SOSIREQ /krav/flerspråklighet/element:		
 ' 			if tagged value: "designation", "description" or "definition" exists, the value of the tag must end with "@<language-code>". 
 ' 			Checks attributes, operations, (roles), (constraints) and objecttypes 
+'   19109:2015 /req/multi-lingual/feature:
+' 			if tagged value: "designation", "description" or "definition" exists, the value of the tag must end with "@<language-code>". 
+' 			Checks FeatureType and PropertyType (attributes, operations, roles) 
 '	SOSIREQ /krav/flerspråklighet/pakke:
 '	19109:2015 /req/multi-lingual/package:
 '			Check if the ApplicationSchema-package got a tagged value named "language" (error message if that is not the case) 
@@ -872,12 +875,12 @@ end sub
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
 ' Script Name: structurOfTVforElement
-' Author: Sara Henriksen
-' Date: 26.07.16	
-' Purpose: Check that the value of a designation/description/definition tag got the structure “{value}”@{landcode}. 
+' Original author (SOSI version): Sara Henriksen
+' Date: 18.05.17	
+' Purpose: Check that the value of a designation/description/definition tag got the structure “{value}”@{langcode}. 
 ' Implemented for objecttypes, attributes, roles and operations.
 ' Two subs, where structurOfTVforElement calls structureOfTVConnectorEnd if the parameter is a connector
-' krav/flerspråklighet/element 
+' req/multi-lingual/feature
 ' sub procedure to find the provided tags for a connector, and if they exist, check the structure of the value.   
 ' @param[in]: theConnectorEnd (EA.Connector), taggedValueName (string) theConnectorEnd is potencially having tags: description, designation, definition, 
 ' with a value with wrong structure. 
@@ -895,8 +898,8 @@ sub structureOfTVConnectorEnd(theConnectorEnd,  taggedValueName)
 			'if the tagged values exist, check the structure of the value 
 			if currentExistingTaggedValue.Tag = taggedValueName then
 				'check if the structure of the tag is: "{value}"@{languagecode}
-				if not (mid(StrReverse(currentExistingTaggedValue.Value), 1,4)) = "ne@"""  and not (mid(StrReverse(currentExistingTaggedValue.Value), 1,4)) = "on@""" or not (mid((currentExistingTaggedValue.Value),1,1)) = """" then
-					Session.Output("Error: Role [" &theConnectorEnd.Role& "] \ tag [" &currentExistingTaggedValue.Tag& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [/krav/flerspråklighet/element]")
+				if not (InStr(currentExistingTaggedValue.Value,"""@")>=2 and InStr(currentExistingTaggedValue.Value,"""") =1 ) then
+					Session.Output("Error: Role [" &theConnectorEnd.Role& "] tag [" &currentExistingTaggedValue.Tag& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [19109:2015 /req/multi-lingual/feature]")
 					globalErrorCounter = globalErrorCounter + 1 
 				end if 
 			end if 
@@ -908,7 +911,7 @@ end sub
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
 'sub procedure to find the provided tags and if they exist, check the structure of the value.   
-'@param[in]: theElement (EA.ObjectType), taggedValueName (string) The object to check against krav/flerspråklighet/pakke,  
+'@param[in]: theElement (EA.ObjectType), taggedValueName (string) The object to check against req/multi-lingual/feature,  
 'supposed to be one of the following types: EA.Element, EA.Attribute, EA.Method, EA.Connector 
 sub structurOfTVforElement (theElement, taggedValueName)
 
@@ -923,7 +926,7 @@ sub structurOfTVforElement (theElement, taggedValueName)
 
 			if currentExistingTaggedValue.Name = taggedValueName then
 				'check the structure of the tag: "{value}"@{languagecode}
-				if not (mid(StrReverse(currentExistingTaggedValue.Value), 1,4)) = "ne@"""  and not (mid(StrReverse(currentExistingTaggedValue.Value), 1,4)) = "on@""" or not (mid((currentExistingTaggedValue.Value),1,1)) = """" then
+				if not (InStr(currentExistingTaggedValue.Value,"""@")>=2 and InStr(currentExistingTaggedValue.Value,"""") =1 ) then
 					Dim currentElement as EA.Element
 					Dim currentAttribute as EA.Attribute
 					Dim currentOperation as EA.Method
@@ -933,7 +936,7 @@ sub structurOfTVforElement (theElement, taggedValueName)
 						Case otElement 
 							set currentElement = theElement 
 						
-							Session.Output("Error: Class [«"&theElement.Stereotype&"» " &theElement.Name& "] \ tag [" &currentExistingTaggedValue.Name& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [/krav/flerspråklighet/element]")
+							Session.Output("Error: Class [«"&theElement.Stereotype&"» " &theElement.Name& "] tag [" &currentExistingTaggedValue.Name& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [19109:2015 /req/multi-lingual/feature]")
 							globalErrorCounter = globalErrorCounter + 1 
 						
 						'case attribute
@@ -944,7 +947,7 @@ sub structurOfTVforElement (theElement, taggedValueName)
 							dim parentElementOfAttribute as EA.Element
 							set parentElementOfAttribute = Repository.GetElementByID(currentAttribute.ParentID)
 						
-							Session.Output("Error: Class [«"& parentElementOfAttribute.Stereotype &"» "& parentElementOfAttribute.Name &"\ attribute [" &theElement.Name& "] \ tag [" &currentExistingTaggedValue.Name& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [/krav/flerspråklighet/element]")
+							Session.Output("Error: Class [«"& parentElementOfAttribute.Stereotype &"» "& parentElementOfAttribute.Name &" attribute [" &theElement.Name& "] tag [" &currentExistingTaggedValue.Name& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [19109:2015 /req/multi-lingual/feature]")
 							globalErrorCounter = globalErrorCounter + 1 
 						
 						'case operation
@@ -955,7 +958,7 @@ sub structurOfTVforElement (theElement, taggedValueName)
 							dim parentElementOfOperation as EA.Element
 							set parentElementOfOperation = Repository.GetElementByID(currentOperation.ParentID)
 						
-							Session.Output("Error: Class [«"& parentElementOfOperation.Stereotype &"» "& parentElementOfOperation.Name &"\ operation [" &theElement.Name& "] \ tag [" &currentExistingTaggedValue.Name& "] has a value: " &currentExistingTaggedValue.Value& " with wrong structure. Expected structure: ""{Name}""@{language}. [/krav/flerspråklighet/element]")
+							Session.Output("Error: Class [«"& parentElementOfOperation.Stereotype &"» "& parentElementOfOperation.Name &" operation [" &theElement.Name& "] tag [" &currentExistingTaggedValue.Name& "] has a value: " &currentExistingTaggedValue.Value& " with wrong structure. Expected structure: ""{Name}""@{language}. [19109:2015 /req/multi-lingual/feature]")
 							globalErrorCounter = globalErrorCounter + 1 
 
 					end select 	
@@ -3353,7 +3356,7 @@ sub FindInvalidElementsInPackage(package)
 			loopCounterMultipleInheritance = 0
 			Call findMultipleInheritance(currentElement) 
  					 
-			'check the structure of the value for tag values: designation, description and definition [/krav/flerspråklighet/element]
+			'check the structure of the value for tag values: designation, description and definition [19109:2015 /req/multi-lingual/feature]
 			if UCase(currentElement.Stereotype) = "FEATURETYPE" then 
 				Call structurOfTVforElement( currentElement, "description")
 				Call structurOfTVforElement( currentElement, "designation") 
@@ -3389,7 +3392,7 @@ sub FindInvalidElementsInPackage(package)
 					'check if the attribute has a definition									 
 					'Call the subfunction with currentAttribute as parameter 
 					CheckDefinition(currentAttribute) 
-					'check the structure of the value for tagged values: designation, description and definition [/krav/flerspråklighet/element]
+					'check the structure of the value for tagged values: designation, description and definition [19109 /req/multi-lingual/feature]
 					Call structurOfTVforElement( currentAttribute, "description")
 					Call structurOfTVforElement( currentAttribute, "designation")
 					Call structurOfTVforElement( currentAttribute, "definition") 
@@ -3540,7 +3543,7 @@ sub FindInvalidElementsInPackage(package)
 					dim currentOperation as EA.Method		 
 					set currentOperation = operationsCollection.GetAt(operationCounter) 
  								
-					'check the structure of the value for tag values: designation, description and definition [/krav/flerspråklighet/element]
+					'check the structure of the value for tag values: designation, description and definition [19109 /req/multi-lingual/feature]
 					Call structurOfTVforElement(currentOperation, "description")
 					Call structurOfTVforElement(currentOperation, "designation")
 					Call structurOfTVforElement(currentOperation, "definition")
