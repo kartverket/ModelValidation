@@ -49,7 +49,7 @@
 '	/krav/eksternKodeliste
 ' 			Check if the coedlist has an asDictionary with value "true", if so, checks if the taggedValue "codeList" exist and if the value is valid or not.
 '			Some parts missing. 2 subs.
-'	/krav/enkelArv
+'	SOSIREQ /krav/enkelArv
 ' 			To check each class for multiple inheritance 
 '	SOSIREQ /krav/flerspråklighet/element:		
 ' 			if tagged value: "designation", "description" or "definition" exists, the value of the tag must end with "@<language-code>". 
@@ -674,6 +674,7 @@ end sub
 
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' SOSIREQ
 ' Sub name: findMultipleInheritance
 ' Author: Sara Henriksen
 ' Date: 14.07.16 
@@ -681,62 +682,62 @@ end sub
 ' 			Implementation of /krav/enkelArv
 ' 			
 ' @param[in]: currentElement (EA.Element). The "class" to check 
- 
-sub findMultipleInheritance(currentElement) 
- 
-	loopCounterMultipleInheritance = loopCounterMultipleInheritance + 1 
- 	dim connectors as EA.Collection  
-  	set connectors = currentElement.Connectors  
-  					  
-  	'iterate the connectors  
-  					 
-  	dim connectorsCounter  
- 	dim numberOfSuperClasses  
- 	numberOfSuperClasses = 0  
- 	dim theTargetGeneralization as EA.Connector 
- 	set theTargetGeneralization = nothing 
- 					 
-	for connectorsCounter = 0 to connectors.Count - 1  
-		dim currentConnector as EA.Connector  
-		set currentConnector = connectors.GetAt( connectorsCounter )  
- 						 
- 						 
-		'check if the connector type is "Generalization" and if so 
-		'get the element on the source end of the connector   
-		if currentConnector.Type = "Generalization"  then 
-			if currentConnector.ClientID = currentElement.ElementID then  
- 					 
-				'count number of classes with a generalization connector on the source side  
-				numberOfSuperClasses = numberOfSuperClasses + 1  
-				set theTargetGeneralization = currentConnector  
-			end if  
-		end if 
-
-		'if theres more than one generalization connecter on the source side the class has multiple inheritance 
-		if numberOfSuperClasses > 1 then 
-			Session.Output("Error: Class [«"&startClass.Stereotype&"» "&startClass.Name& "] has multiple inheritance. [/krav/enkelarv]") 
-			globalErrorCounter = globalErrorCounter + 1 
-			exit for  
-		end if  
-	next 
- 					 
-	' if there is just one generalization connector on the source side, start checking genralization connectors for the superclasses  
-	' stop if number of loops exceeds 20
-	if numberOfSuperClasses = 1 and not theTargetGeneralization is nothing and loopCounterMultipleInheritance < 21 then 
- 				
-		dim superClassID  
-		dim superClass as EA.Element 
-		'the elementID of the element at the target end 
-		superClassID =  theTargetGeneralization.SupplierID  
-		set superClass = Repository.GetElementByID(superClassID) 
-
-		'Check level of superClass 
-		call findMultipleInheritance (superClass) 
-		elseif loopCounterMultipleInheritance = 21 then 
-			Session.Output("Warning: Found more than 20 inheritance levels for class: [" &startClass.Name& "] while testing [/krav/enkelarv]. Please check for possible circle inheritance")
-			globalWarningCounter = globalWarningCounter + 1 
-	end if  
- end sub 
+'
+'sub findMultipleInheritance(currentElement) 
+'
+'	loopCounterMultipleInheritance = loopCounterMultipleInheritance + 1 
+'	dim connectors as EA.Collection  
+'  	set connectors = currentElement.Connectors  
+' 					  
+'  	'iterate the connectors  
+'  					 
+'  	dim connectorsCounter  
+' 	dim numberOfSuperClasses  
+' 	numberOfSuperClasses = 0  
+' 	dim theTargetGeneralization as EA.Connector 
+' 	set theTargetGeneralization = nothing 
+' 					 
+'	for connectorsCounter = 0 to connectors.Count - 1  
+'		dim currentConnector as EA.Connector  
+'		set currentConnector = connectors.GetAt( connectorsCounter )  
+'						 
+'						 
+'		'check if the connector type is "Generalization" and if so 
+'		'get the element on the source end of the connector   
+'		if currentConnector.Type = "Generalization"  then 
+'			if currentConnector.ClientID = currentElement.ElementID then  
+'					 
+'				'count number of classes with a generalization connector on the source side  
+'				numberOfSuperClasses = numberOfSuperClasses + 1  
+'				set theTargetGeneralization = currentConnector  
+'			end if  
+'		end if 
+'
+'		'if theres more than one generalization connecter on the source side the class has multiple inheritance 
+'		if numberOfSuperClasses > 1 then 
+'			Session.Output("Error: Class [«"&startClass.Stereotype&"» "&startClass.Name& "] has multiple inheritance. [/krav/enkelarv]") 
+'			globalErrorCounter = globalErrorCounter + 1 
+'			exit for  
+'		end if  
+'	next 
+'
+'	' if there is just one generalization connector on the source side, start checking genralization connectors for the superclasses  
+'	' stop if number of loops exceeds 20
+'	if numberOfSuperClasses = 1 and not theTargetGeneralization is nothing and loopCounterMultipleInheritance < 21 then 
+'				
+'		dim superClassID  
+'		dim superClass as EA.Element 
+'		'the elementID of the element at the target end 
+'		superClassID =  theTargetGeneralization.SupplierID  
+'		set superClass = Repository.GetElementByID(superClassID) 
+'
+'		'Check level of superClass 
+'		call findMultipleInheritance (superClass) 
+'		elseif loopCounterMultipleInheritance = 21 then 
+'			Session.Output("Warning: Found more than 20 inheritance levels for class: [" &startClass.Name& "] while testing [/krav/enkelarv]. Please check for possible circle inheritance")
+'			globalWarningCounter = globalWarningCounter + 1 
+'	end if  
+'end sub 
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 
@@ -876,6 +877,7 @@ end sub
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
 ' Script Name: structurOfTVforElement
 ' Original author (SOSI version): Sara Henriksen
+' Adaption to ISO19109:2015 version:  Åsmund Tjora
 ' Date: 18.05.17	
 ' Purpose: Check that the value of a designation/description/definition tag got the structure “{value}”@{langcode}. 
 ' Implemented for objecttypes, attributes, roles and operations.
@@ -3353,8 +3355,9 @@ sub FindInvalidElementsInPackage(package)
 			'check if there is there is multiple inheritance for the class element (/krav/enkelArv) 
 			'initialize the global variable startClass which is needed in subroutine findMultipleInheritance 
 			set startClass = currentElement 
-			loopCounterMultipleInheritance = 0
-			Call findMultipleInheritance(currentElement) 
+' SOSIREQ
+'			loopCounterMultipleInheritance = 0
+'			Call findMultipleInheritance(currentElement) 
  					 
 			'check the structure of the value for tag values: designation, description and definition [19109:2015 /req/multi-lingual/feature]
 			if UCase(currentElement.Stereotype) = "FEATURETYPE" then 
@@ -3572,7 +3575,8 @@ dim globalLogLevelIsWarning 'boolean variable indicating if warning log level ha
 globalLogLevelIsWarning = true 'default setting for warning log level is true
  
 dim startClass as EA.Element  'the class which is the starting point for searching for multiple inheritance in the findMultipleInheritance subroutine 
-dim loopCounterMultipleInheritance 'integer value counting number of loops while searching for multiple inheritance
+' SOSIREQ
+' dim loopCounterMultipleInheritance 'integer value counting number of loops while searching for multiple inheritance
 ' SOSIREQ dim foundHoveddiagram 'boolean to check if a diagram named Hoveddiagram is found. If found, foundHoveddiagram = true  
 ' foundHoveddiagram = false 
 ' SOSIREQ dim numberOfHoveddiagram 'number of diagrams named Hoveddiagram
