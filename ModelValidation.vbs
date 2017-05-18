@@ -99,7 +99,7 @@
 '			from iso 19103 - check for valid core types for attributes (CharacterString etc.).
 '	/req/uml/feature
 '			featureType classes shall have unique names within the applicationSchema		
-'	/krav/taggedValueSpråk 	
+'	SOSIREQ	/krav/taggedValueSpråk 	(See 19109:2015 /req/multi-lingual/package)
 '			Check that ApplicationSchema packages shall have a language tag. Also check that ApplicationSchema have designation and definition tags in English (i.e. tag value ending with @en)
 '	/req/general/feature
 ' 			Check that no FeatureTypes inherits from a class named GM_Object or TM_object. 
@@ -983,6 +983,7 @@ end sub
 ' Author: Sara Henriksen
 ' Date: 25.07.16 
 ' Purpose: To check if the value of the version-tag (tagged values) for an ApplicationSchema-package is empty or not. 
+' 19109:2015 /req/uml/packaging
 ' sub procedure to check if the tagged value with the provided name exist in the ApplicationSchema, and if the value is emty it returns an Error-message. 
 ' @param[in]: theElement (Element Class) and TaggedValueName (String) 
 sub checkValueOfTVVersion(theElement, taggedValueName)
@@ -1004,6 +1005,7 @@ sub checkValueOfTVVersion(theElement, taggedValueName)
 					'remove spaces before and after a string, if the value only contains blanks  the value is empty
 					currentExistingTaggedValue.Value = Trim(currentExistingTaggedValue.Value)
 					if len (currentExistingTaggedValue.Value) = 0 then 
+						Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] has an empty version-tag. [19109:2015 /req/uml/packaging]")
 						globalErrorCounter = globalErrorCounter + 1 
 						taggedValueVersionMissing = false 
 					else
@@ -1014,6 +1016,7 @@ sub checkValueOfTVVersion(theElement, taggedValueName)
 			next
 			'if tagged value version lacks for the package, return an error 
 			if taggedValueVersionMissing then
+				Session.Output ("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] lacks a [version] tag. [19109:2015 /req/uml/packaging]")
 				globalErrorCounter = globalErrorCounter + 1 
 			end if
 		end if 
