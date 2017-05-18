@@ -81,7 +81,7 @@
 '			Check if packages with SOSI_modellstatus tag "utkast" has "Utkast" in package name. Also do the reverse check.
 '  	/req/uml/constraint
 '			To check if a constraint lacks name or definition. 
-'  	/req/uml/packaging:
+'  	19109:2015 /req/uml/packaging:
 '     		To check if the value of the version-tag (tagged values) for an ApplicationSchema-package is empty or not. 
 '	19109:2015 /req/uml/structure
 '			Check that all abstract classes in application schema has at least one instantiable subclass within the same schema.  Check that no classes in application schema has stereotype interface
@@ -983,7 +983,6 @@ end sub
 ' Author: Sara Henriksen
 ' Date: 25.07.16 
 ' Purpose: To check if the value of the version-tag (tagged values) for an ApplicationSchema-package is empty or not. 
-' req/uml/packaging
 ' sub procedure to check if the tagged value with the provided name exist in the ApplicationSchema, and if the value is emty it returns an Error-message. 
 ' @param[in]: theElement (Element Class) and TaggedValueName (String) 
 sub checkValueOfTVVersion(theElement, taggedValueName)
@@ -1005,7 +1004,6 @@ sub checkValueOfTVVersion(theElement, taggedValueName)
 					'remove spaces before and after a string, if the value only contains blanks  the value is empty
 					currentExistingTaggedValue.Value = Trim(currentExistingTaggedValue.Value)
 					if len (currentExistingTaggedValue.Value) = 0 then 
-						Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] has an empty version-tag. [req/uml/packaging]")
 						globalErrorCounter = globalErrorCounter + 1 
 						taggedValueVersionMissing = false 
 					else
@@ -1016,7 +1014,6 @@ sub checkValueOfTVVersion(theElement, taggedValueName)
 			next
 			'if tagged value version lacks for the package, return an error 
 			if taggedValueVersionMissing then
-				Session.Output ("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] lacks a [version] tag. [req/uml/packaging]")
 				globalErrorCounter = globalErrorCounter + 1 
 			end if
 		end if 
