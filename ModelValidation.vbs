@@ -3558,7 +3558,7 @@ sub FindInvalidElementsInPackage(package)
 								
 					'check if the operations's name starts with lower case 
 					'TODO: this rule does not apply for constructor operation 
-					if globalLogLevelIsWarning
+					if globalLogLevelIsWarning then
 						if not Left(currentOperation.Name,1) = LCase(Left(currentOperation.Name,1)) then 
 							Session.Output("Warning: Operation name [" & currentOperation.Name & "] in class ["&currentElement.Name&"] should not start with capital letter. [19103:2015 recommendation 11]") 
 							globalWarningCounter = globalWarningCounter + 1 
