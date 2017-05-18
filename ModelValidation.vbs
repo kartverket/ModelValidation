@@ -74,13 +74,13 @@
 '           Check if the last part of the package name is a version number.  Ignores the text "Utkast" for this check
 '   /krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast
 '			Check if packages with SOSI_modellstatus tag "utkast" has "Utkast" in package name. Also do the reverse check.
-'  	/req/uml/constraint
+'  	[ISO19109:2015 /req/uml/constraint]
 '			To check if a constraint lacks name or definition. 
 '  	/req/uml/packaging:
 '     		To check if the value of the version-tag (tagged values) for an ApplicationSchema-package is empty or not. 
 '	/req/uml/structure
 '			Check that all abstract classes in application schema has at least one instantiable subclass within the same schema.  Check that no classes in application schema has stereotype interface
-'   /anbefaling/1:
+'   [ISO19103:2015 Recommendation 1]:
 '			Checks every initial values in codeLists and enumerations for a package. If one or more initial values are numeric in one list, 
 ' 			it return a warning message. 
 '  	/anbefaling/styleGuide:
@@ -1018,10 +1018,10 @@ end sub
 ' Author: Sara Henriksen
 ' Date: 26.08.16
 ' Purpose: to check if a constraint lacks name or definition. 
-' req/uml/constraint & [ISO19109:2015 /req/uml/documentation]
+' [ISO19109:2015 /req/uml/constraint] & [ISO19109:2015 /req/uml/documentation]
 ' sub procedure to check the current element/attribute/connector/package for constraints without name or definition
 ' not sure if it is possible in EA that constraints without names can exist, checking it anyways
-' @param[in]: currentConstraint (EA.Constraint) theElement (EA.ObjectType) The object to check against req/uml/constraint,  
+' @param[in]: currentConstraint (EA.Constraint) theElement (EA.ObjectType) The object to check against [ISO19109:2015 /req/uml/constraint],  
 ' supposed to be one of the following types: EA.Element, EA.Attribute, EA.Connector, EA.package
 
 sub checkConstraint(currentConstraint, theElement)
@@ -1039,13 +1039,13 @@ sub checkConstraint(currentConstraint, theElement)
 		
 		'if the current constraint lacks definition, then return an error
 		if currentConstraint.Notes= "" then 
-			Session.Output("Error: Class [«"&theElement.Stereotype&"» "&theElement.Name&"] \ constraint [" &currentConstraint.Name&"] lacks definition. [/req/uml/constraint] & [ISO19109:2015 /req/uml/documentation]")
+			Session.Output("Error: Class [«"&theElement.Stereotype&"» "&theElement.Name&"] \ constraint [" &currentConstraint.Name&"] lacks definition. [ISO19109:2015 /req/uml/constraint] & [ISO19109:2015 /req/uml/documentation]")
 			globalErrorCounter = globalErrorCounter + 1 
 		end if 
 		
 		'if the current constraint lacks a name, then return an error 
 		if currentConstraint.Name = "" then
-			Session.Output("Error: Class [«" &theElement.Stereotype& "» "&currentElement.Name& "] has a constraint without a name. [/req/uml/constraint]")
+			Session.Output("Error: Class [«" &theElement.Stereotype& "» "&currentElement.Name& "] has a constraint without a name. [ISO19109:2015 /req/uml/constraint]")
 			globalErrorCounter = globalErrorCounter + 1 
 		end if 
 		
@@ -1059,13 +1059,13 @@ sub checkConstraint(currentConstraint, theElement)
 		dim parentElementOfAttribute AS EA.Element
 		set parentElementOfAttribute = Repository.GetElementByID(parentElementID)
 		if currentConstraint.Notes= "" then 
-			Session.Output("Error: Class ["&parentElementOfAttribute.Name&"] \ attribute ["&theElement.Name&"] \ constraint [" &currentConstraint.Name&"] lacks definition. [/req/uml/constraint] & [ISO19109:2015 /req/uml/documentation]")
+			Session.Output("Error: Class ["&parentElementOfAttribute.Name&"] \ attribute ["&theElement.Name&"] \ constraint [" &currentConstraint.Name&"] lacks definition. [ISO19109:2015 /req/uml/constraint] & [ISO19109:2015 /req/uml/documentation]")
 			globalErrorCounter = globalErrorCounter + 1 
 		end if 
 		
 		'if the current constraint lacks a name, then return an error 	
 		if currentConstraint.Name = "" then
-			Session.Output("Error: Attribute ["&theElement.Name& "] has a constraint without a name. [/req/uml/constraint]")
+			Session.Output("Error: Attribute ["&theElement.Name& "] has a constraint without a name. [ISO19109:2015 /req/uml/constraint]")
 			globalErrorCounter = globalErrorCounter + 1 
 		end if 
 		
@@ -1074,13 +1074,13 @@ sub checkConstraint(currentConstraint, theElement)
 		
 		'if the current constraint lacks definition, then return an error message
 		if currentConstraint.Notes= "" then 
-			Session.Output("Error: Package [«"&theElement.Element.Stereotype&"» "&theElement.Name&"] \ constraint [" &currentConstraint.Name&"] lacks definition. [/req/uml/constraint] & [ISO19109:2015 /req/uml/documentation]")
+			Session.Output("Error: Package [«"&theElement.Element.Stereotype&"» "&theElement.Name&"] \ constraint [" &currentConstraint.Name&"] lacks definition. [ISO19109:2015 /req/uml/constraint] & [ISO19109:2015 /req/uml/documentation]")
 			globalErrorCounter = globalErrorCounter + 1 
 		end if 
 		
 		'if the current constraint lacks a name, then return an error meessage		
 		if currentConstraint.Name = "" then
-			Session.Output("Error: Package [«" &theElement.Element.Stereotype&"» " &currentElement.Name& "] has a constraint without a name. [/req/uml/constraint]")
+			Session.Output("Error: Package [«" &theElement.Element.Stereotype&"» " &currentElement.Name& "] has a constraint without a name. [ISO19109:2015 /req/uml/constraint]")
 			globalErrorCounter = globalErrorCounter + 1 
 		end if 
 			
@@ -1100,13 +1100,13 @@ sub checkConstraint(currentConstraint, theElement)
 			dim targetElementOfConnector AS EA.Element
 			set targetElementOfConnector = Repository.GetElementByID(targetElementID)
 		
-			Session.Output("Error: Constraint [" &currentConstraint.Name&"] owned by connector [ "&theElement.Name&"] between class ["&sourceElementOfConnector.Name&"] and class ["&targetElementOfConnector.Name&"] lacks definition. [/req/uml/constraint] & [ISO19109:2015 /req/uml/documentation]")
+			Session.Output("Error: Constraint [" &currentConstraint.Name&"] owned by connector [ "&theElement.Name&"] between class ["&sourceElementOfConnector.Name&"] and class ["&targetElementOfConnector.Name&"] lacks definition. [ISO19109:2015 /req/uml/constraint] & [ISO19109:2015 /req/uml/documentation]")
 			globalErrorCounter = globalErrorCounter + 1 
 		end if 
 		
 		'if the current constraint lacks a name, then return an error message		
 		if currentConstraint.Name = "" then
-			Session.Output("Error: Connector [" &theElement.Name& "] has a constraint without a name. [/req/uml/constraint]")
+			Session.Output("Error: Connector [" &theElement.Name& "] has a constraint without a name. [ISO19109:2015 /req/uml/constraint]")
 			globalErrorCounter = globalErrorCounter + 1 
 		
 		end if
@@ -1169,7 +1169,7 @@ end sub
 ' Author: Sara Henriksen
 ' Date: 27.07.16
 ' Purpose: checks every initial values in  codeLists and enumerations for a package. Returns a warning for each attribute with intitial value that is numeric 
-' /anbefaling/1
+' [ISO19103:2015 Recommendation 1] 
 'sub procedure to check if the initial values of the attributes in a CodeList/enumeration are numeric or not. 
 '@param[in]: theElement (EA.element) The element containing  attributes with potentially numeric inital values 
 sub checkNumericinitialValues(theElement)
@@ -1182,7 +1182,7 @@ sub checkNumericinitialValues(theElement)
 		'check if the initial values are numeric 
 		if IsNumeric(attr.Default)   then
 			if globalLogLevelIsWarning then	
-				Session.Output("Warning: Class [«"&theElement.Stereotype&"» "&theElement.Name&"] \ attribute [" &attr.Name& "] has numeric initial value [" &attr.Default& "] that is probably meaningless. Recommended to use script <flyttInitialverdiPåKodelistekoderTilSOSITag>. [/anbefaling/1]")		
+				Session.Output("Warning: Class [«"&theElement.Stereotype&"» "&theElement.Name&"] \ attribute [" &attr.Name& "] has numeric initial value [" &attr.Default& "] that is probably meaningless. [ISO19103:2015 Recommendation 1]")		
 				globalWarningCounter = globalWarningCounter + 1 
 			end if
 		end if 
@@ -3219,7 +3219,7 @@ sub FindInvalidElementsInPackage(package)
 				dim currentPConstraint as EA.Constraint		 
 				set currentPConstraint = constraintPCollection.GetAt(constraintPCounter) 
 								
-				'check if the package got constraints that lack name or definition (/req/uml/constraint)								
+				'check if the package got constraints that lack name or definition ([ISO19109:2015 /req/uml/constraint])								
 				Call checkConstraint(currentPConstraint, currentPackage)
 
 			next
@@ -3244,7 +3244,7 @@ sub FindInvalidElementsInPackage(package)
 			call checkInstantiable(currentElement)
 		end if
 				
-		'Is the currentElement of type Class and stereotype codelist or enumeration, check the initial values are numeric or not (/anbefaling/1)
+		'Is the currentElement of type Class and stereotype codelist or enumeration, check the initial values are numeric or not ([ISO19103:2015 Recommendation 1])
 		if ((currentElement.Type = "Class") and (UCase(currentElement.Stereotype) = "CODELIST"  Or UCase(currentElement.Stereotype) = "ENUMERATION") Or currentElement.Type = "Enumeration") then
 			call checkNumericinitialValues(currentElement)
 		end if
@@ -3285,7 +3285,7 @@ sub FindInvalidElementsInPackage(package)
 				dim currentConstraint as EA.Constraint		 
 				set currentConstraint = constraintCollection.GetAt(constraintCounter) 
 							
-				'check if the constraints lack name or definition (/req/uml/constraint)
+				'check if the constraints lack name or definition ([ISO19109:2015 /req/uml/constraint])
 				Call checkConstraint(currentConstraint, currentElement)
 
 			next
@@ -3404,7 +3404,7 @@ sub FindInvalidElementsInPackage(package)
 							dim currentAConstraint as EA.Constraint		 
 							set currentAConstraint = constraintACollection.GetAt(constraintACounter) 
 									
-							'check if the constraints lacks name or definition (/req/uml/constraint)
+							'check if the constraints lacks name or definition ([ISO19109:2015 /req/uml/constraint])
 							Call checkConstraint(currentAConstraint, currentAttribute)
 
 						next
@@ -3490,7 +3490,7 @@ sub FindInvalidElementsInPackage(package)
 						for constraintRCounter = 0 to constraintRCollection.Count - 1 					 
 							dim currentRConstraint as EA.Constraint		 
 							set currentRConstraint = constraintRCollection.GetAt(constraintRCounter) 
-							'check if the connectors got constraints that lacks name or definition (/req/uml/constraint)
+							'check if the connectors got constraints that lacks name or definition ([ISO19109:2015 /req/uml/constraint])
 							Call checkConstraint(currentRConstraint, currentConnector)
 						next
 					end if 
