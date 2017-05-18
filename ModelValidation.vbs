@@ -73,7 +73,7 @@
 '	19103:2015 recommendation 11:
 '			Check if names of attributes, operations, roles start with lower case and names of packages,  
 '			classes and associations start with upper case 
-'	/krav/SOSI-modellregister/applikasjonsskjema/status
+'	SOSIREQ /krav/SOSI-modellregister/applikasjonsskjema/status
 '			Check if the ApplicationSchema-package got a tagged value named "SOSI_modellstatus" and checks if it is a valid value
 '   SOSIREQ /krav/SOSI-modellregister/applikasjonsskjema/versjonsnummer
 '           Check if the last part of the package name is a version number.  Ignores the text "Utkast" for this check
@@ -1128,6 +1128,7 @@ end sub
  
  
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' SOSIREQ
 ' Script Name: ValidValueSOSI_modellstatus 
 ' Author: Sara Henriksen
 ' Date: 25.07.16
@@ -1136,43 +1137,43 @@ end sub
 ' sub procedure to check if the tagged value with the provided name exist, and checks if the value is valid or not 
 ' (valid values: utkast, gyldig, utkastOgSkjult, foreslått, erstattet, tilbaketrukket og ugyldig). 
 '@param[in]: theElement (Package Class) and TaggedValueName (String) 
-
-sub ValidValueSOSI_modellstatus(theElement, taggedValueName)
-	
-	if UCase(theElement.Stereotype) = UCase("applicationSchema") then
-
-		if not theElement is nothing and Len(taggedValueName) > 0 then
-		
-			'check if the element has a tagged value with the provided name
-			dim taggedValueSOSIModellstatusMissing 
-			taggedValueSOSIModellstatusMissing = true 
-			dim currentExistingTaggedValue AS EA.TaggedValue 
-			dim taggedValuesCounter
-			
-			for taggedValuesCounter = 0 to theElement.TaggedValues.Count - 1
-				set currentExistingTaggedValue = theElement.TaggedValues.GetAt(taggedValuesCounter)
-			
-				if currentExistingTaggedValue.Name = taggedValueName then
-					'check if the value of the tag is one of the approved values. 
-					if currentExistingTaggedValue.Value = "utkast" or currentExistingTaggedValue.Value = "gyldig" or currentExistingTaggedValue.Value = "utkastOgSkjult" or currentExistingTaggedValue.Value = "foreslått" or currentExistingTaggedValue.Value = "erstattet" or currentExistingTaggedValue.Value = "tilbaketrukket" or currentExistingTaggedValue.Value = "ugyldig" then 
-
-						taggedValueSOSIModellstatusMissing = false 
-					else
-						Session.Output("Error: Package [«"&theElement.Stereotype&"» "&theElement.Name& "] \ tag [SOSI_modellstatus] has a value [" &currentExistingTaggedValue.Value& "]. The value is not approved. [/krav/SOSI-modellregister/applikasjonsskjema/status]")
-						globalErrorCounter = globalErrorCounter + 1 
-						taggedValueSOSIModellstatusMissing = false 
-					end if 
-				end if
-			next
-
-			'if the tag doesen't exist, return an error-message 
-			if taggedValueSOSIModellstatusMissing then
-				Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name& "] lacks a [SOSI_modellstatus] tag. [krav/SOSI-modellregister/applikansjonsskjema/status]")
-				globalErrorCounter = globalErrorCounter + 1 
-			end if 
-		end if
-	end if 
-end sub 
+'
+'sub ValidValueSOSI_modellstatus(theElement, taggedValueName)
+'	
+'	if UCase(theElement.Stereotype) = UCase("applicationSchema") then
+'
+'		if not theElement is nothing and Len(taggedValueName) > 0 then
+'		
+'			'check if the element has a tagged value with the provided name
+'			dim taggedValueSOSIModellstatusMissing 
+'			taggedValueSOSIModellstatusMissing = true 
+'			dim currentExistingTaggedValue AS EA.TaggedValue 
+'			dim taggedValuesCounter
+'			
+'			for taggedValuesCounter = 0 to theElement.TaggedValues.Count - 1
+'				set currentExistingTaggedValue = theElement.TaggedValues.GetAt(taggedValuesCounter)
+'			
+'				if currentExistingTaggedValue.Name = taggedValueName then
+'					'check if the value of the tag is one of the approved values. 
+'					if currentExistingTaggedValue.Value = "utkast" or currentExistingTaggedValue.Value = "gyldig" or currentExistingTaggedValue.Value = "utkastOgSkjult" or currentExistingTaggedValue.Value = "foreslått" or currentExistingTaggedValue.Value = "erstattet" or currentExistingTaggedValue.Value = "tilbaketrukket" or currentExistingTaggedValue.Value = "ugyldig" then 
+'
+'						taggedValueSOSIModellstatusMissing = false 
+'					else
+'						Session.Output("Error: Package [«"&theElement.Stereotype&"» "&theElement.Name& "] \ tag [SOSI_modellstatus] has a value [" &currentExistingTaggedValue.Value& "]. The value is not approved. [/krav/SOSI-modellregister/applikasjonsskjema/status]")
+'						globalErrorCounter = globalErrorCounter + 1 
+'						taggedValueSOSIModellstatusMissing = false 
+'					end if 
+'				end if
+'			next
+'
+'			'if the tag doesen't exist, return an error-message 
+'			if taggedValueSOSIModellstatusMissing then
+'				Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name& "] lacks a [SOSI_modellstatus] tag. [krav/SOSI-modellregister/applikansjonsskjema/status]")
+'				globalErrorCounter = globalErrorCounter + 1 
+'			end if 
+'		end if
+'	end if 
+'end sub 
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 
@@ -3200,8 +3201,9 @@ sub FindInvalidElementsInPackage(package)
 	Call checkTVLanguageAndDesignation (package.Element, "definition")
 	'iterate the tagged values collection and check if the applicationSchema package has a tagged value "version" with any content [/req/uml/packaging ]	
 	Call checkValueOfTVVersion( package.Element , "version" ) 
+'SOSIREQ
 	'iterate the tagged values collection and check if the applicationSchema package has a tagged value "SOSI_modellstatus" that is valid [/krav/SOSI-modellregister/ applikasjonsskjema/status]
-	Call ValidValueSOSI_modellstatus( package.Element , "SOSI_modellstatus" )
+	'Call ValidValueSOSI_modellstatus( package.Element , "SOSI_modellstatus" )
 ' SOSIREQ
 	'	'iterate the diagrams and checks if there exists one or more diagram names starting with "Hoveddiagram" if not one has been found already [/krav/hoveddiagram/navning]
 '	if 	not foundHoveddiagram  then
