@@ -69,7 +69,8 @@
 '			Check if an application-schema has less than one diagram named "Hoveddiagram", if so, returns an error 
 ' 	SOSIREQ /krav/oversiktsdiagram:
 '			Check that a package with more than one diagram with name starting with "Hoveddiagram" also has at least one diagram called "Oversiktsdiagram" 
-'	/krav/navning (partially): 
+'	SOSIREQ /krav/navning (partially): 
+'	19103:2015 recommendation 11:
 '			Check if names of attributes, operations, roles start with lower case and names of packages,  
 '			classes and associations start with upper case 
 '	/krav/SOSI-modellregister/applikasjonsskjema/status
@@ -627,48 +628,50 @@ end sub
 ' Author: Magnus Karge
 ' Date: 20160925 
 ' Purpose:  sub procedure to check if a given element's name is written correctly
-' 			Implementation of /krav/navning
+' 			Implementation of 19103:2015 recommendation 11
 ' 			
 ' @param[in]: theElement (EA.Element). The element to check. Can be class, enumeration, data type, attribute, operation, association, role or package
  
 sub checkElementName(theElement) 
+	if globalLogLevelIsWarning then
 	
-	select case theElement.ObjectType
-		case otPackage
-			'sub parameter is ObjectType oTPackage, check if first letter of the package's name is a capital letter 
- 			if not Left(theElement.Name,1) = UCase(Left(theElement.Name,1)) then 
-				Session.Output("Error: Package name [" & theElement.Name & "] shall start with capital letter. [/krav/navning]") 
-				globalErrorCounter = globalErrorCounter + 1 
- 			end if
-		case otElement
-			'sub's parameter is ObjectType oTElement, check if first letter of the element's name is a capital letter (element covers class, enumeration, datatype)
- 			if not Left(theElement.Name,1) = UCase(Left(theElement.Name,1)) then 
- 				Session.Output("Error: Class name [«"&getStereotypeOfClass(theElement)&"» "& theElement.Name & "] shall start with capital letter. [/krav/navning]") 
- 				globalErrorCounter = globalErrorCounter + 1 
- 			end if 
-		case otAttribute
-			'sub's parameter is ObjectType oTAttribute, check if first letter of the attribute's name is NOT a capital letter 
-			if not Left(theElement.Name,1) = LCase(Left(theElement.Name,1)) then 
-				dim attributeParentElement as EA.Element
-				set attributeParentElement = Repository.GetElementByID(theElement.ParentID)
-				Session.Output("Error: Attribute name [" & theElement.Name & "] in class [«"&getStereotypeOfClass(attributeParentElement)&"» "& attributeParentElement.Name &"] shall start with lowercase letter. [/krav/navning]") 
-				globalErrorCounter = globalErrorCounter + 1
-			end if									
- 		case otConnector
-			dim connector as EA.Connector
-			set connector = theElement
-			'sub's parameter is ObjectType oTConnector, check if the association has a name (not necessarily the case), if so check if the name starts with a capital letter 
-			if not (connector.Name = "" OR len(connector.Name)=0) and not Left(connector.Name,1) = UCase(Left(connector.Name,1)) then 
-				dim associationSourceElement as EA.Element
-				dim associationTargetElement as EA.Element
-				set associationSourceElement = Repository.GetElementByID(connector.ClientID)
-				set associationTargetElement = Repository.GetElementByID(connector.SupplierID)
-				Session.Output("Error: Association name [" & connector.Name & "] between class [«"&getStereotypeOfClass(associationSourceElement)&"» "& associationSourceElement.Name &"] and class [«"&getStereotypeOfClass(associationTargetElement)&"» " & associationTargetElement.Name & "] shall start with capital letter. [/krav/navning]") 
-				globalErrorCounter = globalErrorCounter + 1 
-			end if 
-		'case otOperation
-		'case otRole
-	end select	
+		select case theElement.ObjectType
+			case otPackage
+				'sub parameter is ObjectType oTPackage, check if first letter of the package's name is a capital letter 
+				if not Left(theElement.Name,1) = UCase(Left(theElement.Name,1)) then 
+					Session.Output("Warning: Package name [" & theElement.Name & "] should start with capital letter. [19103:2015 recommendation 11]") 
+					globalWarningCounter = globalWarningCounter + 1 
+				end if
+			case otElement
+				'sub's parameter is ObjectType oTElement, check if first letter of the element's name is a capital letter (element covers class, enumeration, datatype)
+				if not Left(theElement.Name,1) = UCase(Left(theElement.Name,1)) then 
+					Session.Output("Warning: Class name [«"&getStereotypeOfClass(theElement)&"» "& theElement.Name & "] should start with capital letter. [19103:2015 recommendation 11]") 
+					globalWarningCounter = globalWarningCounter + 1 
+				end if 
+			case otAttribute
+				'sub's parameter is ObjectType oTAttribute, check if first letter of the attribute's name is NOT a capital letter 
+				if not Left(theElement.Name,1) = LCase(Left(theElement.Name,1)) then 
+					dim attributeParentElement as EA.Element
+					set attributeParentElement = Repository.GetElementByID(theElement.ParentID)
+					Session.Output("Warning: Attribute name [" & theElement.Name & "] in class [«"&getStereotypeOfClass(attributeParentElement)&"» "& attributeParentElement.Name &"] should start with lowercase letter. [19103:2015 recommendation 11]") 
+					globalWarningCounter = globalWarningCounter + 1
+				end if									
+			case otConnector
+				dim connector as EA.Connector
+				set connector = theElement
+				'sub's parameter is ObjectType oTConnector, check if the association has a name (not necessarily the case), if so check if the name starts with a capital letter 
+				if not (connector.Name = "" OR len(connector.Name)=0) and not Left(connector.Name,1) = UCase(Left(connector.Name,1)) then 
+					dim associationSourceElement as EA.Element
+					dim associationTargetElement as EA.Element
+					set associationSourceElement = Repository.GetElementByID(connector.ClientID)
+					set associationTargetElement = Repository.GetElementByID(connector.SupplierID)
+					Session.Output("Warning: Association name [" & connector.Name & "] between class [«"&getStereotypeOfClass(associationSourceElement)&"» "& associationSourceElement.Name &"] and class [«"&getStereotypeOfClass(associationTargetElement)&"» " & associationTargetElement.Name & "] should start with capital letter. [19103:2015 recommendation 11]") 
+					globalWarningCounter = globalWarningCounter + 1 
+				end if 
+			'case otOperation
+			'case otRole
+		end select	
+	end if
 end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
@@ -2519,23 +2522,25 @@ end sub
 ' Sub name: checkRoleNames
 ' Author: Magnus Karge
 ' Date: 20170110 
-' Purpose:  sub procedure to check if a given association's role names start with lower case 
-'			(navigable ends shall have role names [krav/navning]) 
+' Purpose:  sub procedure to check if a given association's role names start with lower case (19103:2015 recommendation 11)
+'			(note:  navigable ends shall have role names [19103:2015 requirement 11]) 
 ' 			
 ' @param[in]: 	theElement (EA.Element). The element that "ownes" the association to check
 '				sourceEndName (CharacterString). role name on association's source end
 '				targetEndName (CharacterString). role name on association's target end
 '				elementOnOppositeSide (EA.Element). The element on the opposite side of the association to check
 sub checkRoleNames(theElement, sourceEndName, targetEndName, elementOnOppositeSide)
-	if not sourceEndName = "" and not Left(sourceEndName,1) = LCase(Left(sourceEndName,1)) then 
-		Session.Output("Error: Role name [" & sourceEndName & "] on association end connected to class ["& theElement.Name &"] shall start with lowercase letter. [/krav/navning]") 
-		globalErrorCounter = globalErrorCounter + 1 
-	end if 
+	if globalLogLevelIsWarning then
+		if not sourceEndName = "" and not Left(sourceEndName,1) = LCase(Left(sourceEndName,1)) then 
+			Session.Output("Warning: Role name [" & sourceEndName & "] on association end connected to class ["& theElement.Name &"] should start with lowercase letter. [19103:2015 recommendation 11]") 
+			globalWarningCounter = globalWarningCounter + 1 
+		end if 
 
-	if not (targetEndName = "") and not (Left(targetEndName,1) = LCase(Left(targetEndName,1))) then 
-		Session.Output("Error: Role name [" & targetEndName & "] on association end connected to class ["& elementOnOppositeSide.Name &"] shall start with lowercase letter. [/krav/navning]") 
-		globalErrorCounter = globalErrorCounter + 1 
-	end if 
+		if not (targetEndName = "") and not (Left(targetEndName,1) = LCase(Left(targetEndName,1))) then 
+			Session.Output("Warning: Role name [" & targetEndName & "] on association end connected to class ["& elementOnOppositeSide.Name &"] should start with lowercase letter. [19103:2015 recommendation 11]") 
+			globalWarningCounter = globalWarningCounter + 1 
+		end if 
+	end if
 end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
@@ -3553,10 +3558,12 @@ sub FindInvalidElementsInPackage(package)
 								
 					'check if the operations's name starts with lower case 
 					'TODO: this rule does not apply for constructor operation 
-					if not Left(currentOperation.Name,1) = LCase(Left(currentOperation.Name,1)) then 
-						Session.Output("Error: Operation name [" & currentOperation.Name & "] in class ["&currentElement.Name&"] shall not start with capital letter. [/krav/navning]") 
-						globalErrorCounter = globalErrorCounter + 1 
-					end if 
+					if globalLogLevelIsWarning
+						if not Left(currentOperation.Name,1) = LCase(Left(currentOperation.Name,1)) then 
+							Session.Output("Warning: Operation name [" & currentOperation.Name & "] in class ["&currentElement.Name&"] should not start with capital letter. [19103:2015 recommendation 11]") 
+							globalWarningCounter = globalWarningCounter + 1 
+						end if 
+					end if
  								 
 					'check if there is a definition for the operation (call CheckDefinition function) 
 					'call the subroutine with currentOperation as parameter 
