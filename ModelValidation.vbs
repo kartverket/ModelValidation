@@ -27,7 +27,7 @@
 '
 '	/krav/6:		
 '			Iso 19103 Requirement 6 - NCNames in codelist codes.
-' 	/krav/7:	    
+' 	ISO19103:2015 requirement 7:	    
 '			Iso 19103 Requirement 7 - definition of codelist codes.
 '  	[ISO19103:2015 Requirement 10]: 
 '			Check if all navigable association ends have cardinality 
@@ -1602,42 +1602,19 @@ End Function
 ' Date: 2016-08-05
 ' Purpose: 
  	' test if element has definition
-	'/krav/7
+	'19103:2015 requirement 7
 
 sub krav7kodedefinisjon(theElement)
 	
-	dim goodNames, badName
-	goodNames = true
 	dim attr as EA.Attribute
-	dim numberOfFaults
-	numberOfFaults = 0
-	dim numberInList
-	numberInList = 0
 	
 	'navigate through all attributes in the codeLists/enumeration 
 	for each attr in theElement.Attributes
-		'count number of attributes in one list
-		numberInList = numberInList + 1 
-		'check if the code has definition
 		if attr.Notes = "" then
-			numberOfFaults = numberOfFaults + 1
-			if globalLogLevelIsWarning then
-				Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] is missing definition for code ["&attr.Name&"]. [/krav/7]")
-			end if
-			if goodNames then
-				badName = attr.Name
-			end if
-			goodNames = false 
+			Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] is missing definition for code ["&attr.Name&"]. [ISO19103:2015 requirement 7]")
+			globalErrorCounter = globalErrorCounter + 1
 		end if 
 	next
-
-	'if one or more codes lack definition, warning.
-	if goodNames = false then 
-		if globalLogLevelIsWarning then
-			'Session.Output("Warning: Missing definition for code ["&badName&"] in class: [«" &theElement.Stereotype& "» " &theElement.Name& "]. "&numberOfFaults&"/"&numberInList&" of the codes lack definition. [/krav/7]")
-			globalWarningCounter = globalWarningCounter + 1
-		end if	
-	end if
 end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
