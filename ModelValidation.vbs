@@ -1554,8 +1554,8 @@ Function hasNoWhiteSpace(inputString)
 	dim i
 	dim retVal
 	retVal=true
-	for i=1 to len(streng)
-		if mid(inputStr,i,1)=" " then retVal=false
+	for i=1 to len(inputString)
+		if mid(inputString,i,1)=" " then retVal=false
 	next
 	hasNoWhiteSpace=retVal
 end function
