@@ -13,7 +13,7 @@
 
 ' Version: 1.2
 
-' Date: 2017-05-16 
+' Date: 2017-05-16 Kent
 
 ' Purpose: Validate model elements according to rules defined in the standard SOSI Regler for UML-modellering 5.0 
 ' Implemented rules: 
@@ -1493,24 +1493,24 @@ end sub
 
 
 ' -----------------------------------------------------------START-------------------------------------------------------------------------------------------
-' Sub Name: krav6-mnemoniskKodenavn
+' Sub Name: requirement6
 ' Author: Kent Jonsrud
 ' Date: 2016-08-04
 ' Purpose: 
     'test if element name is legal NCName
     'some characters to avoid are: blank, komma, !, "", #, $, %, &, ', (, ), *, +, /, :, ;, <, =, >, ?, @, [, \, ], ^, `, {, |, }, ~
-	'characters below 32 or names staring with a number are also illegal
+	'characters below 32 or names starting with a number are also illegal
 
-sub krav6mnemoniskKodenavn(theElement)
+sub requirement6(theElement)
 	
-	dim goodNames, lowerCameCase, badName
-	goodNames = true
-	lowerCameCase = true
+	'SOSIREQ dim goodNames, lowerCameCase, badName
+	'SOSIREQ goodNames = true
+	'SOSIREQ lowerCameCase = true
 	dim attr as EA.Attribute
-	dim numberOfFaults
-	numberOfFaults = 0
-	dim numberOfWarnings
-	numberOfWarnings = 0
+	'SOSIREQ dim numberOfFaults
+	'SOSIREQ numberOfFaults = 0
+	'SOSIREQ dim numberOfWarnings
+	'SOSIREQ numberOfWarnings = 0
 	dim numberInList
 	numberInList = 0
 	
@@ -1521,37 +1521,38 @@ sub krav6mnemoniskKodenavn(theElement)
 		'check if the name is NCName
 		if NOT IsNCName(attr.Name) then
 			'count number of numeric initial values for one list
-			numberOfFaults = numberOfFaults + 1
-			Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has illegal code name ["&attr.Name&"]. Recommended to use the script <lagLovligeNCNavnPåKodelistekoder>. [/krav/6]")
-			if goodNames then
-				badName = attr.Name
-			end if
-			goodNames = false 
+		'SOSIREQ 	numberOfFaults = numberOfFaults + 1
+			globalErrorCounter = globalErrorCounter +  1
+			Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has illegal code name ["&attr.Name&"].  [ISO19103:2015 requirement6]")
+		'SOSIREQ 	if goodNames then
+		'SOSIREQ 		badName = attr.Name
+		'SOSIREQ 	end if
+		'SOSIREQ 	goodNames = false 
 		end if 
 		'check if name is not lowerCameCase
-		if NOT (mid(attr.Name,1,1) = LCASE(mid(attr.Name,1,1)) ) then
-			numberOfWarnings = numberOfWarnings + 1
-			if globalLogLevelIsWarning then
-				Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has code name that is not lowerCamelCase ["&attr.Name&"]. Recommended to use the script <lagLovligeNCNavnPåKodelistekoder>. [/krav/6]")
-			end if
-			lowerCameCase = false
-		End if
+		'SOSIREQ if NOT (mid(attr.Name,1,1) = LCASE(mid(attr.Name,1,1)) ) then
+		'SOSIREQ 	numberOfWarnings = numberOfWarnings + 1
+		'SOSIREQ 	if globalLogLevelIsWarning then
+		'SOSIREQ 		Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has code name that is not lowerCamelCase ["&attr.Name&"]. Recommended to use the script <lagLovligeNCNavnPåKodelistekoder>. [/krav/6]")
+		'SOSIREQ 	end if
+		'SOSIREQ 	lowerCameCase = false
+		'SOSIREQ End if
 	next
 	
 	
 	'if one or more names are illegal, return a error.
-	if goodNames = false then 
-		'Session.Output("Error: Illegal code names starts with ["&badName&"] for class: [«" &theElement.Stereotype& "» " &theElement.Name& "]. "&numberOfFaults&"/"&numberInList&" of the names are illegal.  Recommended to use the script <lagLovligeNCNavnPåKodelistekoder>   [/krav/6 ]")
-		globalErrorCounter = globalErrorCounter +  numberOfFaults
-	end if
+	'SOSIREQ if goodNames = false then 
+	'SOSIREQ 	'Session.Output("Error: Illegal code names starts with ["&badName&"] for class: [«" &theElement.Stereotype& "» " &theElement.Name& "]. "&numberOfFaults&"/"&numberInList&" of the names are illegal.  Recommended to use the script <lagLovligeNCNavnPåKodelistekoder>   [/krav/6 ]")
+	'SOSIREQ 	globalErrorCounter = globalErrorCounter +  numberOfFaults
+	'SOSIREQ end if
 	
 	'if one or more names start with uppercase, return a warning.
-	if lowerCameCase = false then 
-		if globalLogLevelIsWarning then
-			'Session.Output("Warning: All code names are not lowerCamelCase for class: [«" &theElement.Stereotype& "» " &theElement.Name& "].  Recommended to use the script <lagLovligeNCNavnPåKodelistekoder>  [/krav/6 ]")
-			globalWarningCounter = globalWarningCounter +  numberOfWarnings
-		end if	
-	end if
+	'SOSIREQ if lowerCameCase = false then 
+	'SOSIREQ 	if globalLogLevelIsWarning then
+	'SOSIREQ 		'Session.Output("Warning: All code names are not lowerCamelCase for class: [«" &theElement.Stereotype& "» " &theElement.Name& "].  Recommended to use the script <lagLovligeNCNavnPåKodelistekoder>  [/krav/6 ]")
+	'SOSIREQ 		globalWarningCounter = globalWarningCounter +  numberOfWarnings
+	'SOSIREQ 	end if	
+	'SOSIREQ end if
 end sub
 
 Function hasNoWhiteSpace(inputString)
@@ -2006,7 +2007,7 @@ end sub
 
 ' -----------------------------------------------------------START-------------------------------------------------------------------------------------------
 ' Sub Name: reqUmlProfile
-' Author: Kent Jonsrud
+' Author: Kent Jonsrud 2017-05-18
 ' Date: 2016-08-08, 2017-05-13
 ' Purpose: 
     'iso19109:2015 /req/uml/profile , includes iso109103:2015 requirement 25 and requirement 22.
@@ -2022,7 +2023,7 @@ sub reqUmlProfile(theElement)
 			if ProfileTypes.IndexOf(attr.Type,0) = -1 then	
 				if ExtensionTypes.IndexOf(attr.Type,0) = -1 then	
 					if CoreTypes.IndexOf(attr.Type,0) = -1 then	
-						Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has unknown type for attribute ["&attr.Name&" : "&attr.Type&"]. [/req/uml/profile] & krav/25 & krav/22")
+						Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has unknown type for attribute ["&attr.Name&" : "&attr.Type&"]. [ISO19109:2015 /req/uml/profile & ISO19103:2015 requirement 25 & ISO19103:2015 requirement 22]")
 						globalErrorCounter = globalErrorCounter + 1 
 					end if
 				end if
@@ -2032,6 +2033,45 @@ sub reqUmlProfile(theElement)
 
 end sub
 
+sub requirement25(theElement)
+	
+	dim attr as EA.Attribute
+	'navigate through all attributes 
+	for each attr in theElement.Attributes
+		if attr.ClassifierID = 0 then
+			'Attribute not connected to a datatype class, check if the attribute has a iso 19103 type
+			'SOSIREQ if ProfileTypes.IndexOf(attr.Type,0) = -1 then	
+				if ExtensionTypes.IndexOf(attr.Type,0) = -1 then	
+					if CoreTypes.IndexOf(attr.Type,0) = -1 then	
+						Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has unknown type for attribute ["&attr.Name&" : "&attr.Type&"]. [ISO19103:2015 requirement 25 & ISO19103:2015 requirement 22]")
+						globalErrorCounter = globalErrorCounter + 1 
+					end if
+				end if
+			'SOSIREQ end if
+		end if 
+	next
+
+end sub
+
+sub requirement22(theElement)
+	
+	dim attr as EA.Attribute
+	'navigate through all attributes 
+	for each attr in theElement.Attributes
+		if attr.ClassifierID = 0 then
+			'Attribute not connected to a datatype class, check if the attribute has a iso 19103 type
+			'SOSIREQ if ProfileTypes.IndexOf(attr.Type,0) = -1 then	
+				'SOSIREQ if ExtensionTypes.IndexOf(attr.Type,0) = -1 then	
+					if CoreTypes.IndexOf(attr.Type,0) = -1 then	
+						Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has unknown type for attribute ["&attr.Name&" : "&attr.Type&"]. [ISO19103:2015 requirement 22]")
+						globalErrorCounter = globalErrorCounter + 1 
+					end if
+				'SOSIREQ end if
+			'SOSIREQ end if
+		end if 
+	next
+
+end sub
 
 sub reqUmlProfileLoad()
 	
@@ -2100,16 +2140,17 @@ sub reqUmlProfileLoad()
 	ExtensionTypes.Add "Currency"
 	ExtensionTypes.Add "Weight"
 	ExtensionTypes.Add "AngularSpeed"
+	
 	ExtensionTypes.Add "DirectedMeasure"
 	ExtensionTypes.Add "Velocity"
 	ExtensionTypes.Add "AngularVelocity"
 	ExtensionTypes.Add "Acceleration"
 	ExtensionTypes.Add "AngularAcceleration"
 	
-	'well known and often used spatial types from iso 19107:2003
+	'Table 26 + iso19109 7.5.2 valid spatial types from iso 19107:2003
 	ProfileTypes.Add "DirectPosition"
 	ProfileTypes.Add "GM_Object"
-	ProfileTypes.Add "GM_Primitive"
+	'SOSIREQ ProfileTypes.Add "GM_Primitive"
 	ProfileTypes.Add "GM_Complex"
 	ProfileTypes.Add "GM_Aggregate"
 	ProfileTypes.Add "GM_Point"
@@ -2135,13 +2176,14 @@ sub reqUmlProfileLoad()
 	ProfileTypes.Add "TP_DirectedEdge"
 	ProfileTypes.Add "TP_DirectedFace"
 	ProfileTypes.Add "TP_DirectedSolid"
-	ProfileTypes.Add "GM_OrientableCurve"
-	ProfileTypes.Add "GM_OrientableSurface"
-	ProfileTypes.Add "GM_PolyhedralSurface"
-	ProfileTypes.Add "GM_triangulatedSurface"
-	ProfileTypes.Add "GM_Tin"
+	
+	'SOSIREQ ProfileTypes.Add "GM_OrientableCurve"
+	'SOSIREQ ProfileTypes.Add "GM_OrientableSurface"
+	'SOSIREQ ProfileTypes.Add "GM_PolyhedralSurface"
+	'SOSIREQ ProfileTypes.Add "GM_triangulatedSurface"
+	'SOSIREQ ProfileTypes.Add "GM_Tin"
 
-	'well known and often used coverage types from iso 19123:2007
+	'Table 28 coverage types from iso 19123:2007
 	ProfileTypes.Add "CV_Coverage"
 	ProfileTypes.Add "CV_DiscreteCoverage"
 	ProfileTypes.Add "CV_DiscretePointCoverage"
@@ -2151,7 +2193,6 @@ sub reqUmlProfileLoad()
 	ProfileTypes.Add "CV_DiscreteSolidCoverage"
 	ProfileTypes.Add "CV_ContinousCoverage"
 	ProfileTypes.Add "CV_ThiessenPolygonCoverage"
-	'ExtensionTypes.Add "CV_ContinousQuadrilateralGridCoverageCoverage"
 	ProfileTypes.Add "CV_ContinousQuadrilateralGridCoverage"
 	ProfileTypes.Add "CV_HexagonalGridCoverage"
 	ProfileTypes.Add "CV_TINCoverage"
@@ -2166,12 +2207,14 @@ sub reqUmlProfileLoad()
 	
 	'well known and often used observation related types from OM_Observation in iso 19156:2011
 	ProfileTypes.Add "TM_Object"
-	ProfileTypes.Add "DQ_Element"
 	ProfileTypes.Add "NamedValue"
 	
-	'well known and often used quality element types from iso 19157:2013
+	'Table 22 well known and often used quality element types from iso 19157:2013
+	ProfileTypes.Add "DQ_Element"
+	ProfileTypes.Add "DQ_DataQuality"
 	ProfileTypes.Add "DQ_AbsoluteExternalPositionalAccurracy"
 	ProfileTypes.Add "DQ_RelativeInternalPositionalAccuracy"
+	ProfileTypes.Add "DQ_GriddedDataPositionalAccuracy"
 	ProfileTypes.Add "DQ_AccuracyOfATimeMeasurement"
 	ProfileTypes.Add "DQ_TemporalConsistency"
 	ProfileTypes.Add "DQ_TemporalValidity"
@@ -2179,18 +2222,29 @@ sub reqUmlProfileLoad()
 	ProfileTypes.Add "DQ_NonQuantitativeAttributeCorrectness"
 	ProfileTypes.Add "DQ_QuanatitativeAttributeAccuracy"
 
+	ProfileTypes.Add "DQ_ConceptualConsistency"
+	ProfileTypes.Add "DQ_DomainConsistency"
+	ProfileTypes.Add "DQ_FormatConsistency"
+	ProfileTypes.Add "DQ_TopologicalConsistency"
+	ProfileTypes.Add "DQ_CompletenessCommission"
+	ProfileTypes.Add "DQ_CompletenessOmission"
+	ProfileTypes.Add "DQ_UsabilityElement"
+
+	'referencing by geographical identifier types from iso 19112
+	ProfileTypes.Add "LocationAttributeType"
+
 	'well known and often used metadata element types from iso 19115-1:200x and iso 19139:2x00x
-	ProfileTypes.Add "PT_FreeText"
-	ProfileTypes.Add "LocalisedCharacterString"
-	ProfileTypes.Add "MD_Resolution"
+	'SOSIREQ ProfileTypes.Add "PT_FreeText"
+	'SOSIREQ ProfileTypes.Add "LocalisedCharacterString"
+	'SOSIREQ ProfileTypes.Add "MD_Resolution"
 	'ProfileTypes.Add "CI_Citation"
 	'ProfileTypes.Add "CI_Date"
 
 	'other less known Norwegian geometry types
-	ProfileTypes.Add "Punkt"
-	ProfileTypes.Add "Kurve"
-	ProfileTypes.Add "Flate"
-	ProfileTypes.Add "Sverm"
+	'SOSIREQ ProfileTypes.Add "Punkt"
+	'SOSIREQ ProfileTypes.Add "Kurve"
+	'SOSIREQ ProfileTypes.Add "Flate"
+	'SOSIREQ ProfileTypes.Add "Sverm"
 
 
 end sub
@@ -2198,13 +2252,13 @@ end sub
 
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
-' Sub Name: krav18-viseAlt
+' Sub Name: requirement18
 ' Author: Kent Jonsrud
 ' Date: 2016-08-09..30, 2016-09-05, 2017-01-17, 2017-05-13
 ' Purpose: test whether a class is showing all its content in at least one class diagram.
-    '/krav/18
+    'SOSIREQ '/krav/18
 
-sub krav18viseAlt(theElement)
+sub requirement18(theElement)
 
 	dim diagram as EA.Diagram
 	dim diagrams as EA.Collection
@@ -2248,9 +2302,9 @@ sub krav18viseAlt(theElement)
 	if NOT viserAlt then
  		globalErrorCounter = globalErrorCounter + 1 
  		if shownTimes = 0 then
-			Session.Output("Error: Class [«" &theElement.Stereotype& "» "&theElement.Name&"] is not shown in any diagram. [/krav/18]")
+			Session.Output("Error: Class [«" &theElement.Stereotype& "» "&theElement.Name&"] is not shown in any diagram. [ISO19103:2015 requirement 18]")
 		else
-			Session.Output("Error: Class [«" &theElement.Stereotype& "» "&theElement.Name&"] is not shown fully in at least one diagram. [/krav/18]")				
+			Session.Output("Error: Class [«" &theElement.Stereotype& "» "&theElement.Name&"] is not shown fully in at least one diagram. [ISO19103:2015 requirement 18]")				
 		end if
 	end if
 end sub
@@ -3355,7 +3409,7 @@ sub FindInvalidElementsInPackage(package)
 			
 			'Iso 19103 Requirement 6 - NCNames in codelist codes.
 			if (UCase(currentElement.Stereotype) = "CODELIST"  Or UCase(currentElement.Stereotype) = "ENUMERATION" Or currentElement.Type = "Enumeration") then
-				call krav6mnemoniskKodenavn(currentElement)
+				call requirement6(currentElement)
 			end if
 
 			'Iso 19103 Requirement 7 - definition of codelist codes.
@@ -3385,7 +3439,7 @@ sub FindInvalidElementsInPackage(package)
 			end if
 
 			'Iso 19103 Requirement 18 - each classifier must show all its (inherited) properties together in at least one diagram.
-			call krav18viseAlt(currentElement)
+			call requirement18(currentElement)
 
 			'check if there is a definition for the class element (call CheckDefinition function) 
 			CheckDefinition(currentElement) 
