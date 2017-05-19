@@ -641,13 +641,13 @@ sub checkElementName(theElement)
 			case otPackage
 				'sub parameter is ObjectType oTPackage, check if first letter of the package's name is a capital letter 
 				if not Left(theElement.Name,1) = UCase(Left(theElement.Name,1)) then 
-					Session.Output("Warning: Package name [" & theElement.Name & "] should start with capital letter. [19103:2015 recommendation 11]") 
+					Session.Output("Warning: Package name [" & theElement.Name & "] should start with capital letter. [ISO19103:2015 recommendation 11]") 
 					globalWarningCounter = globalWarningCounter + 1 
 				end if
 			case otElement
 				'sub's parameter is ObjectType oTElement, check if first letter of the element's name is a capital letter (element covers class, enumeration, datatype)
 				if not Left(theElement.Name,1) = UCase(Left(theElement.Name,1)) then 
-					Session.Output("Warning: Class name [«"&getStereotypeOfClass(theElement)&"» "& theElement.Name & "] should start with capital letter. [19103:2015 recommendation 11]") 
+					Session.Output("Warning: Class name [«"&getStereotypeOfClass(theElement)&"» "& theElement.Name & "] should start with capital letter. [ISO19103:2015 recommendation 11]") 
 					globalWarningCounter = globalWarningCounter + 1 
 				end if 
 			case otAttribute
@@ -655,7 +655,7 @@ sub checkElementName(theElement)
 				if not Left(theElement.Name,1) = LCase(Left(theElement.Name,1)) then 
 					dim attributeParentElement as EA.Element
 					set attributeParentElement = Repository.GetElementByID(theElement.ParentID)
-					Session.Output("Warning: Attribute name [" & theElement.Name & "] in class [«"&getStereotypeOfClass(attributeParentElement)&"» "& attributeParentElement.Name &"] should start with lowercase letter. [19103:2015 recommendation 11]") 
+					Session.Output("Warning: Attribute name [" & theElement.Name & "] in class [«"&getStereotypeOfClass(attributeParentElement)&"» "& attributeParentElement.Name &"] should start with lowercase letter. [ISO19103:2015 recommendation 11]") 
 					globalWarningCounter = globalWarningCounter + 1
 				end if									
 			case otConnector
@@ -667,7 +667,7 @@ sub checkElementName(theElement)
 					dim associationTargetElement as EA.Element
 					set associationSourceElement = Repository.GetElementByID(connector.ClientID)
 					set associationTargetElement = Repository.GetElementByID(connector.SupplierID)
-					Session.Output("Warning: Association name [" & connector.Name & "] between class [«"&getStereotypeOfClass(associationSourceElement)&"» "& associationSourceElement.Name &"] and class [«"&getStereotypeOfClass(associationTargetElement)&"» " & associationTargetElement.Name & "] should start with capital letter. [19103:2015 recommendation 11]") 
+					Session.Output("Warning: Association name [" & connector.Name & "] between class [«"&getStereotypeOfClass(associationSourceElement)&"» "& associationSourceElement.Name &"] and class [«"&getStereotypeOfClass(associationTargetElement)&"» " & associationTargetElement.Name & "] should start with capital letter. [ISO19103:2015 recommendation 11]") 
 					globalWarningCounter = globalWarningCounter + 1 
 				end if 
 			'case otOperation
@@ -787,14 +787,14 @@ sub checkTVLanguageAndDesignation(theElement, taggedValueName)
 					exit for 
 				end if   
 				if currentTaggedValue.Name = "language" and currentTaggedValue.Value= "" then 
-					Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] tag ["& currentTaggedValue.Name &"] lacks a value. [19109:2015 /req/multi-lingual/package]") '[/krav/taggedValueSpråk] 
+					Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] tag ["& currentTaggedValue.Name &"] lacks a value. [ISO19109:2015 /req/multi-lingual/package]") '[/krav/taggedValueSpråk] 
 					globalErrorCounter = globalErrorCounter + 1 
 					taggedValueLanguageMissing = false 
 					exit for 
 				end if 
  			next 
 			if taggedValueLanguageMissing then 
-				Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] lacks a [language] tag. [19109:2015 /req/multi-lingual/package]") '[/krav/taggedValueSpråk] 
+				Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] lacks a [language] tag. [ISO19109:2015 /req/multi-lingual/package]") '[/krav/taggedValueSpråk] 
 				globalErrorCounter = globalErrorCounter + 1 
 			end if 
 		end if 
@@ -836,7 +836,7 @@ sub checkTVLanguageAndDesignation(theElement, taggedValueName)
 						end if
 						
 						if not (checkAtMark and checkQuoteMark) then
-							Session.Output("Error: Package [«" &theElement.Stereotype& "» " &theElement.Name&"] tag [" &taggedValueName& "] has an illegal value.  Expected value ""{" &taggedValueName& "}""@{language code} [19109:2015 /req/multi-lingual/package]")
+							Session.Output("Error: Package [«" &theElement.Stereotype& "» " &theElement.Name&"] tag [" &taggedValueName& "] has an illegal value.  Expected value ""{" &taggedValueName& "}""@{language code} [ISO19109:2015 /req/multi-lingual/package]")
 							globalErrorCounter = globalErrorCounter + 1 
 						end if 
 					
@@ -855,7 +855,7 @@ sub checkTVLanguageAndDesignation(theElement, taggedValueName)
 							end if	
 						end if
 					else
-						Session.Output("Error: Package [«" &theElement.Stereotype& "» " &theElement.Name& "] tag [" &taggedValueName& "] has no value [19109:2015 /req/multi-lingual/package]") 
+						Session.Output("Error: Package [«" &theElement.Stereotype& "» " &theElement.Name& "] tag [" &taggedValueName& "] has no value [ISO19109:2015 /req/multi-lingual/package]") 
 						globalErrorCounter = globalErrorCounter + 1
 					end if
 				end if 						
@@ -906,7 +906,7 @@ sub structureOfTVConnectorEnd(theConnectorEnd,  taggedValueName)
 			if currentExistingTaggedValue.Tag = taggedValueName then
 				'check if the structure of the tag is: "{value}"@{languagecode}
 				if not (InStr(currentExistingTaggedValue.Value,"""@")>=2 and InStr(currentExistingTaggedValue.Value,"""") =1 ) then
-					Session.Output("Error: Role [" &theConnectorEnd.Role& "] tag [" &currentExistingTaggedValue.Tag& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [19109:2015 /req/multi-lingual/feature]")
+					Session.Output("Error: Role [" &theConnectorEnd.Role& "] tag [" &currentExistingTaggedValue.Tag& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [ISO19109:2015 /req/multi-lingual/feature]")
 					globalErrorCounter = globalErrorCounter + 1 
 				end if 
 			end if 
@@ -943,7 +943,7 @@ sub structurOfTVforElement (theElement, taggedValueName)
 						Case otElement 
 							set currentElement = theElement 
 						
-							Session.Output("Error: Class [«"&theElement.Stereotype&"» " &theElement.Name& "] tag [" &currentExistingTaggedValue.Name& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [19109:2015 /req/multi-lingual/feature]")
+							Session.Output("Error: Class [«"&theElement.Stereotype&"» " &theElement.Name& "] tag [" &currentExistingTaggedValue.Name& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [ISO19109:2015 /req/multi-lingual/feature]")
 							globalErrorCounter = globalErrorCounter + 1 
 						
 						'case attribute
@@ -954,7 +954,7 @@ sub structurOfTVforElement (theElement, taggedValueName)
 							dim parentElementOfAttribute as EA.Element
 							set parentElementOfAttribute = Repository.GetElementByID(currentAttribute.ParentID)
 						
-							Session.Output("Error: Class [«"& parentElementOfAttribute.Stereotype &"» "& parentElementOfAttribute.Name &" attribute [" &theElement.Name& "] tag [" &currentExistingTaggedValue.Name& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [19109:2015 /req/multi-lingual/feature]")
+							Session.Output("Error: Class [«"& parentElementOfAttribute.Stereotype &"» "& parentElementOfAttribute.Name &" attribute [" &theElement.Name& "] tag [" &currentExistingTaggedValue.Name& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [ISO19109:2015 /req/multi-lingual/feature]")
 							globalErrorCounter = globalErrorCounter + 1 
 						
 						'case operation
@@ -965,7 +965,7 @@ sub structurOfTVforElement (theElement, taggedValueName)
 							dim parentElementOfOperation as EA.Element
 							set parentElementOfOperation = Repository.GetElementByID(currentOperation.ParentID)
 						
-							Session.Output("Error: Class [«"& parentElementOfOperation.Stereotype &"» "& parentElementOfOperation.Name &" operation [" &theElement.Name& "] tag [" &currentExistingTaggedValue.Name& "] has a value: " &currentExistingTaggedValue.Value& " with wrong structure. Expected structure: ""{Name}""@{language}. [19109:2015 /req/multi-lingual/feature]")
+							Session.Output("Error: Class [«"& parentElementOfOperation.Stereotype &"» "& parentElementOfOperation.Name &" operation [" &theElement.Name& "] tag [" &currentExistingTaggedValue.Name& "] has a value: " &currentExistingTaggedValue.Value& " with wrong structure. Expected structure: ""{Name}""@{language}. [ISO19109:2015 /req/multi-lingual/feature]")
 							globalErrorCounter = globalErrorCounter + 1 
 
 					end select 	
@@ -1007,7 +1007,7 @@ sub checkValueOfTVVersion(theElement, taggedValueName)
 					'remove spaces before and after a string, if the value only contains blanks  the value is empty
 					currentExistingTaggedValue.Value = Trim(currentExistingTaggedValue.Value)
 					if len (currentExistingTaggedValue.Value) = 0 then 
-						Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] has an empty version-tag. [19109:2015 /req/uml/packaging]")
+						Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] has an empty version-tag. [ISO19109:2015 /req/uml/packaging]")
 						globalErrorCounter = globalErrorCounter + 1 
 						taggedValueVersionMissing = false 
 					else
@@ -1018,7 +1018,7 @@ sub checkValueOfTVVersion(theElement, taggedValueName)
 			next
 			'if tagged value version lacks for the package, return an error 
 			if taggedValueVersionMissing then
-				Session.Output ("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] lacks a [version] tag. [19109:2015 /req/uml/packaging]")
+				Session.Output ("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] lacks a [version] tag. [ISO19109:2015 /req/uml/packaging]")
 				globalErrorCounter = globalErrorCounter + 1 
 			end if
 		end if 
@@ -2531,7 +2531,7 @@ end sub
 ' Author: Magnus Karge
 ' Date: 20170110 
 ' Purpose:  sub procedure to check if a given association's role names start with lower case (19103:2015 recommendation 11)
-'			(note:  navigable ends shall have role names [19103:2015 requirement 11]) 
+'			(note:  navigable ends shall have role names [ISO19103:2015 requirement 11]) 
 ' 			
 ' @param[in]: 	theElement (EA.Element). The element that "ownes" the association to check
 '				sourceEndName (CharacterString). role name on association's source end
@@ -2540,12 +2540,12 @@ end sub
 sub checkRoleNames(theElement, sourceEndName, targetEndName, elementOnOppositeSide)
 	if globalLogLevelIsWarning then
 		if not sourceEndName = "" and not Left(sourceEndName,1) = LCase(Left(sourceEndName,1)) then 
-			Session.Output("Warning: Role name [" & sourceEndName & "] on association end connected to class ["& theElement.Name &"] should start with lowercase letter. [19103:2015 recommendation 11]") 
+			Session.Output("Warning: Role name [" & sourceEndName & "] on association end connected to class ["& theElement.Name &"] should start with lowercase letter. [ISO19103:2015 recommendation 11]") 
 			globalWarningCounter = globalWarningCounter + 1 
 		end if 
 
 		if not (targetEndName = "") and not (Left(targetEndName,1) = LCase(Left(targetEndName,1))) then 
-			Session.Output("Warning: Role name [" & targetEndName & "] on association end connected to class ["& elementOnOppositeSide.Name &"] should start with lowercase letter. [19103:2015 recommendation 11]") 
+			Session.Output("Warning: Role name [" & targetEndName & "] on association end connected to class ["& elementOnOppositeSide.Name &"] should start with lowercase letter. [ISO19103:2015 recommendation 11]") 
 			globalWarningCounter = globalWarningCounter + 1 
 		end if 
 	end if
@@ -2746,7 +2746,7 @@ sub checkUniqueFeatureTypeNames()
 
 sub checkInstantiable(theClass)
 	if (UCase(theClass.Stereotype) = "INTERFACE" or theClass.Type = "Interface") then
-		Session.Output("Error:  Class [«" &theClass.Stereotype& "» " &theClass.Name& "].  Interface stereotype for classes is not allowed in ApplicationSchema. [19109:2015 /req/uml/structure]")
+		Session.Output("Error:  Class [«" &theClass.Stereotype& "» " &theClass.Name& "].  Interface stereotype for classes is not allowed in ApplicationSchema. [ISO19109:2015 /req/uml/structure]")
 		globalErrorCounter = globalErrorCounter + 1
 	end if
 	if theClass.Abstract = "1" then
@@ -2769,7 +2769,7 @@ sub checkInstantiable(theClass)
 			end if
 		next
 		if not (hasSpecializations and specInSameApplicationSchema) then
-			Session.Output("Error: Class [«" &theClass.Stereotype& "» " &theClass.Name& "]. Abstract class does not have any instantiable specializations in the ApplicationSchema. [19109:2015 /req/uml/structure]")
+			Session.Output("Error: Class [«" &theClass.Stereotype& "» " &theClass.Name& "]. Abstract class does not have any instantiable specializations in the ApplicationSchema. [ISO19109:2015 /req/uml/structure]")
 			globalErrorCounter = globalErrorCounter + 1
 		end if
 	end if
@@ -2819,7 +2819,7 @@ sub checkPackageDependency(thePackage)
 	'		if not globalListPackageElementIDsOfPackageDependencies.Contains(packageElementID) then
 	'			Session.Output("Error: Use of element " & investigatedElement.Name & " from package " & investigatedPackage.Name & " is not listed in model dependencies [/req/uml/integration]")
 	'		else
-			Session.Output("Error: Dependency on package [" & investigatedPackage.Name & "] needed for the use of element [" & investigatedElement.Name & "] is not shown in any package diagram [19103:2015 requirement 17][19103:2015 requirement 21]")
+			Session.Output("Error: Dependency on package [" & investigatedPackage.Name & "] needed for the use of element [" & investigatedElement.Name & "] is not shown in any package diagram [ISO19103:2015 requirement 17][ISO19103:2015 requirement 21]")
 			globalErrorCounter=globalErrorCounter+1 
 	'		end if
 		end if
@@ -2829,7 +2829,7 @@ sub checkPackageDependency(thePackage)
 	for each packageElementID in globalListPackageElementIDsOfPackageDependencies
 		set investigatedPackage=Repository.GetElementByID(packageElementID)
 		if not UCase(investigatedPackage.Stereotype)="APPLICATIONSCHEMA" then
-			Session.Output("Warning: Dependency to package [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] found.  Dependencies shall only be to ApplicationSchema packages or Standard schemas. Ignore this warning if [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] is a standard schema [19109:2015 req/uml/integration]")
+			Session.Output("Warning: Dependency to package [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] found.  Dependencies shall only be to ApplicationSchema packages or Standard schemas. Ignore this warning if [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] is a standard schema [ISO19109:2015 req/uml/integration]")
 			globalWarningCounter = globalWarningCounter + 1
 		end if
 	next
@@ -3015,11 +3015,11 @@ sub findPackagesToBeReferenced()
 		
 		
 		if tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy.count = 0 and tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.count = 0 then
-			Session.Output("Error: Missing dependency for package ["& Repository.GetPackageByID(tempPackageIDOfPotentialPackageToBeReferenced).Name &"] (or any of its superpackages) containing external referenced class [" &currentExternalElement.Name& "] [19109:2015 /req/uml/integration]")
+			Session.Output("Error: Missing dependency for package ["& Repository.GetPackageByID(tempPackageIDOfPotentialPackageToBeReferenced).Name &"] (or any of its superpackages) containing external referenced class [" &currentExternalElement.Name& "] [ISO19109:2015 /req/uml/integration]")
 			globalErrorCounter = globalErrorCounter + 1
 		end if
 		if tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy.count > 0 and tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.count = 0 then
-			Session.Output("Error: Missing dependency for package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [19109:2015 /req/uml/integration]")
+			Session.Output("Error: Missing dependency for package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [ISO19109:2015 /req/uml/integration]")
 			globalErrorCounter = globalErrorCounter + 1
 		end if
 		
@@ -3029,7 +3029,7 @@ sub findPackagesToBeReferenced()
 			packageIDOfFirstAppSchemaPackageFoundInHierarchy = tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)
 			dim packageIDOfReferencedPackage
 			if not tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.contains(packageIDOfFirstAppSchemaPackageFoundInHierarchy) then
-				Session.Output("Error: Missing dependency for package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [19109:2015 /req/uml/integration]")
+				Session.Output("Error: Missing dependency for package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [ISO19109:2015 /req/uml/integration]")
 				Session.Output("       Please exchange the modelled dependency to the following package(s) because of an existing applicationSchema package in the package hierarchy:")
 				globalErrorCounter = globalErrorCounter + 1
 				for each packageIDOfReferencedPackage in tmpListPackageIDsOfReferencedPackagesFoundInHierarchy
@@ -3037,7 +3037,7 @@ sub findPackagesToBeReferenced()
 					
 				next
 			elseif tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.contains(packageIDOfFirstAppSchemaPackageFoundInHierarchy) and tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.count > 1 then
-				Session.Output("Error: Found redundant dependency related to package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [19109:2015 /req/uml/integration]")
+				Session.Output("Error: Found redundant dependency related to package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [ISO19109:2015 /req/uml/integration]")
 				Session.Output("       Please remove additional modelled dependency to the following package(s) in the same package hierarchy:")
 				globalErrorCounter = globalErrorCounter + 1
 				for each packageIDOfReferencedPackage in tmpListPackageIDsOfReferencedPackagesFoundInHierarchy
@@ -3152,7 +3152,7 @@ sub CheckSubPackageStereotype(rootPackage)
 	
 	for each subPackage in subPackageList
 		if UCase(subPackage.Element.Stereotype)="APPLICATIONSCHEMA" then
-			Session.Output("Error: Package [«" &subPackage.Element.Stereotype& "» " &subPackage.Name& "]. Package with stereotype ApplicationSchema cannot contain subpackages with stereotype ApplicationSchema. [19109:2015 /req/uml/integration]")
+			Session.Output("Error: Package [«" &subPackage.Element.Stereotype& "» " &subPackage.Name& "]. Package with stereotype ApplicationSchema cannot contain subpackages with stereotype ApplicationSchema. [ISO19109:2015 /req/uml/integration]")
 			globalErrorCounter = globalErrorCounter + 1
 		end if	
 	next
@@ -3373,7 +3373,7 @@ sub FindInvalidElementsInPackage(package)
 '			loopCounterMultipleInheritance = 0
 '			Call findMultipleInheritance(currentElement) 
  					 
-			'check the structure of the value for tag values: designation, description and definition [19109:2015 /req/multi-lingual/feature]
+			'check the structure of the value for tag values: designation, description and definition [ISO19109:2015 /req/multi-lingual/feature]
 			if UCase(currentElement.Stereotype) = "FEATURETYPE" then 
 				Call structurOfTVforElement( currentElement, "description")
 				Call structurOfTVforElement( currentElement, "designation") 
@@ -3412,7 +3412,7 @@ sub FindInvalidElementsInPackage(package)
 					'check if the attribute has a definition									 
 					'Call the subfunction with currentAttribute as parameter 
 					CheckDefinition(currentAttribute) 
-					'check the structure of the value for tagged values: designation, description and definition [19109 /req/multi-lingual/feature]
+					'check the structure of the value for tagged values: designation, description and definition [ISO19109 /req/multi-lingual/feature]
 					Call structurOfTVforElement( currentAttribute, "description")
 					Call structurOfTVforElement( currentAttribute, "designation")
 					Call structurOfTVforElement( currentAttribute, "definition") 
@@ -3563,7 +3563,7 @@ sub FindInvalidElementsInPackage(package)
 					dim currentOperation as EA.Method		 
 					set currentOperation = operationsCollection.GetAt(operationCounter) 
  								
-					'check the structure of the value for tag values: designation, description and definition [19109 /req/multi-lingual/feature]
+					'check the structure of the value for tag values: designation, description and definition [ISO19109 /req/multi-lingual/feature]
 					Call structurOfTVforElement(currentOperation, "description")
 					Call structurOfTVforElement(currentOperation, "designation")
 					Call structurOfTVforElement(currentOperation, "definition")
@@ -3572,7 +3572,7 @@ sub FindInvalidElementsInPackage(package)
 					'TODO: this rule does not apply for constructor operation 
 					if globalLogLevelIsWarning then
 						if not Left(currentOperation.Name,1) = LCase(Left(currentOperation.Name,1)) then 
-							Session.Output("Warning: Operation name [" & currentOperation.Name & "] in class ["&currentElement.Name&"] should not start with capital letter. [19103:2015 recommendation 11]") 
+							Session.Output("Warning: Operation name [" & currentOperation.Name & "] in class ["&currentElement.Name&"] should not start with capital letter. [ISO19103:2015 recommendation 11]") 
 							globalWarningCounter = globalWarningCounter + 1 
 						end if 
 					end if
