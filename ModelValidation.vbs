@@ -35,7 +35,7 @@
 '			Iso 19103 Requirement 14 - inherit from same stereotypes
 '  	/krav/15:
 '			Iso 19103 Requirement 15 - known stereotypes
-'  	/krav/16:
+'  	ISO19103:2015 requirement 16:
 '			Iso 19103 Requirement 16 - legal NCNames case-insesnitively unique within their namespace
 '  	/krav/18:
 '			Iso 19103 Requirement 18 - checks that all elements show all structures in at least one diagram
@@ -88,7 +88,7 @@
 '   [ISO19103:2015 Recommendation 1]:
 '			Checks every initial values in codeLists and enumerations for a package. If one or more initial values are numeric in one list, 
 ' 			it return a warning message. 
-'  	/anbefaling/styleGuide:
+'  	/SOSIREQ anbefaling/styleGuide:
 '			Checks that the stereotype for packages and elements got the right use of lower- and uppercase, if not, return an error. Stereotypes to be cheked:
 '			CodeList, dataType, enumeration, interface, Leaf, Union, FeatureType, ApplicationSchema
 '	/req/uml/profile      
@@ -1207,6 +1207,7 @@ end sub
 
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' SOSIREQ
 ' Script Name: checkStereotypes
 ' Author: Sara Henriksen
 ' Date: 29.08.16 
@@ -1216,92 +1217,92 @@ end sub
 'sub procedure to check if the stereotype for a given package or element
 '@param[in]: theElement (EA.ObjectType) The object to check against /anbefaling/styleguide 
 'supposed to be one of the following types: EA.Element, EA.Package  
-
-sub checkStereotypes(theElement)
-	
-	Dim currentElement as EA.Element
-	Dim currentPackage as EA.Package
-
-	Select Case theElement.ObjectType
-
-		Case otPackage 
-		set currentPackage = theElement 
-		
-		if UCase(theElement.Element.Stereotype) = "APPLICATIONSCHEMA" then
-			if  not theElement.Element.Stereotype = "ApplicationSchema"   then 
-				if globalLogLevelIsWarning then
-					Session.Output("Warning: Package [«"&theElement.Element.Stereotype&"» "&theElement.Name&"]  has a stereotype with wrong use of lower-and uppercase. Expected use of case: ApplicationSchema [/anbefaling/styleGuide]")
-					globalWarningCounter = globalWarningCounter + 1 
-				end if	
-			end if 
-		end if 
-	
-		if UCase(theElement.Element.Stereotype) = "LEAF" then
-			if  not theElement.Element.Stereotype = "Leaf" then 'and not pack.Element.Stereotype = "Leaf" then
-				if globalLogLevelIsWarning then
-					Session.Output("Warning: Package [«"&theElement.Element.Stereotype&" »"&theElement.Name&"]  has a stereotype with wrong use of lower-and uppercase. Expected use of case: Leaf [/anbefaling/styleGuide]")
-					globalWarningCounter = globalWarningCounter + 1 
-				end if	
-			end if 
-		end if
-		
-		Case otElement
-		set currentElement = theElement 
-		if UCase(theElement.Stereotype) = "CODELIST" then 
-			if  not theElement.Stereotype = "CodeList" then 
-				if globalLogLevelIsWarning then
-					Session.Output("Warning: Element [«"&theElement.Stereotype&"» "&theElement.Name&"] has a stereotype with wrong use of lower-and uppercase. Expected use of case: CodeList [/anbefaling/styleGuide]")
-					globalWarningCounter = globalWarningCounter + 1 
-				end if	
-			end if 
-		end if 
-		
-		if UCase(theElement.Stereotype) = "DATATYPE" then 
-			if  not theElement.Stereotype = "dataType" then 
-				if globalLogLevelIsWarning then
-					Session.Output("Warning: Element [«"&theElement.Stereotype&"» "&theElement.Name&"] has a stereotype with wrong use of lower-and uppercase. Expected use of case: dataType [/anbefaling/styleGuide]")
-					globalWarningCounter = globalWarningCounter + 1 
-				end if	
-			end if 
-		end if 
-		
-		if UCase(theElement.Stereotype) = "FEATURETYPE" then 
-			if  not theElement.Stereotype = "FeatureType" then 
-				if globalLogLevelIsWarning then
-					Session.Output("Warning: Element [«"&theElement.Stereotype&"» "&theElement.Name&"] has a stereotype with wrong use of lower-and uppercase. Expected use of case: FeatureType [/anbefaling/styleGuide]")
-					globalWarningCounter = globalWarningCounter + 1 
-				end if	
-			end if 
-		end if 
-		
-		if UCase(theElement.Stereotype) = "UNION" then 
-			if  not theElement.Stereotype = "Union" then 
-				if globalLogLevelIsWarning then
-					Session.Output("Warning: Element [«"&theElement.Stereotype&"» "&theElement.Name&"] has a stereotype with wrong use of lower-and uppercase. Expected use of case: Union [/anbefaling/styleGuide]")
-					globalWarningCounter = globalWarningCounter + 1 
-				end if	
-			end if 
-		end if
-		
-		if UCase(theElement.Stereotype) = "ENUMERATION" then 
-			if  not theElement.Stereotype = "enumeration" then 
-				if globalLogLevelIsWarning then
-					Session.Output("Warning: Element [«"&theElement.Stereotype&"» "&theElement.Name&"] has a stereotype with wrong use of lower-and uppercase. Expected use of case: enumeration [/anbefaling/styleGuide]")
-					globalWarningCounter = globalWarningCounter + 1 
-				end if	
-			end if 
-		end if
-		
-		if UCase(theElement.Stereotype) = "INTERFACE" then 
-			if  not theElement.Stereotype = "interface" then 
-				if globalLogLevelIsWarning then
-					Session.Output("Warning: Element [«"&theElement.Stereotype&"» "&theElement.Name&"] has a stereotype with wrong use of lower-and uppercase. Expected use of case: interface [/anbefaling/styleGuide]")
-					globalWarningCounter = globalWarningCounter + 1 
-				end if	
-			end if 
-		end if
-	end select 
-end sub
+'
+'sub checkStereotypes(theElement)
+'	
+'	Dim currentElement as EA.Element
+'	Dim currentPackage as EA.Package
+'
+'	Select Case theElement.ObjectType
+'
+'		Case otPackage 
+'		set currentPackage = theElement 
+'		
+'		if UCase(theElement.Element.Stereotype) = "APPLICATIONSCHEMA" then
+'			if  not theElement.Element.Stereotype = "ApplicationSchema"   then 
+'				if globalLogLevelIsWarning then
+'					Session.Output("Warning: Package [«"&theElement.Element.Stereotype&"» "&theElement.Name&"]  has a stereotype with wrong use of lower-and uppercase. Expected use of case: ApplicationSchema [/anbefaling/styleGuide]")
+'					globalWarningCounter = globalWarningCounter + 1 
+'				end if	
+'			end if 
+'		end if 
+'	
+'		if UCase(theElement.Element.Stereotype) = "LEAF" then
+'			if  not theElement.Element.Stereotype = "Leaf" then 'and not pack.Element.Stereotype = "Leaf" then
+'				if globalLogLevelIsWarning then
+'					Session.Output("Warning: Package [«"&theElement.Element.Stereotype&" »"&theElement.Name&"]  has a stereotype with wrong use of lower-and uppercase. Expected use of case: Leaf [/anbefaling/styleGuide]")
+'					globalWarningCounter = globalWarningCounter + 1 
+'				end if	
+'			end if 
+'		end if
+'		
+'		Case otElement
+'		set currentElement = theElement 
+'		if UCase(theElement.Stereotype) = "CODELIST" then 
+'			if  not theElement.Stereotype = "CodeList" then 
+'				if globalLogLevelIsWarning then
+'					Session.Output("Warning: Element [«"&theElement.Stereotype&"» "&theElement.Name&"] has a stereotype with wrong use of lower-and uppercase. Expected use of case: CodeList [/anbefaling/styleGuide]")
+'					globalWarningCounter = globalWarningCounter + 1 
+'				end if	
+'			end if 
+'		end if 
+'		
+'		if UCase(theElement.Stereotype) = "DATATYPE" then 
+'			if  not theElement.Stereotype = "dataType" then 
+'				if globalLogLevelIsWarning then
+'					Session.Output("Warning: Element [«"&theElement.Stereotype&"» "&theElement.Name&"] has a stereotype with wrong use of lower-and uppercase. Expected use of case: dataType [/anbefaling/styleGuide]")
+'					globalWarningCounter = globalWarningCounter + 1 
+'				end if	
+'			end if 
+'		end if 
+'		
+'		if UCase(theElement.Stereotype) = "FEATURETYPE" then 
+'			if  not theElement.Stereotype = "FeatureType" then 
+'				if globalLogLevelIsWarning then
+'					Session.Output("Warning: Element [«"&theElement.Stereotype&"» "&theElement.Name&"] has a stereotype with wrong use of lower-and uppercase. Expected use of case: FeatureType [/anbefaling/styleGuide]")
+'					globalWarningCounter = globalWarningCounter + 1 
+'				end if	
+'			end if 
+'		end if 
+'		
+'		if UCase(theElement.Stereotype) = "UNION" then 
+'			if  not theElement.Stereotype = "Union" then 
+'				if globalLogLevelIsWarning then
+'					Session.Output("Warning: Element [«"&theElement.Stereotype&"» "&theElement.Name&"] has a stereotype with wrong use of lower-and uppercase. Expected use of case: Union [/anbefaling/styleGuide]")
+'					globalWarningCounter = globalWarningCounter + 1 
+'				end if	
+'			end if 
+'		end if
+'		
+'		if UCase(theElement.Stereotype) = "ENUMERATION" then 
+'			if  not theElement.Stereotype = "enumeration" then 
+'				if globalLogLevelIsWarning then
+'					Session.Output("Warning: Element [«"&theElement.Stereotype&"» "&theElement.Name&"] has a stereotype with wrong use of lower-and uppercase. Expected use of case: enumeration [/anbefaling/styleGuide]")
+'					globalWarningCounter = globalWarningCounter + 1 
+'				end if	
+'			end if 
+'		end if
+'		
+'		if UCase(theElement.Stereotype) = "INTERFACE" then 
+'			if  not theElement.Stereotype = "interface" then 
+'				if globalLogLevelIsWarning then
+'					Session.Output("Warning: Element [«"&theElement.Stereotype&"» "&theElement.Name&"] has a stereotype with wrong use of lower-and uppercase. Expected use of case: interface [/anbefaling/styleGuide]")
+'					globalWarningCounter = globalWarningCounter + 1 
+'				end if	
+'			end if 
+'		end if
+'	end select 
+'end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 
@@ -1549,6 +1550,18 @@ sub krav6mnemoniskKodenavn(theElement)
 	end if
 end sub
 
+Function hasNoWhiteSpace(inputString)
+	dim i
+	dim retVal
+	retVal=true
+	for i=1 to len(streng)
+		if mid(inputStr,i,1)=" " then retVal=false
+	next
+	hasNoWhiteSpace=retVal
+end function
+
+
+
 Function IsNCName(streng)
     Dim txt, res, tegn, i, u
     u = true
@@ -1779,7 +1792,7 @@ end sub
 ' Author: Kent Jonsrud
 ' Date: 2016-08-09
 ' Purpose: 
-    '/krav/16
+    'ISO19103:2015 requirement 16
  
 sub krav16unikeNCnavn(theElement)
 	
@@ -1814,13 +1827,13 @@ sub krav16unikeNCnavn(theElement)
 		'(ignoring all association roles without name!)
 		if roleName <> "" then
 			if PropertyNames.IndexOf(UCase(roleName),0) <> -1 then
-				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has non-unique role name ["&roleName&"]. [/krav/16]")				
+				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has non-unique role name ["&roleName&"]. [ISO19103:2015 requirement 16]")				
  				globalErrorCounter = globalErrorCounter + 1 
 			else
 				PropertyNames.Add UCase(roleName)
 			end if
-			if NOT IsNCName(roleName) then
-				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has illegal role name, ["&roleName&"] is not a NCName. [/krav/16]")				
+			if NOT hasNoWhiteSpace(roleName) then
+				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has illegal role name, ["&roleName&"] contains whitespace. [ISO19103:2015 requirement 16]")				
  				globalErrorCounter = globalErrorCounter + 1 
 			end if
 		end if
@@ -1829,14 +1842,14 @@ sub krav16unikeNCnavn(theElement)
 	'Operation names
 	for each oper in theElement.Methods
 		if PropertyNames.IndexOf(UCase(oper.Name),0) <> -1 then
-			Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has non-unique operation property name ["&oper.Name&"]. [/krav/16]")				
+			Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has non-unique operation property name ["& oper.Name &"]. [ISO19103:2015 requirement 16]")				
 			globalErrorCounter = globalErrorCounter + 1 
 		else
 			PropertyNames.Add UCase(oper.Name)
 		end if
 		'check if the name is NCName
-		if NOT IsNCName(oper.Name) then
-				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has illegal operation name, ["&oper.Name&"] is not a NCName. [/krav/16]")				
+		if NOT hasNoWhiteSpace(oper.Name) then
+				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has illegal operation name, ["& oper.Name &"] contains whitespace. [ISO19103:2015 requirement 16]")				
  				globalErrorCounter = globalErrorCounter + 1 
 		end if 
 	next
@@ -1848,7 +1861,7 @@ sub krav16unikeNCnavn(theElement)
 		'count number of attributes in one list
 		numberInList = numberInList + 1 
 		if PropertyNames.IndexOf(UCase(attr.Name),0) <> -1 then
-			Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has non-unique attribute property name ["&attr.Name&"]. [/krav/16]")				
+			Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has non-unique attribute property name ["&attr.Name&"]. [ISO19103:2015 requirement 16]")				
 			globalErrorCounter = globalErrorCounter + 1 
 		else
 			PropertyNames.Add UCase(attr.Name)
@@ -1856,9 +1869,9 @@ sub krav16unikeNCnavn(theElement)
 
 		'check if the name is NCName (exception for code names - they have a separate test.)
 		if NOT ((theElement.Type = "Class") and (UCase(theElement.Stereotype) = "CODELIST"  Or UCase(theElement.Stereotype) = "ENUMERATION")) then
-			if NOT IsNCName(attr.Name) then
+			if NOT hasNoWhiteSpace(attr.Name) then
 				'count number of numeric initial values for one list
-				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has illegal attribute name, ["&attr.Name&"] is not a NCName. [/krav/16]")				
+				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has illegal attribute name, ["&attr.Name&"] contains whitespace. [ISO19103:2015 requirement 16]")				
  				globalErrorCounter = globalErrorCounter + 1 
 			end if
 		end if 
@@ -1926,7 +1939,7 @@ sub krav16unikeNCnavnArvede(theElement, PropertyNames, inheritanceElementList)
 		if roleName <> "" then
 			if PropertyNames.IndexOf(UCase(roleName),0) <> -1 then
 				if globalLogLevelIsWarning then
-					Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] in package: ["&Repository.GetPackageByID(theElement.PackageID).Name&"] has non-unique inherited role property name ["&roleName&"] implicitly redefined from. [/krav/16]")				
+					Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] in package: ["&Repository.GetPackageByID(theElement.PackageID).Name&"] has non-unique inherited role property name ["&roleName&"] implicitly redefined from. [ISO19103:2015 requirement 16]")				
 					globalWarningCounter = globalWarningCounter + 1
 				end if	
 			end if
@@ -1937,7 +1950,7 @@ sub krav16unikeNCnavnArvede(theElement, PropertyNames, inheritanceElementList)
 	for each oper in theElement.Methods
 		if PropertyNames.IndexOf(UCase(oper.Name),0) <> -1 then
 			if globalLogLevelIsWarning then
-				Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] in package: ["&Repository.GetPackageByID(theElement.PackageID).Name&"] has inherited and implicitly redefined non-unique operation property name ["&oper.Name&"]. [/krav/16]")				
+				Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] in package: ["&Repository.GetPackageByID(theElement.PackageID).Name&"] has inherited and implicitly redefined non-unique operation property name ["& oper.Name&"]. [ISO19103:2015 requirement 16]")				
 				globalWarningCounter = globalWarningCounter + 1
 			end if	
 		end if
@@ -1951,7 +1964,7 @@ sub krav16unikeNCnavnArvede(theElement, PropertyNames, inheritanceElementList)
 		numberInList = numberInList + 1 
 		if PropertyNames.IndexOf(UCase(attr.Name),0) <> -1 then
 			if globalLogLevelIsWarning then
-				Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] in package: ["&Repository.GetPackageByID(theElement.PackageID).Name&"] has non-unique inherited and implicitly redefined attribute property name["&attr.Name&"]. [/krav/16]")				
+				Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] in package: ["&Repository.GetPackageByID(theElement.PackageID).Name&"] has non-unique inherited and implicitly redefined attribute property name["&attr.Name&"]. [ISO19103:2015 requirement 16]")				
 				globalWarningCounter = globalWarningCounter + 1
 			end if	
 		end if
@@ -3189,7 +3202,7 @@ sub FindInvalidElementsInPackage(package)
 	
 	'Iso 19103 Requirement 16 - unique (NC?)Names on subpackages within the package.
 	if ClassAndPackageNames.IndexOf(UCase(package.Name),0) <> -1 then
-		Session.Output("Error: Package [" &startPackageName& "] has non-unique subpackage name ["&package.Name&"]. [/krav/16]")				
+		Session.Output("Error: Package [" &startPackageName& "] has non-unique subpackage name ["&package.Name&"]. [ISO19103:2015 requirement 16]")				
 		globalErrorCounter = globalErrorCounter + 1 
 	end if
 
@@ -3222,7 +3235,7 @@ sub FindInvalidElementsInPackage(package)
 '	SOSIREQ call CheckOversiktsdiagram(package)
 					
 	'check packages' stereotype for right use of lower- and uppercase [/anbefaling/styleGuide] 	
-	call checkStereotypes(package)		 
+'	call checkStereotypes(package)		 
 	
 	dim packages as EA.Collection 
 	set packages = package.Packages 'collection of packages that belong to this package	
@@ -3263,7 +3276,7 @@ sub FindInvalidElementsInPackage(package)
 		set currentElement = elements.GetAt( i ) 
 				
 		'check elements' stereotype for right use of lower- and uppercase [/anbefaling/styleGuide]
-		Call checkStereotypes(currentElement)	
+'		Call checkStereotypes(currentElement)	
  				
 		if (currentElement.Type="Class" or currentElement.Type="Interface") then
 			call checkInstantiable(currentElement)
@@ -3283,7 +3296,7 @@ sub FindInvalidElementsInPackage(package)
 		'Inherited properties  also included, strictly not an error situation but implicit redefinition is not well supported anyway
 		if currentElement.Type = "Class" or currentElement.Type = "DataType" or currentElement.Type = "Enumeration" or currentElement.Type = "Interface" then
 			if ClassAndPackageNames.IndexOf(UCase(currentElement.Name),0) <> -1 then
-				Session.Output("Error: Class [«" &currentElement.Stereotype& "» "&currentElement.Name&"] in package: [" &package.Name& "] has non-unique name. [/krav/16]")				
+				Session.Output("Error: Class [«" &currentElement.Stereotype& "» "&currentElement.Name&"] in package: [" &package.Name& "] has non-unique name. [ISO19103:2015 requirement 16]")				
 				globalErrorCounter = globalErrorCounter + 1 
 			end if
 
@@ -3294,7 +3307,7 @@ sub FindInvalidElementsInPackage(package)
 			' ---OTHER ARTIFACTS--- Do their names also need to be tested for uniqueness? (need to be different?)
 			if currentElement.Type <> "Note" and currentElement.Type <> "Text" and currentElement.Type <> "Boundary" then
 				if ClassAndPackageNames.IndexOf(UCase(currentElement.Name),0) <> -1 then
-					Session.Output("Debug: Unexpected unknown element with non-unique name [«" &currentElement.Stereotype& "» " &currentElement.Name& "]. EA-type: [" &currentElement.Type& "]. [/krav/16]")
+					Session.Output("Debug: Unexpected unknown element with non-unique name [«" &currentElement.Stereotype& "» " &currentElement.Name& "]. EA-type: [" &currentElement.Type& "]. [ISO19103:2015 requirement 16]")
 					'This test is dependent on where the artifact is in the test sequence 
 				end if
 			end if
