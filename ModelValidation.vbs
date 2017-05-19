@@ -31,8 +31,8 @@
 '			Check if all navigable association ends have role names 
 '	[ISO19103:2015 Requirement 12]: 
 '			If datatypes have associations then the datatype shall only be target in a composition 
-'  	/krav/14:
-'			Iso 19103 Requirement 14 - inherit from same stereotypes
+'  	[ISO19103:2015 Requirement 14]:
+'			Checks that there is no inheritance between classes with unequal stereotypes.
 '  	/krav/15:
 '			Iso 19103 Requirement 15 - known stereotypes
 '  	/krav/16:
@@ -103,9 +103,9 @@
 '	/krav/taggedValueSpråk 	
 '	SOSIREQ	/krav/taggedValueSpråk 	(See 19109:2015 /req/multi-lingual/package)
 '			Check that ApplicationSchema packages shall have a language tag. Also check that ApplicationSchema have designation and definition tags in English (i.e. tag value ending with @en)
-'	/req/general/feature
-' 			Check that no FeatureTypes inherits from a class named GM_Object or TM_object. 
-'			Not implemented: Check that FeatureTypes within a ApplicationSchema have unique names.
+'	[ISO19109:2015 /req/general/feature]
+' 			Checks that no «FeatureTypes» inherits from a class named GM_Object or TM_object. 
+'			Check that FeatureTypes within a ApplicationSchema have unique names (triggers in the sub 'checkUniqueFeatureTypeNames').
 '	19109:2015 /req/uml/integration
 '			Check correct handling of package dependency and check that there are no applicationSchemas in the package hierarchy below start package for this script.
 '			Not implemented yet: Check of package hierarchy of external referenced packages for more than one applicationSchema. Check of package hierachy above start package for more applicationSchemas.
@@ -1578,7 +1578,7 @@ End Function
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 
-' -----------------------------------------------------------START-------------------------------------------------------------------------------------------
+'------------------------------------------------------------START-------------------------------------------------------------------------------------------
 ' Sub Name: krav7-kodedefinisjon
 ' Author: Kent Jonsrud
 ' Date: 2016-08-05
@@ -1624,15 +1624,15 @@ end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 
-' -----------------------------------------------------------START-------------------------------------------------------------------------------------------
-' Sub Name: krav14 - inherit from same stereotype
-' Author: Tore Johnsen
-' Date: 2016-08-22
-' Purpose: Checks that there is no inheritance between classes with unequal stereotypes.
-'		/krav/14
+'------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' Sub Name:	requirement14
+' Author: 	Tore Johnsen
+' Date: 	2016-08-22
+' Purpose: 	Checks that there is no inheritance between classes with unequal stereotypes.
+'		   	ISO19103:2015 Requirement14
 ' @param[in]: currentElement
 
-sub krav14(currentElement)
+sub requirement14(currentElement)
 
 	dim connectors as EA.Collection
 	set connectors = currentElement.Connectors
@@ -1649,7 +1649,7 @@ sub krav14(currentElement)
 			set elementOnOppositeSide = Repository.GetElementByID(targetElementID)
 			
 			if UCase(elementOnOppositeSide.Stereotype) <> UCase(currentElement.Stereotype) then
-				session.output("Error: Class [" & elementOnOppositeSide.Name & "] has a stereotype that is not the same as the stereotype of [" & currentElement.Name & "]. A class can only inherit from a class with the same stereotype. [/krav/14]")
+				session.output("Warning: Class [«"&elementOnOppositeSide.Stereotype&"» "&elementOnOppositeSide.Name&"] has a stereotype that is not the same as the stereotype of [«"&currentElement.Stereotype&"» "&currentElement.Name&"]. Check if they are at the same abstraction level. [ISO19103:2015 Requirement 14]")
 				globalErrorCounter = globalErrorCounter + 1 
 			end if
 		end if
@@ -1658,11 +1658,12 @@ end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 
-' -----------------------------------------------------------START-------------------------------------------------------------------------------------------
-' Sub Name: req/general/feature
-' Author: Tore Johnsen
-' Date: 2017-02-22
-' Purpose: Checks that no classes with stereotype <<FeatureType>> inherits from a class named GM_Object or TM_Object.
+'------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' Sub Name: reqGeneralFeature
+' Author: 	Tore Johnsen
+' Date: 	2017-02-22
+' Purpose: 	Checks that no classes with stereotype «FeatureType» inherits from a class named GM_Object or TM_Object.
+'			ISO19109:2015 req/general/feature
 ' @param[in]: currentElement, startClass
 
 sub reqGeneralFeature(currentElement, startClass)
@@ -2667,7 +2668,7 @@ sub checkUniqueFeatureTypeNames()
 		'generate error messages according to content of the temporary array
 		dim tempStoredFeatureType AS EA.Element
 		if temporaryFeatureTypeArray.count > 1 then
-			Session.Output("Error: Found nonunique names for the following classes. [ISO19109:2015 /req/uml/feature] & [req/general/feature]")
+			Session.Output("Error: Found nonunique names for the following classes. [ISO19109:2015 /req/uml/feature] & ISO19109:2015 [req/general/feature]")
 			'counting one error per name conflict (not one error per class with nonunique name)
 			globalErrorCounter = globalErrorCounter + 1
 			for each tempStoredFeatureType in temporaryFeatureTypeArray
@@ -3275,7 +3276,7 @@ sub FindInvalidElementsInPackage(package)
 		end if
 
 		' check if inherited stereotypes are all the same
-		Call krav14(currentElement)
+		Call requirement14(currentElement)
 		' check that no class inherits from a class named GM_Object or TM_Object
 		Call reqGeneralFeature(currentElement, currentElement)
 		' ---ALL CLASSIFIERS---
