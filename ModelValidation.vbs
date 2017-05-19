@@ -19,7 +19,11 @@
 ' Implemented rules: 
 '	[ISO19103:2015 Requirement 3]:  
 '			Find elements (classes, attributes, navigable association roles, operations, datatypes)  
-'	        without definition (notes/rolenotes) in the selected package and subpackages 
+'	        without definition (notes/rolenotes) in the selected package and subpackages.
+'			It is not fully implemented: In this version the requirement for sufficient definition for associations 
+'			is fulfilled if association roles at navigable association ends have a definition. 
+'			Not implemented yet: Association without definition at all (neither for roles nor for the association) 
+'			won't be detected.
 '
 '	/krav/6:		
 '			Iso 19103 Requirement 6 - NCNames in codelist codes.
@@ -33,8 +37,8 @@
 '			If datatypes have associations then the datatype shall only be target in a composition 
 '  	[ISO19103:2015 Requirement 14]:
 '			Checks that there is no inheritance between classes with unequal stereotypes.
-'  	/krav/15:
-'			Iso 19103 Requirement 15 - known stereotypes
+'  	SOSIREQ /krav/15:
+'	[ISO19103 Requirement 15] - check for known stereotypes
 '  	ISO19103:2015 requirement 16:
 '			Iso 19103 Requirement 16 - legal NCNames case-insesnitively unique within their namespace
 '  	/krav/18:
@@ -488,8 +492,6 @@ end function
 'Purpose: 		Check if the provided argument for input parameter theObject fulfills the requirements in [ISO19103:2015 Requirement 3]: 
 '				Find elements (classes, attributes, navigable association roles, operations, datatypes)  
 '				without definition (notes/rolenotes) 
-'				[krav/definisjoner]: 
-'				Find packages and constraints without definition
 '				[ISO19103:2015 Requirement 19]:
 '				All classes shall have a definition
 '@param[in] 	theObject (EA.ObjectType) The object to check,  
@@ -589,12 +591,14 @@ end function
  			' Code for when the function's parameter is a package 
  			 
  			set currentPackage = theObject 
- 			 
- 			'check package definition 
-			if currentPackage.Notes = "" then 
-				Session.Output("Error: Package [" & currentPackage.Name & "] lacks a definition. [/krav/definisjoner]") 
-				globalErrorCounter = globalErrorCounter + 1 
-			end if 	 
+ 			
+			'SOSIREQ code below is obsolete - START	
+ 			''check package definition 
+			'if currentPackage.Notes = "" then 
+			'	Session.Output("Error: Package [" & currentPackage.Name & "] lacks a definition. [/krav/definisjoner]") 
+			'	globalErrorCounter = globalErrorCounter + 1 
+			'end if 	
+			'SOSIREQ code above is obsolete - END		
  		Case else		 
  			'TODO: need some type of exception handling here
 			Session.Output( "Debug: Function [CheckDefinition] started with invalid parameter.") 
@@ -1704,13 +1708,14 @@ end sub
 
 
 ' -----------------------------------------------------------START-------------------------------------------------------------------------------------------
-' Sub Name: krav15-stereotyper
+' Sub Name: checkKnownStereotypes
 ' Author: Kent Jonsrud
 ' Date: 2016-08-05
 ' Purpose: 
-    '/krav/15 - warning if not a standardised stereotype
+    '[ISO19103 Requirement 15] - warning if not a standardised stereotype
+	'this is not implemented as an error since there can be reasons for new stereotypes with different meaning than the standardised stereotypes
 
-sub krav15stereotyper(theElement)
+sub checkKnownStereotypes(theElement)
 	dim goodNames, badName, badStereotype, roleName
 	goodNames = true
 	dim attr as EA.Attribute
@@ -1726,7 +1731,7 @@ sub krav15stereotyper(theElement)
 		if attr.Stereotype <> "" then
 			numberOfFaults = numberOfFaults + 1
 			if globalLogLevelIsWarning then
-				Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has unknown stereotype. «" & attr.Stereotype & "» on attribute ["&attr.Name&"]. [/krav/15]")
+				Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has unknown stereotype. «" & attr.Stereotype & "» on attribute ["&attr.Name&"]. [ISO19103 Requirement 15]")
 				globalWarningCounter = globalWarningCounter + 1
 			end if	
 			if goodNames then
@@ -1763,7 +1768,7 @@ sub krav15stereotyper(theElement)
 		if roleName <> "" then
 			if badStereotype <> "" and LCase(badStereotype) <> "estimated" then
 				if globalLogLevelIsWarning then
-					Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] as unknown stereotype «"&badStereotype&"» on role name ["&roleName&"]. [/krav/15]")				
+					Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] as unknown stereotype «"&badStereotype&"» on role name ["&roleName&"]. [ISO19103 Requirement 15]")				
 					globalWarningCounter = globalWarningCounter + 1 
 				end if	
 			end if
@@ -1773,15 +1778,17 @@ sub krav15stereotyper(theElement)
 	'Associations with stereotype, especially «topo»
 	for each conn in theElement.Connectors
 		if conn.Stereotype <> "" then
-			if LCase(conn.Stereotype) = "topo" then
- 				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has illegal stereotype «"&conn.Stereotype&"» on association named ["&conn.Name&"]. Recommended to use the script <endreTopoAssosiasjonTilRestriksjon>. [/krav/15]")				
- 				globalErrorCounter = globalErrorCounter + 1 
-			else
+			'SOSIREQ code below is obsolete - START
+			'if LCase(conn.Stereotype) = "topo" then
+ 			'	Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has illegal stereotype «"&conn.Stereotype&"» on association named ["&conn.Name&"]. [ISO19103 Requirement 15]")				
+ 			'	globalErrorCounter = globalErrorCounter + 1 
+			'else
+			''SOSIREQ code above is obsolete - END
 				if globalLogLevelIsWarning then
-					Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has unknown stereotype «"&conn.Stereotype&"» on association named ["&conn.Name&"]. [/krav/15]")				
+					Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has unknown stereotype «"&conn.Stereotype&"» on association named ["&conn.Name&"]. [ISO19103 Requirement 15]")				
 					globalWarningCounter = globalWarningCounter + 1 
 				end if	
-			end if
+			'SOSIREQ obsolete code: end if
 		end if
 	next
 end sub
@@ -3188,10 +3195,11 @@ sub FindInvalidElementsInPackage(package)
  	'check package definition 
  	CheckDefinition(package) 
 			 
-	'Iso 19103 Requirement 15 - known stereotypes for packages.
+	'Iso 19103 Requirement 15 - known stereotypes for packages. - warning if not a standardised stereotype
+	'this is not implemented as an error since there can be reasons for new stereotypes with different meaning than the standardised stereotypes
 	if UCase(package.element.Stereotype) <> "APPLICATIONSCHEMA" and UCase(package.element.Stereotype) <> "LEAF" and UCase(package.element.Stereotype) <> "" then
 		if globalLogLevelIsWarning then
-			Session.Output("Warning: Unknown package stereotype: [«" &package.element.Stereotype& "» " &package.Name& "]. [/krav/15]")
+			Session.Output("Warning: Unknown package stereotype: [«" &package.element.Stereotype& "» " &package.Name& "]. [ISO19103 Requirement 15]")
 			globalWarningCounter = globalWarningCounter + 1
 		end if	
 	end if
@@ -3355,17 +3363,19 @@ sub FindInvalidElementsInPackage(package)
 				call krav7kodedefinisjon(currentElement)
 			end if
 	
-			'Iso 19103 Requirement 15 - known stereotypes for classes.
+			'Iso 19103 Requirement 15 - known stereotypes for classes - warning if not a standardised stereotype
+			'this is not implemented as an error since there can be reasons for new stereotypes with different meaning than the standardised stereotypes
+
 			if UCase(currentElement.Stereotype) = "FEATURETYPE"  Or UCase(currentElement.Stereotype) = "DATATYPE" Or UCase(currentElement.Stereotype) = "UNION" or UCase(currentElement.Stereotype) = "CODELIST"  Or UCase(currentElement.Stereotype) = "ENUMERATION" Or UCase(currentElement.Stereotype) = "ESTIMATED" or UCase(currentElement.Stereotype) = "MESSAGETYPE"  Or UCase(currentElement.Stereotype) = "INTERFACE" Or currentElement.Type = "Enumeration" then
 			else
 				if globalLogLevelIsWarning then
-					Session.Output("Warning: Class [«" &currentElement.Stereotype& "» " &currentElement.Name& "] has unknown stereotype. [/krav/15]")
+					Session.Output("Warning: Class [«" &currentElement.Stereotype& "» " &currentElement.Name& "] has unknown stereotype. [ISO19103 Requirement 15]")
 					globalWarningCounter = globalWarningCounter + 1
 				end if	
 			end if
 
-			'Iso 19103 Requirement 15 - known stereotypes for attributes.
-			call krav15stereotyper(currentElement)
+			'Iso 19103 Requirement 15 - known stereotypes for attributes. 
+			call checkKnownStereotypes(currentElement)
 
 			'Iso 19109 Requirement /req/uml/profile - well known types. Including Iso 19103 Requirements 22 and 25
 			if (UCase(currentElement.Stereotype) = "CODELIST"  Or UCase(currentElement.Stereotype) = "ENUMERATION" Or currentElement.Type = "Enumeration") then
