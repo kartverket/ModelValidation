@@ -17,7 +17,7 @@
 
 ' Purpose: Validate model elements according to rules defined in the standard SOSI Regler for UML-modellering 5.0 
 ' Implemented rules: 
-'	/krav/3:  
+'	[ISO19103:2015 Requirement 3]:  
 '			Find elements (classes, attributes, navigable association roles, operations, datatypes)  
 '	        without definition (notes/rolenotes) in the selected package and subpackages 
 '
@@ -25,11 +25,11 @@
 '			Iso 19103 Requirement 6 - NCNames in codelist codes.
 ' 	/krav/7:	    
 '			Iso 19103 Requirement 7 - definition of codelist codes.
-'  	/krav/10: 
+'  	[ISO19103:2015 Requirement 10]: 
 '			Check if all navigable association ends have cardinality 
-'	/krav/11: 
+'	[ISO19103:2015 Requirement 11]: 
 '			Check if all navigable association ends have role names 
-'	/krav/12: 
+'	[ISO19103:2015 Requirement 12]: 
 '			If datatypes have associations then the datatype shall only be target in a composition 
 '  	/krav/14:
 '			Iso 19103 Requirement 14 - inherit from same stereotypes
@@ -40,10 +40,10 @@
 '  	/krav/18:
 '			Iso 19103 Requirement 18 - checks that all elements show all structures in at least one diagram
 '			Tests all classes and their attributes in diagrams including roles and inheritance.
-'	/krav/19:
-'			Iso 19103 Requirement 19 - all classes shall have a definition describing its intended meaning or semantics.
-'	/krav/definisjoner: 
-'			Same as krav/3 but checks also for definitions of packages and constraints
+'	[ISO19103:2015 Requirement 19]:
+'			All classes shall have a definition describing its intended meaning or semantics.
+'	[ISO19109:2015 /req/uml/documentation]: 
+'			Same as [ISO19103:2015 Requirement 3] but checks also for definitions of (---> TBD: packages?) and constraints
 '			The part that checks definitions of constraints is implemented in sub checkConstraint	
 '			The rest is implemented in sub checkDefinitions
 '	/krav/eksternKodeliste
@@ -79,13 +79,13 @@
 '           Check if the last part of the package name is a version number.  Ignores the text "Utkast" for this check
 '   SOSIREQ /krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast
 '			Check if packages with SOSI_modellstatus tag "utkast" has "Utkast" in package name. Also do the reverse check.
-'  	/req/uml/constraint
+'  	[ISO19109:2015 /req/uml/constraint]
 '			To check if a constraint lacks name or definition. 
 '  	19109:2015 /req/uml/packaging:
 '     		To check if the value of the version-tag (tagged values) for an ApplicationSchema-package is empty or not. 
 '	19109:2015 /req/uml/structure
 '			Check that all abstract classes in application schema has at least one instantiable subclass within the same schema.  Check that no classes in application schema has stereotype interface
-'   /anbefaling/1:
+'   [ISO19103:2015 Recommendation 1]:
 '			Checks every initial values in codeLists and enumerations for a package. If one or more initial values are numeric in one list, 
 ' 			it return a warning message. 
 '  	/anbefaling/styleGuide:
@@ -97,8 +97,10 @@
 '			from iso 19103 - check for valid extended types for attributes (URI etc.), builds on iso 19103 Requirement 22.
 '	/krav/22:      
 '			from iso 19103 - check for valid core types for attributes (CharacterString etc.).
-'	/req/uml/feature
-'			featureType classes shall have unique names within the applicationSchema		
+'	[ISO19109:2015 /req/uml/feature]
+'			featureType classes shall have unique names within the applicationSchema	
+'			Not implemented yet: instances of FeatureType shall have generalization with AnyFeature
+'	/krav/taggedValueSpråk 	
 '	SOSIREQ	/krav/taggedValueSpråk 	(See 19109:2015 /req/multi-lingual/package)
 '			Check that ApplicationSchema packages shall have a language tag. Also check that ApplicationSchema have designation and definition tags in English (i.e. tag value ending with @en)
 '	/req/general/feature
@@ -483,12 +485,12 @@ end function
 'Sub name: 		CheckDefinition
 'Author: 		Magnus Karge (minor contribution by Tore Johnsen)
 'Date: 			20160925 
-'Purpose: 		Check if the provided argument for input parameter theObject fulfills the requirements in [krav/3]: 
+'Purpose: 		Check if the provided argument for input parameter theObject fulfills the requirements in [ISO19103:2015 Requirement 3]: 
 '				Find elements (classes, attributes, navigable association roles, operations, datatypes)  
 '				without definition (notes/rolenotes) 
 '				[krav/definisjoner]: 
 '				Find packages and constraints without definition
-'				[krav/19]:
+'				[ISO19103:2015 Requirement 19]:
 '				All classes shall have a definition
 '@param[in] 	theObject (EA.ObjectType) The object to check,  
 '				supposed to be one of the following types: EA.Attribute, EA.Method, EA.Connector, EA.Element 
@@ -507,7 +509,7 @@ end function
  			set currentElement = theObject 
  			 
  			If currentElement.Notes = "" then 
- 				Session.Output("Error: Class [«" &getStereotypeOfClass(currentElement)& "» "& currentElement.Name & "] has no definition. [/krav/3], [/krav/definisjoner] & [/krav/19]")	 
+ 				Session.Output("Error: Class [«" &getStereotypeOfClass(currentElement)& "» "& currentElement.Name & "] has no definition. [ISO19103:2015 Requirement 3], [ISO19109:2015 /req/uml/documentation] & [ISO19103:2015 Requirement 19]")	 
  				globalErrorCounter = globalErrorCounter + 1 
  			end if 
  		Case otAttribute 
@@ -523,7 +525,7 @@ end function
 				if Ucase(attributeParentElement.Stereotype) <> "ENUMERATION" then		
 					if attributeParentElement.Type <> "Enumeration" then	
 						if currentAttribute.Notes = "" then 
-							Session.Output( "Error: Class [«" &getStereotypeOfClass(attributeParentElement)& "» "& attributeParentElement.Name &"] \ attribute [" & currentAttribute.Name & "] has no definition. [/krav/3] & [/krav/definisjoner]") 
+							Session.Output( "Error: Class [«" &getStereotypeOfClass(attributeParentElement)& "» "& attributeParentElement.Name &"] \ attribute [" & currentAttribute.Name & "] has no definition. [ISO19103:2015 Requirement 3] & [ISO19109:2015 /req/uml/documentation]") 
 							globalErrorCounter = globalErrorCounter + 1 
 						end if
 					end if
@@ -540,7 +542,7 @@ end function
  			set methodParentElement = Repository.GetElementByID(currentMethod.ParentID) 
  			 
  			if currentMethod.Notes = "" then 
- 				Session.Output( "Error: Class [«" &getStereotypeOfClass(methodParentElement)& "» "& methodParentElement.Name &"] \ operation [" & currentMethod.Name & "] has no definition. [/krav/3] & [/krav/definisjoner]") 
+ 				Session.Output( "Error: Class [«" &getStereotypeOfClass(methodParentElement)& "» "& methodParentElement.Name &"] \ operation [" & currentMethod.Name & "] has no definition. [ISO19103:2015 Requirement 3] & [ISO19109:2015 /req/uml/documentation]") 
  				globalErrorCounter = globalErrorCounter + 1 
  			end if 
  		Case otConnector 
@@ -572,7 +574,7 @@ end function
  				'get the element on the source end of the connector 
  				set sourceEndElement = Repository.GetElementByID(sourceEndElementID) 
  				 
-				Session.Output( "Error: Class [«" &getStereotypeOfClass(sourceEndElement)& "» "& sourceEndElement.Name &"] \ association role [" & sourceEndName & "] has no definition. [/krav/3] & [/krav/definisjoner]") 
+				Session.Output( "Error: Class [«" &getStereotypeOfClass(sourceEndElement)& "» "& sourceEndElement.Name &"] \ association role [" & sourceEndName & "] has no definition. [ISO19103:2015 Requirement 3] & [ISO19109:2015 /req/uml/documentation]") 
  				globalErrorCounter = globalErrorCounter + 1 
  			end if 
  			 
@@ -580,7 +582,7 @@ end function
  				'get the element on the source end of the connector (also source end element here because error message is related to the element on the source end of the connector) 
  				set sourceEndElement = Repository.GetElementByID(sourceEndElementID) 
  				 
-				Session.Output( "Error: Class [«"&getStereotypeOfClass(sourceEndElement)&"» "&sourceEndElement.Name &"] \ association role [" & targetEndName & "] has no definition. [/krav/3] & [/krav/definisjoner]") 
+				Session.Output( "Error: Class [«"&getStereotypeOfClass(sourceEndElement)&"» "&sourceEndElement.Name &"] \ association role [" & targetEndName & "] has no definition. [ISO19103:2015 Requirement 3] & [ISO19109:2015 /req/uml/documentation]") 
  				globalErrorCounter = globalErrorCounter + 1 
  			end if 
  		Case otPackage 
@@ -1030,10 +1032,10 @@ end sub
 ' Author: Sara Henriksen
 ' Date: 26.08.16
 ' Purpose: to check if a constraint lacks name or definition. 
-' req/uml/constraint & krav/definisjoner
+' [ISO19109:2015 /req/uml/constraint] & [ISO19109:2015 /req/uml/documentation]
 ' sub procedure to check the current element/attribute/connector/package for constraints without name or definition
 ' not sure if it is possible in EA that constraints without names can exist, checking it anyways
-' @param[in]: currentConstraint (EA.Constraint) theElement (EA.ObjectType) The object to check against req/uml/constraint,  
+' @param[in]: currentConstraint (EA.Constraint) theElement (EA.ObjectType) The object to check against [ISO19109:2015 /req/uml/constraint],  
 ' supposed to be one of the following types: EA.Element, EA.Attribute, EA.Connector, EA.package
 
 sub checkConstraint(currentConstraint, theElement)
@@ -1051,13 +1053,13 @@ sub checkConstraint(currentConstraint, theElement)
 		
 		'if the current constraint lacks definition, then return an error
 		if currentConstraint.Notes= "" then 
-			Session.Output("Error: Class [«"&theElement.Stereotype&"» "&theElement.Name&"] \ constraint [" &currentConstraint.Name&"] lacks definition. [/req/uml/constraint] & [krav/definisjoner]")
+			Session.Output("Error: Class [«"&theElement.Stereotype&"» "&theElement.Name&"] \ constraint [" &currentConstraint.Name&"] lacks definition. [ISO19109:2015 /req/uml/constraint] & [ISO19109:2015 /req/uml/documentation]")
 			globalErrorCounter = globalErrorCounter + 1 
 		end if 
 		
 		'if the current constraint lacks a name, then return an error 
 		if currentConstraint.Name = "" then
-			Session.Output("Error: Class [«" &theElement.Stereotype& "» "&currentElement.Name& "] has a constraint without a name. [/req/uml/constraint]")
+			Session.Output("Error: Class [«" &theElement.Stereotype& "» "&currentElement.Name& "] has a constraint without a name. [ISO19109:2015 /req/uml/constraint]")
 			globalErrorCounter = globalErrorCounter + 1 
 		end if 
 		
@@ -1071,13 +1073,13 @@ sub checkConstraint(currentConstraint, theElement)
 		dim parentElementOfAttribute AS EA.Element
 		set parentElementOfAttribute = Repository.GetElementByID(parentElementID)
 		if currentConstraint.Notes= "" then 
-			Session.Output("Error: Class ["&parentElementOfAttribute.Name&"] \ attribute ["&theElement.Name&"] \ constraint [" &currentConstraint.Name&"] lacks definition. [/req/uml/constraint] & [krav/definisjoner]")
+			Session.Output("Error: Class ["&parentElementOfAttribute.Name&"] \ attribute ["&theElement.Name&"] \ constraint [" &currentConstraint.Name&"] lacks definition. [ISO19109:2015 /req/uml/constraint] & [ISO19109:2015 /req/uml/documentation]")
 			globalErrorCounter = globalErrorCounter + 1 
 		end if 
 		
 		'if the current constraint lacks a name, then return an error 	
 		if currentConstraint.Name = "" then
-			Session.Output("Error: Attribute ["&theElement.Name& "] has a constraint without a name. [/req/uml/constraint]")
+			Session.Output("Error: Attribute ["&theElement.Name& "] has a constraint without a name. [ISO19109:2015 /req/uml/constraint]")
 			globalErrorCounter = globalErrorCounter + 1 
 		end if 
 		
@@ -1086,13 +1088,13 @@ sub checkConstraint(currentConstraint, theElement)
 		
 		'if the current constraint lacks definition, then return an error message
 		if currentConstraint.Notes= "" then 
-			Session.Output("Error: Package [«"&theElement.Element.Stereotype&"» "&theElement.Name&"] \ constraint [" &currentConstraint.Name&"] lacks definition. [/req/uml/constraint] & [krav/definisjoner]")
+			Session.Output("Error: Package [«"&theElement.Element.Stereotype&"» "&theElement.Name&"] \ constraint [" &currentConstraint.Name&"] lacks definition. [ISO19109:2015 /req/uml/constraint] & [ISO19109:2015 /req/uml/documentation]")
 			globalErrorCounter = globalErrorCounter + 1 
 		end if 
 		
 		'if the current constraint lacks a name, then return an error meessage		
 		if currentConstraint.Name = "" then
-			Session.Output("Error: Package [«" &theElement.Element.Stereotype&"» " &currentElement.Name& "] has a constraint without a name. [/req/uml/constraint]")
+			Session.Output("Error: Package [«" &theElement.Element.Stereotype&"» " &currentElement.Name& "] has a constraint without a name. [ISO19109:2015 /req/uml/constraint]")
 			globalErrorCounter = globalErrorCounter + 1 
 		end if 
 			
@@ -1112,13 +1114,13 @@ sub checkConstraint(currentConstraint, theElement)
 			dim targetElementOfConnector AS EA.Element
 			set targetElementOfConnector = Repository.GetElementByID(targetElementID)
 		
-			Session.Output("Error: Constraint [" &currentConstraint.Name&"] owned by connector [ "&theElement.Name&"] between class ["&sourceElementOfConnector.Name&"] and class ["&targetElementOfConnector.Name&"] lacks definition. [/req/uml/constraint] & [krav/definisjoner]")
+			Session.Output("Error: Constraint [" &currentConstraint.Name&"] owned by connector [ "&theElement.Name&"] between class ["&sourceElementOfConnector.Name&"] and class ["&targetElementOfConnector.Name&"] lacks definition. [ISO19109:2015 /req/uml/constraint] & [ISO19109:2015 /req/uml/documentation]")
 			globalErrorCounter = globalErrorCounter + 1 
 		end if 
 		
 		'if the current constraint lacks a name, then return an error message		
 		if currentConstraint.Name = "" then
-			Session.Output("Error: Connector [" &theElement.Name& "] has a constraint without a name. [/req/uml/constraint]")
+			Session.Output("Error: Connector [" &theElement.Name& "] has a constraint without a name. [ISO19109:2015 /req/uml/constraint]")
 			globalErrorCounter = globalErrorCounter + 1 
 		
 		end if
@@ -1182,7 +1184,7 @@ end sub
 ' Author: Sara Henriksen
 ' Date: 27.07.16
 ' Purpose: checks every initial values in  codeLists and enumerations for a package. Returns a warning for each attribute with intitial value that is numeric 
-' /anbefaling/1
+' [ISO19103:2015 Recommendation 1] 
 'sub procedure to check if the initial values of the attributes in a CodeList/enumeration are numeric or not. 
 '@param[in]: theElement (EA.element) The element containing  attributes with potentially numeric inital values 
 sub checkNumericinitialValues(theElement)
@@ -1195,7 +1197,7 @@ sub checkNumericinitialValues(theElement)
 		'check if the initial values are numeric 
 		if IsNumeric(attr.Default)   then
 			if globalLogLevelIsWarning then	
-				Session.Output("Warning: Class [«"&theElement.Stereotype&"» "&theElement.Name&"] \ attribute [" &attr.Name& "] has numeric initial value [" &attr.Default& "] that is probably meaningless. Recommended to use script <flyttInitialverdiPåKodelistekoderTilSOSITag>. [/anbefaling/1]")		
+				Session.Output("Warning: Class [«"&theElement.Stereotype&"» "&theElement.Name&"] \ attribute [" &attr.Name& "] has numeric initial value [" &attr.Default& "] that is probably meaningless. [ISO19103:2015 Recommendation 1]")		
 				globalWarningCounter = globalWarningCounter + 1 
 			end if
 		end if 
@@ -1406,7 +1408,7 @@ end sub
 'end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
-
+'SOSIREQ - code for sub below is obsolete
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
 ' Script Name: checkExternalCodelists
 ' Author: Sara Henriksen
@@ -1416,31 +1418,31 @@ end sub
 ' 2 subs, 
 'sub procedure to check if given codelist got the provided tag with value "true", if so, calls another sub procedure
 '@param[in]: theElement (Attribute Class) and TaggedValueName (String)
-
-sub checkExternalCodelists(theElement,  taggedValueName)
-
-	if taggedValueName = "asDictionary" then 
-
-		if not theElement is nothing and Len(taggedValueName) > 0 then
-
-			'iterate trough all tagged values
-			dim currentExistingTaggedValue AS EA.TaggedValue 
-			dim taggedValuesCounter
-			for taggedValuesCounter = 0 to theElement.TaggedValues.Count - 1
-				set currentExistingTaggedValue = theElement.TaggedValues.GetAt(taggedValuesCounter)
-
-				'check if the tagged value exists 
-				if currentExistingTaggedValue.Name = taggedValueName then
-					'check if the value is "true" and if so, calls the subroutine to searching for codeList tags.
-					if currentExistingTaggedValue.Value = "true" then 
-
-						Call CheckCodelistTV(theElement, "codeList")
-					end if 
-				end if 
-			next
-		end if 
-	end if 
-end sub
+'
+'sub checkExternalCodelists(theElement,  taggedValueName)
+'
+'	if taggedValueName = "asDictionary" then 
+'
+'		if not theElement is nothing and Len(taggedValueName) > 0 then
+'
+'			'iterate trough all tagged values
+'			dim currentExistingTaggedValue AS EA.TaggedValue 
+'			dim taggedValuesCounter
+'			for taggedValuesCounter = 0 to theElement.TaggedValues.Count - 1
+'				set currentExistingTaggedValue = theElement.TaggedValues.GetAt(taggedValuesCounter)
+'
+'				'check if the tagged value exists 
+'				if currentExistingTaggedValue.Name = taggedValueName then
+'					'check if the value is "true" and if so, calls the subroutine to searching for codeList tags.
+'					if currentExistingTaggedValue.Value = "true" then 
+'
+'						Call CheckCodelistTV(theElement, "codeList")
+'					end if 
+'				end if 
+'			next
+'		end if 
+'	end if 
+'end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 
@@ -1459,23 +1461,28 @@ sub CheckCodelistTV (theElement,  taggedValueNAME)
 	for taggedValuesCounter = 0 to theElement.TaggedValues.Count - 1
 		set currentExistingTaggedValue = theElement.TaggedValues.GetAt(taggedValuesCounter)
 		'check if the tagged value exists
-		if currentExistingTaggedValue.Name = taggedValueName then
+		if UCase(currentExistingTaggedValue.Name) = UCase(taggedValueName) then
+			'SOSIREQ - code below is obsolete - START
 			'Session.Output("følgende kodeliste:  " &theElement.Name)
-			taggedValueCodeListMissing = false
+			'taggedValueCodeListMissing = false
+			'SOSIREQ - code above is obsolete - END
 			
 			'if the codeList-value is empty, return an error 
 			if currentExistingTaggedValue.Value = "" then 
-				Session.Output("Error: Class [«"&theElement.Stereotype&"» "&theElement.Name& "] \ tag [codeList] lacks value. [/krav/eksternKodeliste]")
-				globalErrorCounter = globalErrorCounter + 1 
+				if globalLogLevelIsWarning then
+					Session.Output("Warning: Class [«"&theElement.Stereotype&"» "&theElement.Name& "] \ tag ["& taggedValueName &"] lacks value. [ISO19103:2015 Recommendation 4]")
+					globalWarningCounter = globalWarningCounter + 1 
+				end if
 			end if 
 		end if 
 	next
-	
+	'SOSIREQ - code below is obsolete - START
 	'if the tagged value "codeList" is missing for an element(codelist), return an error
-	if taggedValueCodeListMissing then
-		Session.Output("Error: Class [«"&theElement.Stereotype&"» "&theElement.Name& "] lacks a [codeList] tag. [/krav/eksternKodeliste]")
-		globalErrorCounter = globalErrorCounter + 1 
-	end if
+	'if taggedValueCodeListMissing then
+	'	Session.Output("Error: Class [«"&theElement.Stereotype&"» "&theElement.Name& "] lacks a [codeList] tag. [/krav/eksternKodeliste]")
+	'	globalErrorCounter = globalErrorCounter + 1 
+	'end if
+	'SOSIREQ - code above is obsolete - END
 end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
@@ -2450,13 +2457,13 @@ sub krav12(theElement, theConnector, theElementOnOppositeSide)
 								
 	'check if the elementOnOppositeSide has stereotype "dataType" and this side's end is no composition and not elements both sides of the association are datatypes
 	if (Ucase(elementOnOppositeSide.Stereotype) = Ucase("dataType")) and not (currentConnector.ClientEnd.Aggregation = 2) and not dataTypeOnBothSides and currentConnector.Type <> "Dependency" then
-		Session.Output( "Error: Class [«"&elementOnOppositeSide.Stereotype&"» "& elementOnOppositeSide.Name &"] has association to class [" & currentElement.Name & "] that is not a composition on "& currentElement.Name &"-side. [/krav/12]")									 
+		Session.Output( "Error: Class [«"&elementOnOppositeSide.Stereotype&"» "& elementOnOppositeSide.Name &"] has association to class [" & currentElement.Name & "] that is not a composition on "& currentElement.Name &"-side. [ISO19103:2015 Requirement 12]")									 
 		globalErrorCounter = globalErrorCounter + 1 
 	end if 
 
 	'check if this side's element has stereotype "dataType" and the opposite side's end is no composition 
 	if (Ucase(currentElement.Stereotype) = Ucase("dataType")) and not (currentConnector.SupplierEnd.Aggregation = 2) and not dataTypeOnBothSides and currentConnector.Type <> "Dependency" then
-		Session.Output( "Error: Class [«"&currentElement.Stereotype&"» "& currentElement.Name &"] has association to class [" & elementOnOppositeSide.Name & "] that is not a composition on "& elementOnOppositeSide.Name &"-side. [/krav/12]")									 
+		Session.Output( "Error: Class [«"&currentElement.Stereotype&"» "& currentElement.Name &"] has association to class [" & elementOnOppositeSide.Name & "] that is not a composition on "& elementOnOppositeSide.Name &"-side. [ISO19103:2015 Requirement 12]")									 
 		globalErrorCounter = globalErrorCounter + 1 
 	end if 
 
@@ -2480,12 +2487,12 @@ end sub
 '				targetEndCardinality (CharacterString). multiplicity on association's target end
 sub krav10(theElement, sourceEndNavigable, targetEndNavigable, sourceEndName, targetEndName, sourceEndCardinality, targetEndCardinality, currentConnector)
 	if sourceEndNavigable = "Navigable" and sourceEndCardinality = "" and currentConnector.Type <> "Dependency" then
-		Session.Output( "Error: Class [«"&theElement.Stereotype&"» "& theElement.Name &"] \ association role [" & sourceEndName & "] lacks multiplicity. [/krav/10]") 
+		Session.Output( "Error: Class [«"&theElement.Stereotype&"» "& theElement.Name &"] \ association role [" & sourceEndName & "] lacks multiplicity. [ISO19103:2015 Requirement 10]") 
 		globalErrorCounter = globalErrorCounter + 1 
 	end if 
  								 
 	if targetEndNavigable = "Navigable" and targetEndCardinality = "" and currentConnector.Type <> "Dependency" then
-		Session.Output( "Error: Class [«"&theElement.Stereotype&"» "& theElement.Name &"] \ association role [" & targetEndName & "] lacks multiplicity. [/krav/10]") 
+		Session.Output( "Error: Class [«"&theElement.Stereotype&"» "& theElement.Name &"] \ association role [" & targetEndName & "] lacks multiplicity. [ISO19103:2015 Requirement 10]") 
 		globalErrorCounter = globalErrorCounter + 1 
 	end if 
 end sub
@@ -2507,12 +2514,12 @@ end sub
 '				elementOnOppositeSide (EA.Element). The element on the opposite side of the association to check
 sub krav11(theElement, sourceEndNavigable, targetEndNavigable, sourceEndName, targetEndName, elementOnOppositeSide, currentConnector)
 	if sourceEndNavigable = "Navigable" and sourceEndName = "" and currentConnector.Type <> "Dependency" then
-		Session.Output( "Error: Association between class [«"&theElement.Stereotype&"» "& theElement.Name &"] and class [«"&elementOnOppositeSide.Stereotype&"» "& elementOnOppositeSide.Name & "] lacks role name on navigable end on "& theElement.Name &"-side. [/krav/11]") 
+		Session.Output( "Error: Association between class [«"&theElement.Stereotype&"» "& theElement.Name &"] and class [«"&elementOnOppositeSide.Stereotype&"» "& elementOnOppositeSide.Name & "] lacks role name on navigable end on "& theElement.Name &"-side. [ISO19103:2015 Requirement 10]") 
 		globalErrorCounter = globalErrorCounter + 1 
 	end if 
  								 
 	if targetEndNavigable = "Navigable" and targetEndName = "" and currentConnector.Type <> "Dependency" then
-		Session.Output( "Error: Association between class [«"&theElement.Stereotype&"» "& theElement.Name &"] and class [«"&elementOnOppositeSide.Stereotype&"» "& elementOnOppositeSide.Name & "] lacks role name on navigable end on "& elementOnOppositeSide.Name &"-side. [/krav/11]") 
+		Session.Output( "Error: Association between class [«"&theElement.Stereotype&"» "& theElement.Name &"] and class [«"&elementOnOppositeSide.Stereotype&"» "& elementOnOppositeSide.Name & "] lacks role name on navigable end on "& elementOnOppositeSide.Name &"-side. [ISO19103:2015 Requirement 10]") 
 		globalErrorCounter = globalErrorCounter + 1 
 	end if 
 end sub
@@ -2624,7 +2631,7 @@ end sub
 ' Author: Magnus Karge
 ' Date: 20170110 
 ' Purpose:  sub procedure to check if a given FeatureType's name is unique within the applicationSchema
-''			(the class name shall be unique within the application schema [/req/uml/feature]) 
+''			(the class name shall be unique within the application schema [ISO19109:2015 /req/uml/feature]) 
 ' 			
 ' @param[in]: 	none - uses only global variables FeatureTypeNames and FeatureTypeElementIDs
 sub checkUniqueFeatureTypeNames()
@@ -2660,7 +2667,7 @@ sub checkUniqueFeatureTypeNames()
 		'generate error messages according to content of the temporary array
 		dim tempStoredFeatureType AS EA.Element
 		if temporaryFeatureTypeArray.count > 1 then
-			Session.Output("Error: Found nonunique names for the following classes. [req/uml/feature] [req/general/feature]")
+			Session.Output("Error: Found nonunique names for the following classes. [ISO19109:2015 /req/uml/feature] & [req/general/feature]")
 			'counting one error per name conflict (not one error per class with nonunique name)
 			globalErrorCounter = globalErrorCounter + 1
 			for each tempStoredFeatureType in temporaryFeatureTypeArray
@@ -3237,7 +3244,7 @@ sub FindInvalidElementsInPackage(package)
 				dim currentPConstraint as EA.Constraint		 
 				set currentPConstraint = constraintPCollection.GetAt(constraintPCounter) 
 								
-				'check if the package got constraints that lack name or definition (/req/uml/constraint)								
+				'check if the package got constraints that lack name or definition ([ISO19109:2015 /req/uml/constraint])								
 				Call checkConstraint(currentPConstraint, currentPackage)
 
 			next
@@ -3262,7 +3269,7 @@ sub FindInvalidElementsInPackage(package)
 			call checkInstantiable(currentElement)
 		end if
 				
-		'Is the currentElement of type Class and stereotype codelist or enumeration, check the initial values are numeric or not (/anbefaling/1)
+		'Is the currentElement of type Class and stereotype codelist or enumeration, check the initial values are numeric or not ([ISO19103:2015 Recommendation 1])
 		if ((currentElement.Type = "Class") and (UCase(currentElement.Stereotype) = "CODELIST"  Or UCase(currentElement.Stereotype) = "ENUMERATION") Or currentElement.Type = "Enumeration") then
 			call checkNumericinitialValues(currentElement)
 		end if
@@ -3303,7 +3310,7 @@ sub FindInvalidElementsInPackage(package)
 				dim currentConstraint as EA.Constraint		 
 				set currentConstraint = constraintCollection.GetAt(constraintCounter) 
 							
-				'check if the constraints lack name or definition (/req/uml/constraint)
+				'check if the constraints lack name or definition ([ISO19109:2015 /req/uml/constraint])
 				Call checkConstraint(currentConstraint, currentElement)
 
 			next
@@ -3378,7 +3385,10 @@ sub FindInvalidElementsInPackage(package)
  											
 			if ((currentElement.Type = "Class") and (UCase(currentElement.Stereotype) = "CODELIST")) then
 				'Check if an external codelist has a real URL in the codeList tag [/krav/eksternKodeliste]
-				Call checkExternalCodelists(currentElement,  "asDictionary")
+				'SOSIREQ - code below is obsolete - START
+				'Call checkExternalCodelists(currentElement,  "asDictionary")
+				'SOSIREQ - code above is obsolete - END
+				Call CheckCodelistTV(currentElement, "codeList")
 			end if 
 					
 					
@@ -3420,7 +3430,7 @@ sub FindInvalidElementsInPackage(package)
 							dim currentAConstraint as EA.Constraint		 
 							set currentAConstraint = constraintACollection.GetAt(constraintACounter) 
 									
-							'check if the constraints lacks name or definition (/req/uml/constraint)
+							'check if the constraints lacks name or definition ([ISO19109:2015 /req/uml/constraint])
 							Call checkConstraint(currentAConstraint, currentAttribute)
 
 						next
@@ -3487,7 +3497,7 @@ sub FindInvalidElementsInPackage(package)
  							
 				'if the current element is on the connectors client side conduct some tests 
 				'(this condition is needed to make sure only associations where the 
-				'source end is connected to elements within this applicationSchema package are  
+				'source end is connected to elements within this package are  
 				'checked. Associations with source end connected to elements outside of this 
 				'package are possibly locked and not editable) 
 				 							 
@@ -3506,7 +3516,7 @@ sub FindInvalidElementsInPackage(package)
 						for constraintRCounter = 0 to constraintRCollection.Count - 1 					 
 							dim currentRConstraint as EA.Constraint		 
 							set currentRConstraint = constraintRCollection.GetAt(constraintRCounter) 
-							'check if the connectors got constraints that lacks name or definition (/req/uml/constraint)
+							'check if the connectors got constraints that lacks name or definition ([ISO19109:2015 /req/uml/constraint])
 							Call checkConstraint(currentRConstraint, currentConnector)
 						next
 					end if 
@@ -3527,10 +3537,10 @@ sub FindInvalidElementsInPackage(package)
 					'Call the subfunction with currentConnector as parameter 
 					CheckDefinition(currentConnector) 
  																								 
-					'check if there is multiplicity on navigable ends (krav/10)
+					'check if there is multiplicity on navigable ends ([ISO19103:2015 Requirement 10])
 					call krav10(currentElement, sourceEndNavigable, targetEndNavigable, sourceEndName, targetEndName, sourceEndCardinality, targetEndCardinality, currentConnector)
 					 
-					'check if there are role names on navigable ends  (krav/11)
+					'check if there are role names on navigable ends  ([ISO19103:2015 Requirement 10])
 					call krav11(currentElement, sourceEndNavigable, targetEndNavigable, sourceEndName, targetEndName, elementOnOppositeSide, currentConnector)
 																		 
 					'check if role names on connector ends start with lower case (regardless of navigability) (krav/navning)
