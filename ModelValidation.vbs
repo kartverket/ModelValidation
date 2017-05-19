@@ -49,36 +49,41 @@
 '	/krav/eksternKodeliste
 ' 			Check if the coedlist has an asDictionary with value "true", if so, checks if the taggedValue "codeList" exist and if the value is valid or not.
 '			Some parts missing. 2 subs.
-'	/krav/enkelArv
+'	SOSIREQ /krav/enkelArv
 ' 			To check each class for multiple inheritance 
-'	/krav/flerspråklighet/element:		
+'	SOSIREQ /krav/flerspråklighet/element:		
 ' 			if tagged value: "designation", "description" or "definition" exists, the value of the tag must end with "@<language-code>". 
 ' 			Checks attributes, operations, (roles), (constraints) and objecttypes 
-'	/krav/flerspråklighet/pakke:
+'   19109:2015 /req/multi-lingual/feature:
+' 			if tagged value: "designation", "description" or "definition" exists, the value of the tag must end with "@<language-code>". 
+' 			Checks FeatureType and PropertyType (attributes, operations, roles) 
+'	SOSIREQ /krav/flerspråklighet/pakke:
+'	19109:2015 /req/multi-lingual/package:
 '			Check if the ApplicationSchema-package got a tagged value named "language" (error message if that is not the case) 
 '			and if the value of it is empty or not (error message if empty). 
 ' 			And if there are designation-tags, checks that they have correct structure: "{name}"@{language}
-' 	/krav/hoveddiagram/detaljering/navnining 
+' 	SOSIREQ /krav/hoveddiagram/detaljering/navnining 
 '			Check if a package with stereotype applicationSchema has more than one diagram called "Hoveddiagram", if so, checks that theres more characters
 ' 			in the name after "Hoveddiagram". If there is several "Hoveddiagram"s and one or more diagrams just named "Hoveddiagram" it returns an error. 
-'  	/krav/hoveddiagram/navning: 
+'  	SOSIREQ /krav/hoveddiagram/navning: 
 '			Check if an application-schema has less than one diagram named "Hoveddiagram", if so, returns an error 
-' 	/krav/oversiktsdiagram:
+' 	SOSIREQ /krav/oversiktsdiagram:
 '			Check that a package with more than one diagram with name starting with "Hoveddiagram" also has at least one diagram called "Oversiktsdiagram" 
-'	/krav/navning (partially): 
+'	SOSIREQ /krav/navning (partially): 
+'	19103:2015 recommendation 11:
 '			Check if names of attributes, operations, roles start with lower case and names of packages,  
 '			classes and associations start with upper case 
-'	/krav/SOSI-modellregister/applikasjonsskjema/status
+'	SOSIREQ /krav/SOSI-modellregister/applikasjonsskjema/status
 '			Check if the ApplicationSchema-package got a tagged value named "SOSI_modellstatus" and checks if it is a valid value
-'   /krav/SOSI-modellregister/applikasjonsskjema/versjonsnummer
+'   SOSIREQ /krav/SOSI-modellregister/applikasjonsskjema/versjonsnummer
 '           Check if the last part of the package name is a version number.  Ignores the text "Utkast" for this check
-'   /krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast
+'   SOSIREQ /krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast
 '			Check if packages with SOSI_modellstatus tag "utkast" has "Utkast" in package name. Also do the reverse check.
 '  	[ISO19109:2015 /req/uml/constraint]
 '			To check if a constraint lacks name or definition. 
-'  	/req/uml/packaging:
+'  	19109:2015 /req/uml/packaging:
 '     		To check if the value of the version-tag (tagged values) for an ApplicationSchema-package is empty or not. 
-'	/req/uml/structure
+'	19109:2015 /req/uml/structure
 '			Check that all abstract classes in application schema has at least one instantiable subclass within the same schema.  Check that no classes in application schema has stereotype interface
 '   [ISO19103:2015 Recommendation 1]:
 '			Checks every initial values in codeLists and enumerations for a package. If one or more initial values are numeric in one list, 
@@ -96,16 +101,17 @@
 '			featureType classes shall have unique names within the applicationSchema	
 '			Not implemented yet: instances of FeatureType shall have generalization with AnyFeature
 '	/krav/taggedValueSpråk 	
+'	SOSIREQ	/krav/taggedValueSpråk 	(See 19109:2015 /req/multi-lingual/package)
 '			Check that ApplicationSchema packages shall have a language tag. Also check that ApplicationSchema have designation and definition tags in English (i.e. tag value ending with @en)
 '	/req/general/feature
 ' 			Check that no FeatureTypes inherits from a class named GM_Object or TM_object. 
 '			Not implemented: Check that FeatureTypes within a ApplicationSchema have unique names.
-'	/req/uml/integration
+'	19109:2015 /req/uml/integration
 '			Check correct handling of package dependency and check that there are no applicationSchemas in the package hierarchy below start package for this script.
 '			Not implemented yet: Check of package hierarchy of external referenced packages for more than one applicationSchema. Check of package hierachy above start package for more applicationSchemas.
-'	/krav/17
+'	19103:2015 requirement 17
 '			Check that package dependencies are shown in at least one package diagram. 
-'	/krav/21
+'	19103:2015 requirement 21
 '			Check that existing package diagrams show all existing package dependencies.
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
 ' Project Browser Script main function 
@@ -224,24 +230,24 @@
 														
 								'check uniqueness of featureType names
 								checkUniqueFeatureTypeNames()
-	
+								'SOSIREQ
 								'error-message for /krav/hoveddiagram/navning (sub procedure: CheckPackageForHoveddiagram)
 								'if the applicationSchema package got less than one diagram with a name starting with "Hoveddiagram", then return an error 	
-								if 	not foundHoveddiagram  then
-									Session.Output("Error: Neither package [" &startPackageName& "] nor any of it's subpackages has a diagram with a name starting with 'Hoveddiagram' [/krav/hoveddiagram/navning]")
-									globalErrorCounter = globalErrorCounter + 1 
-					
-								end if 	
-							
+								'if 	not foundHoveddiagram  then
+								'	Session.Output("Error: Neither package [" &startPackageName& "] nor any of it's subpackages has a diagram with a name starting with 'Hoveddiagram' [/krav/hoveddiagram/navning]")
+								'	globalErrorCounter = globalErrorCounter + 1 
+								'
+								'end if 	
+								'SOSIREQ
 								'error-message for /krav/hoveddiagram/detaljering/navning (sub: FindHoveddiagramsInAS)
 								'if the applicationSchema package got more than one diagram named "Hoveddiagram", then return an error 
-								if numberOfHoveddiagram > 1 or (numberOfHoveddiagram = 1 and numberOfHoveddiagramWithAdditionalInformationInTheName > 0) then 
-									dim sumOfHoveddiagram 
-									sumOfHoveddiagram = numberOfHoveddiagram + numberOfHoveddiagramWithAdditionalInformationInTheName
-									Session.Output("Error: Package ["&startPackageName&"] has "&sumOfHoveddiagram&" diagrams named 'Hoveddiagram' and "&numberOfHoveddiagram&" of them named exactly 'Hoveddiagram'. When there are multiple diagrams of that type additional information is expected in the diagrams' name. [/krav/hoveddiagram/detaljering/navning]")
-									globalErrorCounter = globalErrorCounter + 1 
-			
-								end if 
+								'if numberOfHoveddiagram > 1 or (numberOfHoveddiagram = 1 and numberOfHoveddiagramWithAdditionalInformationInTheName > 0) then 
+								'	dim sumOfHoveddiagram 
+								'	sumOfHoveddiagram = numberOfHoveddiagram + numberOfHoveddiagramWithAdditionalInformationInTheName
+								'	Session.Output("Error: Package ["&startPackageName&"] has "&sumOfHoveddiagram&" diagrams named 'Hoveddiagram' and "&numberOfHoveddiagram&" of them named exactly 'Hoveddiagram'. When there are multiple diagrams of that type additional information is expected in the diagrams' name. [/krav/hoveddiagram/detaljering/navning]")
+								'	globalErrorCounter = globalErrorCounter + 1 
+								'
+								'end if 
 								'final report
 								Session.Output("-----Report for package ["&startPackageName&"]-----") 		
 								Session.Output("   Number of errors found: " & globalErrorCounter) 
@@ -624,53 +630,56 @@ end sub
 ' Author: Magnus Karge
 ' Date: 20160925 
 ' Purpose:  sub procedure to check if a given element's name is written correctly
-' 			Implementation of /krav/navning
+' 			Implementation of 19103:2015 recommendation 11
 ' 			
 ' @param[in]: theElement (EA.Element). The element to check. Can be class, enumeration, data type, attribute, operation, association, role or package
  
 sub checkElementName(theElement) 
+	if globalLogLevelIsWarning then
 	
-	select case theElement.ObjectType
-		case otPackage
-			'sub parameter is ObjectType oTPackage, check if first letter of the package's name is a capital letter 
- 			if not Left(theElement.Name,1) = UCase(Left(theElement.Name,1)) then 
-				Session.Output("Error: Package name [" & theElement.Name & "] shall start with capital letter. [/krav/navning]") 
-				globalErrorCounter = globalErrorCounter + 1 
- 			end if
-		case otElement
-			'sub's parameter is ObjectType oTElement, check if first letter of the element's name is a capital letter (element covers class, enumeration, datatype)
- 			if not Left(theElement.Name,1) = UCase(Left(theElement.Name,1)) then 
- 				Session.Output("Error: Class name [«"&getStereotypeOfClass(theElement)&"» "& theElement.Name & "] shall start with capital letter. [/krav/navning]") 
- 				globalErrorCounter = globalErrorCounter + 1 
- 			end if 
-		case otAttribute
-			'sub's parameter is ObjectType oTAttribute, check if first letter of the attribute's name is NOT a capital letter 
-			if not Left(theElement.Name,1) = LCase(Left(theElement.Name,1)) then 
-				dim attributeParentElement as EA.Element
-				set attributeParentElement = Repository.GetElementByID(theElement.ParentID)
-				Session.Output("Error: Attribute name [" & theElement.Name & "] in class [«"&getStereotypeOfClass(attributeParentElement)&"» "& attributeParentElement.Name &"] shall start with lowercase letter. [/krav/navning]") 
-				globalErrorCounter = globalErrorCounter + 1
-			end if									
- 		case otConnector
-			dim connector as EA.Connector
-			set connector = theElement
-			'sub's parameter is ObjectType oTConnector, check if the association has a name (not necessarily the case), if so check if the name starts with a capital letter 
-			if not (connector.Name = "" OR len(connector.Name)=0) and not Left(connector.Name,1) = UCase(Left(connector.Name,1)) then 
-				dim associationSourceElement as EA.Element
-				dim associationTargetElement as EA.Element
-				set associationSourceElement = Repository.GetElementByID(connector.ClientID)
-				set associationTargetElement = Repository.GetElementByID(connector.SupplierID)
-				Session.Output("Error: Association name [" & connector.Name & "] between class [«"&getStereotypeOfClass(associationSourceElement)&"» "& associationSourceElement.Name &"] and class [«"&getStereotypeOfClass(associationTargetElement)&"» " & associationTargetElement.Name & "] shall start with capital letter. [/krav/navning]") 
-				globalErrorCounter = globalErrorCounter + 1 
-			end if 
-		'case otOperation
-		'case otRole
-	end select	
+		select case theElement.ObjectType
+			case otPackage
+				'sub parameter is ObjectType oTPackage, check if first letter of the package's name is a capital letter 
+				if not Left(theElement.Name,1) = UCase(Left(theElement.Name,1)) then 
+					Session.Output("Warning: Package name [" & theElement.Name & "] should start with capital letter. [19103:2015 recommendation 11]") 
+					globalWarningCounter = globalWarningCounter + 1 
+				end if
+			case otElement
+				'sub's parameter is ObjectType oTElement, check if first letter of the element's name is a capital letter (element covers class, enumeration, datatype)
+				if not Left(theElement.Name,1) = UCase(Left(theElement.Name,1)) then 
+					Session.Output("Warning: Class name [«"&getStereotypeOfClass(theElement)&"» "& theElement.Name & "] should start with capital letter. [19103:2015 recommendation 11]") 
+					globalWarningCounter = globalWarningCounter + 1 
+				end if 
+			case otAttribute
+				'sub's parameter is ObjectType oTAttribute, check if first letter of the attribute's name is NOT a capital letter 
+				if not Left(theElement.Name,1) = LCase(Left(theElement.Name,1)) then 
+					dim attributeParentElement as EA.Element
+					set attributeParentElement = Repository.GetElementByID(theElement.ParentID)
+					Session.Output("Warning: Attribute name [" & theElement.Name & "] in class [«"&getStereotypeOfClass(attributeParentElement)&"» "& attributeParentElement.Name &"] should start with lowercase letter. [19103:2015 recommendation 11]") 
+					globalWarningCounter = globalWarningCounter + 1
+				end if									
+			case otConnector
+				dim connector as EA.Connector
+				set connector = theElement
+				'sub's parameter is ObjectType oTConnector, check if the association has a name (not necessarily the case), if so check if the name starts with a capital letter 
+				if not (connector.Name = "" OR len(connector.Name)=0) and not Left(connector.Name,1) = UCase(Left(connector.Name,1)) then 
+					dim associationSourceElement as EA.Element
+					dim associationTargetElement as EA.Element
+					set associationSourceElement = Repository.GetElementByID(connector.ClientID)
+					set associationTargetElement = Repository.GetElementByID(connector.SupplierID)
+					Session.Output("Warning: Association name [" & connector.Name & "] between class [«"&getStereotypeOfClass(associationSourceElement)&"» "& associationSourceElement.Name &"] and class [«"&getStereotypeOfClass(associationTargetElement)&"» " & associationTargetElement.Name & "] should start with capital letter. [19103:2015 recommendation 11]") 
+					globalWarningCounter = globalWarningCounter + 1 
+				end if 
+			'case otOperation
+			'case otRole
+		end select	
+	end if
 end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' SOSIREQ
 ' Sub name: findMultipleInheritance
 ' Author: Sara Henriksen
 ' Date: 14.07.16 
@@ -678,62 +687,62 @@ end sub
 ' 			Implementation of /krav/enkelArv
 ' 			
 ' @param[in]: currentElement (EA.Element). The "class" to check 
- 
-sub findMultipleInheritance(currentElement) 
- 
-	loopCounterMultipleInheritance = loopCounterMultipleInheritance + 1 
- 	dim connectors as EA.Collection  
-  	set connectors = currentElement.Connectors  
-  					  
-  	'iterate the connectors  
-  					 
-  	dim connectorsCounter  
- 	dim numberOfSuperClasses  
- 	numberOfSuperClasses = 0  
- 	dim theTargetGeneralization as EA.Connector 
- 	set theTargetGeneralization = nothing 
- 					 
-	for connectorsCounter = 0 to connectors.Count - 1  
-		dim currentConnector as EA.Connector  
-		set currentConnector = connectors.GetAt( connectorsCounter )  
- 						 
- 						 
-		'check if the connector type is "Generalization" and if so 
-		'get the element on the source end of the connector   
-		if currentConnector.Type = "Generalization"  then 
-			if currentConnector.ClientID = currentElement.ElementID then  
- 					 
-				'count number of classes with a generalization connector on the source side  
-				numberOfSuperClasses = numberOfSuperClasses + 1  
-				set theTargetGeneralization = currentConnector  
-			end if  
-		end if 
-
-		'if theres more than one generalization connecter on the source side the class has multiple inheritance 
-		if numberOfSuperClasses > 1 then 
-			Session.Output("Error: Class [«"&startClass.Stereotype&"» "&startClass.Name& "] has multiple inheritance. [/krav/enkelarv]") 
-			globalErrorCounter = globalErrorCounter + 1 
-			exit for  
-		end if  
-	next 
- 					 
-	' if there is just one generalization connector on the source side, start checking genralization connectors for the superclasses  
-	' stop if number of loops exceeds 20
-	if numberOfSuperClasses = 1 and not theTargetGeneralization is nothing and loopCounterMultipleInheritance < 21 then 
- 				
-		dim superClassID  
-		dim superClass as EA.Element 
-		'the elementID of the element at the target end 
-		superClassID =  theTargetGeneralization.SupplierID  
-		set superClass = Repository.GetElementByID(superClassID) 
-
-		'Check level of superClass 
-		call findMultipleInheritance (superClass) 
-		elseif loopCounterMultipleInheritance = 21 then 
-			Session.Output("Warning: Found more than 20 inheritance levels for class: [" &startClass.Name& "] while testing [/krav/enkelarv]. Please check for possible circle inheritance")
-			globalWarningCounter = globalWarningCounter + 1 
-	end if  
- end sub 
+'
+'sub findMultipleInheritance(currentElement) 
+'
+'	loopCounterMultipleInheritance = loopCounterMultipleInheritance + 1 
+'	dim connectors as EA.Collection  
+'  	set connectors = currentElement.Connectors  
+' 					  
+'  	'iterate the connectors  
+'  					 
+'  	dim connectorsCounter  
+' 	dim numberOfSuperClasses  
+' 	numberOfSuperClasses = 0  
+' 	dim theTargetGeneralization as EA.Connector 
+' 	set theTargetGeneralization = nothing 
+' 					 
+'	for connectorsCounter = 0 to connectors.Count - 1  
+'		dim currentConnector as EA.Connector  
+'		set currentConnector = connectors.GetAt( connectorsCounter )  
+'						 
+'						 
+'		'check if the connector type is "Generalization" and if so 
+'		'get the element on the source end of the connector   
+'		if currentConnector.Type = "Generalization"  then 
+'			if currentConnector.ClientID = currentElement.ElementID then  
+'					 
+'				'count number of classes with a generalization connector on the source side  
+'				numberOfSuperClasses = numberOfSuperClasses + 1  
+'				set theTargetGeneralization = currentConnector  
+'			end if  
+'		end if 
+'
+'		'if theres more than one generalization connecter on the source side the class has multiple inheritance 
+'		if numberOfSuperClasses > 1 then 
+'			Session.Output("Error: Class [«"&startClass.Stereotype&"» "&startClass.Name& "] has multiple inheritance. [/krav/enkelarv]") 
+'			globalErrorCounter = globalErrorCounter + 1 
+'			exit for  
+'		end if  
+'	next 
+'
+'	' if there is just one generalization connector on the source side, start checking genralization connectors for the superclasses  
+'	' stop if number of loops exceeds 20
+'	if numberOfSuperClasses = 1 and not theTargetGeneralization is nothing and loopCounterMultipleInheritance < 21 then 
+'				
+'		dim superClassID  
+'		dim superClass as EA.Element 
+'		'the elementID of the element at the target end 
+'		superClassID =  theTargetGeneralization.SupplierID  
+'		set superClass = Repository.GetElementByID(superClassID) 
+'
+'		'Check level of superClass 
+'		call findMultipleInheritance (superClass) 
+'		elseif loopCounterMultipleInheritance = 21 then 
+'			Session.Output("Warning: Found more than 20 inheritance levels for class: [" &startClass.Name& "] while testing [/krav/enkelarv]. Please check for possible circle inheritance")
+'			globalWarningCounter = globalWarningCounter + 1 
+'	end if  
+'end sub 
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 
@@ -763,34 +772,35 @@ sub checkTVLanguageAndDesignation(theElement, taggedValueName)
  			for packageTaggedValuesCounter = 0 to packageTaggedValues.Count - 1 
  				dim currentTaggedValue as EA.TaggedValue 
  				set currentTaggedValue = packageTaggedValues.GetAt(packageTaggedValuesCounter) 
-				
-				'check if the provided tagged value exist
+
+' SOSIREQ - check for "no" or "en" in [language] tag.				
+'				'check if the provided tagged value exist
 				if (currentTaggedValue.Name = "language") and not (currentTaggedValue.Value= "") then 
 					'check if the value is no or en, if not, retrun a warning 
-					if not mid(StrReverse(currentTaggedValue.Value),1,2) = "ne" and not mid(StrReverse(currentTaggedValue.Value),1,2) = "on" then	
-						if globalLogLevelIsWarning then
-							Session.Output("Warning: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] \ tag ["&currentTaggedvalue.Name& "] has a value which is not <no> or <en>. [/krav/flerspråklighet/pakke][/krav/taggedValueSpråk]")
-							globalWarningCounter = globalWarningCounter + 1 
-						end if
-					end if
+'					if not mid(StrReverse(currentTaggedValue.Value),1,2) = "ne" and not mid(StrReverse(currentTaggedValue.Value),1,2) = "on" then	
+'						if globalLogLevelIsWarning then
+'							Session.Output("Warning: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] \ tag ["&currentTaggedvalue.Name& "] has a value which is not <no> or <en>. [/krav/flerspråklighet/pakke][/krav/taggedValueSpråk]")
+'							globalWarningCounter = globalWarningCounter + 1 
+'						end if
+'					end if
 					taggedValueLanguageMissing = false 
 					exit for 
 				end if   
 				if currentTaggedValue.Name = "language" and currentTaggedValue.Value= "" then 
-					Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] \ tag ["& currentTaggedValue.Name &"] lacks a value. [/krav/flerspråklighet/pakke][/krav/taggedValueSpråk]") 
+					Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] tag ["& currentTaggedValue.Name &"] lacks a value. [19109:2015 /req/multi-lingual/package]") '[/krav/taggedValueSpråk] 
 					globalErrorCounter = globalErrorCounter + 1 
 					taggedValueLanguageMissing = false 
 					exit for 
 				end if 
  			next 
 			if taggedValueLanguageMissing then 
-				Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] lacks a [language] tag. [/krav/flerspråklighet/pakke][/krav/taggedValueSpråk]") 
+				Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] lacks a [language] tag. [19109:2015 /req/multi-lingual/package]") '[/krav/taggedValueSpråk] 
 				globalErrorCounter = globalErrorCounter + 1 
 			end if 
 		end if 
 	end if 
 
-	if taggedValueName = "designation" or taggedValueName ="definition" then
+	if taggedValueName = "designation" then 'or taggedValueName ="definition" 
 
 		if not theElement is nothing and Len(taggedValueName) > 0 then
 		
@@ -826,7 +836,7 @@ sub checkTVLanguageAndDesignation(theElement, taggedValueName)
 						end if
 						
 						if not (checkAtMark and checkQuoteMark) then
-							Session.Output("Error: Package [«" &theElement.Stereotype& "» " &theElement.Name&"] \ tag [" &taggedValueName& "] has an illegal value.  Expected value ""{" &taggedValueName& "}""@{language code} [/krav/taggedValueSpråk]")
+							Session.Output("Error: Package [«" &theElement.Stereotype& "» " &theElement.Name&"] tag [" &taggedValueName& "] has an illegal value.  Expected value ""{" &taggedValueName& "}""@{language code} [19109:2015 /req/multi-lingual/package]")
 							globalErrorCounter = globalErrorCounter + 1 
 						end if 
 					
@@ -840,27 +850,29 @@ sub checkTVLanguageAndDesignation(theElement, taggedValueName)
 
 						if InStr(designationContent, """") then
 							if globalLogLevelIsWarning then
-								Session.Output("Warning: Package [«" &theElement.Stereotype& "» " &theElement.Name&"] \ tag [" &taggedValueName& "] has a value ["&currentExistingTaggedValue1.Value&"] that contains illegal use of quotation marks.")
+								Session.Output("Warning: Package [«" &theElement.Stereotype& "» " &theElement.Name&"] tag [" &taggedValueName& "] has a value ["&currentExistingTaggedValue1.Value&"] that contains illegal use of quotation marks.")
 								globalWarningCounter = globalWarningCounter + 1 
 							end if	
 						end if
 					else
-						Session.Output("Error: Package [«" &theElement.Stereotype& "» " &theElement.Name& "] \ tag [" &taggedValueName& "] has no value [/krav/taggedValueSpråk]") 
+						Session.Output("Error: Package [«" &theElement.Stereotype& "» " &theElement.Name& "] tag [" &taggedValueName& "] has no value [19109:2015 /req/multi-lingual/package]") 
 						globalErrorCounter = globalErrorCounter + 1
 					end if
 				end if 						
 			next
-			if UCase(theElement.Stereotype) = UCase("applicationSchema") then
-				if not valueExists then
-					Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] does not have a " &taggedValueName& " tag [/krav/taggedValueSpråk]")
-					globalErrorCounter = globalErrorCounter + 1
-				else
-					if not enDesignation then
-						Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] \ tag [" &taggedValueName& "] lacks a value for English. Expected value ""{English " &taggedValueName& "}""@en [/krav/taggedValueSpråk]")
-						globalErrorCounter = globalErrorCounter + 1
-					end if
-				end if
-			end if
+' SOSIREQ - English designation
+'			if UCase(theElement.Stereotype) = UCase("applicationSchema") then
+'				if not valueExists then
+'					Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] does not have a " &taggedValueName& " tag [/krav/taggedValueSpråk]")
+'					globalErrorCounter = globalErrorCounter + 1
+'
+'				else
+'					if not enDesignation then
+'						Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] \ tag [" &taggedValueName& "] lacks a value for English. Expected value ""{English " &taggedValueName& "}""@en [/krav/taggedValueSpråk]")
+'						globalErrorCounter = globalErrorCounter + 1
+'					end if
+'				end if
+'			end if
 		end if 
 	end if
 end sub 
@@ -869,12 +881,13 @@ end sub
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
 ' Script Name: structurOfTVforElement
-' Author: Sara Henriksen
-' Date: 26.07.16	
-' Purpose: Check that the value of a designation/description/definition tag got the structure “{value}”@{landcode}. 
+' Original author (SOSI version): Sara Henriksen
+' Adaption to ISO19109:2015 version:  Åsmund Tjora
+' Date: 18.05.17	
+' Purpose: Check that the value of a designation/description/definition tag got the structure “{value}”@{langcode}. 
 ' Implemented for objecttypes, attributes, roles and operations.
 ' Two subs, where structurOfTVforElement calls structureOfTVConnectorEnd if the parameter is a connector
-' krav/flerspråklighet/element 
+' req/multi-lingual/feature
 ' sub procedure to find the provided tags for a connector, and if they exist, check the structure of the value.   
 ' @param[in]: theConnectorEnd (EA.Connector), taggedValueName (string) theConnectorEnd is potencially having tags: description, designation, definition, 
 ' with a value with wrong structure. 
@@ -892,8 +905,8 @@ sub structureOfTVConnectorEnd(theConnectorEnd,  taggedValueName)
 			'if the tagged values exist, check the structure of the value 
 			if currentExistingTaggedValue.Tag = taggedValueName then
 				'check if the structure of the tag is: "{value}"@{languagecode}
-				if not (mid(StrReverse(currentExistingTaggedValue.Value), 1,4)) = "ne@"""  and not (mid(StrReverse(currentExistingTaggedValue.Value), 1,4)) = "on@""" or not (mid((currentExistingTaggedValue.Value),1,1)) = """" then
-					Session.Output("Error: Role [" &theConnectorEnd.Role& "] \ tag [" &currentExistingTaggedValue.Tag& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [/krav/flerspråklighet/element]")
+				if not (InStr(currentExistingTaggedValue.Value,"""@")>=2 and InStr(currentExistingTaggedValue.Value,"""") =1 ) then
+					Session.Output("Error: Role [" &theConnectorEnd.Role& "] tag [" &currentExistingTaggedValue.Tag& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [19109:2015 /req/multi-lingual/feature]")
 					globalErrorCounter = globalErrorCounter + 1 
 				end if 
 			end if 
@@ -905,7 +918,7 @@ end sub
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
 'sub procedure to find the provided tags and if they exist, check the structure of the value.   
-'@param[in]: theElement (EA.ObjectType), taggedValueName (string) The object to check against krav/flerspråklighet/pakke,  
+'@param[in]: theElement (EA.ObjectType), taggedValueName (string) The object to check against req/multi-lingual/feature,  
 'supposed to be one of the following types: EA.Element, EA.Attribute, EA.Method, EA.Connector 
 sub structurOfTVforElement (theElement, taggedValueName)
 
@@ -920,7 +933,7 @@ sub structurOfTVforElement (theElement, taggedValueName)
 
 			if currentExistingTaggedValue.Name = taggedValueName then
 				'check the structure of the tag: "{value}"@{languagecode}
-				if not (mid(StrReverse(currentExistingTaggedValue.Value), 1,4)) = "ne@"""  and not (mid(StrReverse(currentExistingTaggedValue.Value), 1,4)) = "on@""" or not (mid((currentExistingTaggedValue.Value),1,1)) = """" then
+				if not (InStr(currentExistingTaggedValue.Value,"""@")>=2 and InStr(currentExistingTaggedValue.Value,"""") =1 ) then
 					Dim currentElement as EA.Element
 					Dim currentAttribute as EA.Attribute
 					Dim currentOperation as EA.Method
@@ -930,7 +943,7 @@ sub structurOfTVforElement (theElement, taggedValueName)
 						Case otElement 
 							set currentElement = theElement 
 						
-							Session.Output("Error: Class [«"&theElement.Stereotype&"» " &theElement.Name& "] \ tag [" &currentExistingTaggedValue.Name& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [/krav/flerspråklighet/element]")
+							Session.Output("Error: Class [«"&theElement.Stereotype&"» " &theElement.Name& "] tag [" &currentExistingTaggedValue.Name& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [19109:2015 /req/multi-lingual/feature]")
 							globalErrorCounter = globalErrorCounter + 1 
 						
 						'case attribute
@@ -941,7 +954,7 @@ sub structurOfTVforElement (theElement, taggedValueName)
 							dim parentElementOfAttribute as EA.Element
 							set parentElementOfAttribute = Repository.GetElementByID(currentAttribute.ParentID)
 						
-							Session.Output("Error: Class [«"& parentElementOfAttribute.Stereotype &"» "& parentElementOfAttribute.Name &"\ attribute [" &theElement.Name& "] \ tag [" &currentExistingTaggedValue.Name& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [/krav/flerspråklighet/element]")
+							Session.Output("Error: Class [«"& parentElementOfAttribute.Stereotype &"» "& parentElementOfAttribute.Name &" attribute [" &theElement.Name& "] tag [" &currentExistingTaggedValue.Name& "] has a value [" &currentExistingTaggedValue.Value& "] with wrong structure. Expected structure: ""{Name}""@{language}. [19109:2015 /req/multi-lingual/feature]")
 							globalErrorCounter = globalErrorCounter + 1 
 						
 						'case operation
@@ -952,7 +965,7 @@ sub structurOfTVforElement (theElement, taggedValueName)
 							dim parentElementOfOperation as EA.Element
 							set parentElementOfOperation = Repository.GetElementByID(currentOperation.ParentID)
 						
-							Session.Output("Error: Class [«"& parentElementOfOperation.Stereotype &"» "& parentElementOfOperation.Name &"\ operation [" &theElement.Name& "] \ tag [" &currentExistingTaggedValue.Name& "] has a value: " &currentExistingTaggedValue.Value& " with wrong structure. Expected structure: ""{Name}""@{language}. [/krav/flerspråklighet/element]")
+							Session.Output("Error: Class [«"& parentElementOfOperation.Stereotype &"» "& parentElementOfOperation.Name &" operation [" &theElement.Name& "] tag [" &currentExistingTaggedValue.Name& "] has a value: " &currentExistingTaggedValue.Value& " with wrong structure. Expected structure: ""{Name}""@{language}. [19109:2015 /req/multi-lingual/feature]")
 							globalErrorCounter = globalErrorCounter + 1 
 
 					end select 	
@@ -972,7 +985,7 @@ end sub
 ' Author: Sara Henriksen
 ' Date: 25.07.16 
 ' Purpose: To check if the value of the version-tag (tagged values) for an ApplicationSchema-package is empty or not. 
-' req/uml/packaging
+' 19109:2015 /req/uml/packaging
 ' sub procedure to check if the tagged value with the provided name exist in the ApplicationSchema, and if the value is emty it returns an Error-message. 
 ' @param[in]: theElement (Element Class) and TaggedValueName (String) 
 sub checkValueOfTVVersion(theElement, taggedValueName)
@@ -994,7 +1007,7 @@ sub checkValueOfTVVersion(theElement, taggedValueName)
 					'remove spaces before and after a string, if the value only contains blanks  the value is empty
 					currentExistingTaggedValue.Value = Trim(currentExistingTaggedValue.Value)
 					if len (currentExistingTaggedValue.Value) = 0 then 
-						Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] has an empty version-tag. [req/uml/packaging]")
+						Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] has an empty version-tag. [19109:2015 /req/uml/packaging]")
 						globalErrorCounter = globalErrorCounter + 1 
 						taggedValueVersionMissing = false 
 					else
@@ -1005,7 +1018,7 @@ sub checkValueOfTVVersion(theElement, taggedValueName)
 			next
 			'if tagged value version lacks for the package, return an error 
 			if taggedValueVersionMissing then
-				Session.Output ("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] lacks a [version] tag. [req/uml/packaging]")
+				Session.Output ("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] lacks a [version] tag. [19109:2015 /req/uml/packaging]")
 				globalErrorCounter = globalErrorCounter + 1 
 			end if
 		end if 
@@ -1117,6 +1130,7 @@ end sub
  
  
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' SOSIREQ
 ' Script Name: ValidValueSOSI_modellstatus 
 ' Author: Sara Henriksen
 ' Date: 25.07.16
@@ -1125,43 +1139,43 @@ end sub
 ' sub procedure to check if the tagged value with the provided name exist, and checks if the value is valid or not 
 ' (valid values: utkast, gyldig, utkastOgSkjult, foreslått, erstattet, tilbaketrukket og ugyldig). 
 '@param[in]: theElement (Package Class) and TaggedValueName (String) 
-
-sub ValidValueSOSI_modellstatus(theElement, taggedValueName)
-	
-	if UCase(theElement.Stereotype) = UCase("applicationSchema") then
-
-		if not theElement is nothing and Len(taggedValueName) > 0 then
-		
-			'check if the element has a tagged value with the provided name
-			dim taggedValueSOSIModellstatusMissing 
-			taggedValueSOSIModellstatusMissing = true 
-			dim currentExistingTaggedValue AS EA.TaggedValue 
-			dim taggedValuesCounter
-			
-			for taggedValuesCounter = 0 to theElement.TaggedValues.Count - 1
-				set currentExistingTaggedValue = theElement.TaggedValues.GetAt(taggedValuesCounter)
-			
-				if currentExistingTaggedValue.Name = taggedValueName then
-					'check if the value of the tag is one of the approved values. 
-					if currentExistingTaggedValue.Value = "utkast" or currentExistingTaggedValue.Value = "gyldig" or currentExistingTaggedValue.Value = "utkastOgSkjult" or currentExistingTaggedValue.Value = "foreslått" or currentExistingTaggedValue.Value = "erstattet" or currentExistingTaggedValue.Value = "tilbaketrukket" or currentExistingTaggedValue.Value = "ugyldig" then 
-
-						taggedValueSOSIModellstatusMissing = false 
-					else
-						Session.Output("Error: Package [«"&theElement.Stereotype&"» "&theElement.Name& "] \ tag [SOSI_modellstatus] has a value [" &currentExistingTaggedValue.Value& "]. The value is not approved. [/krav/SOSI-modellregister/applikasjonsskjema/status]")
-						globalErrorCounter = globalErrorCounter + 1 
-						taggedValueSOSIModellstatusMissing = false 
-					end if 
-				end if
-			next
-
-			'if the tag doesen't exist, return an error-message 
-			if taggedValueSOSIModellstatusMissing then
-				Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name& "] lacks a [SOSI_modellstatus] tag. [krav/SOSI-modellregister/applikansjonsskjema/status]")
-				globalErrorCounter = globalErrorCounter + 1 
-			end if 
-		end if
-	end if 
-end sub 
+'
+'sub ValidValueSOSI_modellstatus(theElement, taggedValueName)
+'	
+'	if UCase(theElement.Stereotype) = UCase("applicationSchema") then
+'
+'		if not theElement is nothing and Len(taggedValueName) > 0 then
+'		
+'			'check if the element has a tagged value with the provided name
+'			dim taggedValueSOSIModellstatusMissing 
+'			taggedValueSOSIModellstatusMissing = true 
+'			dim currentExistingTaggedValue AS EA.TaggedValue 
+'			dim taggedValuesCounter
+'			
+'			for taggedValuesCounter = 0 to theElement.TaggedValues.Count - 1
+'				set currentExistingTaggedValue = theElement.TaggedValues.GetAt(taggedValuesCounter)
+'			
+'				if currentExistingTaggedValue.Name = taggedValueName then
+'					'check if the value of the tag is one of the approved values. 
+'					if currentExistingTaggedValue.Value = "utkast" or currentExistingTaggedValue.Value = "gyldig" or currentExistingTaggedValue.Value = "utkastOgSkjult" or currentExistingTaggedValue.Value = "foreslått" or currentExistingTaggedValue.Value = "erstattet" or currentExistingTaggedValue.Value = "tilbaketrukket" or currentExistingTaggedValue.Value = "ugyldig" then 
+'
+'						taggedValueSOSIModellstatusMissing = false 
+'					else
+'						Session.Output("Error: Package [«"&theElement.Stereotype&"» "&theElement.Name& "] \ tag [SOSI_modellstatus] has a value [" &currentExistingTaggedValue.Value& "]. The value is not approved. [/krav/SOSI-modellregister/applikasjonsskjema/status]")
+'						globalErrorCounter = globalErrorCounter + 1 
+'						taggedValueSOSIModellstatusMissing = false 
+'					end if 
+'				end if
+'			next
+'
+'			'if the tag doesen't exist, return an error-message 
+'			if taggedValueSOSIModellstatusMissing then
+'				Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name& "] lacks a [SOSI_modellstatus] tag. [krav/SOSI-modellregister/applikansjonsskjema/status]")
+'				globalErrorCounter = globalErrorCounter + 1 
+'			end if 
+'		end if
+'	end if 
+'end sub 
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 
@@ -1292,6 +1306,7 @@ end sub
 
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' SOSIREQ
 ' Script Name: CheckPackageForHoveddiagram
 ' Author: Sara Henriksen
 ' Date: 03.08.16
@@ -1299,25 +1314,26 @@ end sub
 ' /krav/hoveddiagram/navning
 'sub procedure to check if the given package got one or more diagrams with a name starting with "Hoveddiagram", if not, returns an error 
 '@param[in]: package (EA.package) The package containing diagrams potentially with one or more names without "Hoveddiagram".
-sub CheckPackageForHoveddiagram(package)
-	
-	dim diagrams as EA.Collection
-	set diagrams = package.Diagrams
-	'check all digrams in the package 
-	dim i
-	for i = 0 to diagrams.Count - 1
-		dim currentDiagram as EA.Diagram
-		set currentDiagram = diagrams.GetAt( i )
-		'set foundHoveddiagram true if any diagrams have been found with a name starting with "Hoveddiagram"
-		if Mid((currentDiagram.Name),1,12) = "Hoveddiagram"  then 
-			foundHoveddiagram = true 
-		end if	
-	next
-end sub
+'sub CheckPackageForHoveddiagram(package)
+'	
+'	dim diagrams as EA.Collection
+'	set diagrams = package.Diagrams
+'	'check all digrams in the package 
+'	dim i
+'	for i = 0 to diagrams.Count - 1
+'		dim currentDiagram as EA.Diagram
+'		set currentDiagram = diagrams.GetAt( i )
+'		'set foundHoveddiagram true if any diagrams have been found with a name starting with "Hoveddiagram"
+'		if Mid((currentDiagram.Name),1,12) = "Hoveddiagram"  then 
+'			foundHoveddiagram = true 
+'		end if	
+'	next
+'end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' SOSIREQ
 ' Script Name: FindHoveddiagramsInAS
 ' Author: Sara Henriksen
 ' Date: 03.08.16
@@ -1327,33 +1343,34 @@ end sub
 ' sub procedure to check if the given package and its subpackages has more than one diagram with the provided name, if so, return and error if 
 ' the name of the Diagram is nothing more than "Hoveddiagram".
 '@param[in]: package (EA.package) The package potentially containing diagrams with the provided name
-
-sub FindHoveddiagramsInAS(package)
-	
-	dim diagrams as EA.Collection
-	set diagrams = package.Diagrams
-
-	'find all digrams in the package 
-	dim i
-	for i = 0 to diagrams.Count - 1
-		dim currentDiagram as EA.Diagram
-		set currentDiagram = diagrams.GetAt( i )
-				
-		'if the package got less than one diagram with a name starting with "Hoveddiagram", then return an error 
-		if UCase(Mid((currentDiagram.Name),1,12)) = "HOVEDDIAGRAM" and len(currentDiagram.Name) = 12 then 
-			numberOfHoveddiagram = numberOfHoveddiagram + 1 
-		end if	 
-		
-		'count diagrams named 'Hovediagram'
-		if UCase(Mid((currentDiagram.Name),1,12)) = "HOVEDDIAGRAM" and len(currentDiagram.Name) > 12 then 
-			numberOfHoveddiagramWithAdditionalInformationInTheName = numberOfHoveddiagramWithAdditionalInformationInTheName + 1 
-		end if	 
-	next
-end sub
+'
+'sub FindHoveddiagramsInAS(package)
+'	
+'	dim diagrams as EA.Collection
+'	set diagrams = package.Diagrams
+'
+'	'find all digrams in the package 
+'	dim i
+'	for i = 0 to diagrams.Count - 1
+'		dim currentDiagram as EA.Diagram
+'		set currentDiagram = diagrams.GetAt( i )
+'				
+'		'if the package got less than one diagram with a name starting with "Hoveddiagram", then return an error 
+'		if UCase(Mid((currentDiagram.Name),1,12)) = "HOVEDDIAGRAM" and len(currentDiagram.Name) = 12 then 
+'			numberOfHoveddiagram = numberOfHoveddiagram + 1 
+'		end if	 
+'		
+'		'count diagrams named 'Hovediagram'
+'		if UCase(Mid((currentDiagram.Name),1,12)) = "HOVEDDIAGRAM" and len(currentDiagram.Name) > 12 then 
+'			numberOfHoveddiagramWithAdditionalInformationInTheName = numberOfHoveddiagramWithAdditionalInformationInTheName + 1 
+'		end if	 
+'	next
+'end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' SOSIREQ
 ' Script Name: CheckOversiktsdiagram
 ' Author: Åsmund Tjora (based on FindHoveddiagramsInAS by Sara Henriksen)
 ' Date: 11.01.17
@@ -1361,34 +1378,34 @@ end sub
 ' diagram starting with "Oversiktsdiagram"
 ' /krav/oversiktsdiagram 
 '@param[in]: package (EA.package) The package potentially containing diagrams with the provided name
-
-sub CheckOversiktsdiagram(package)
-	
-	dim diagrams as EA.Collection
-	set diagrams = package.Diagrams
-	dim noHoveddiagram
-	dim noOversiktsdiagram
-	
-	noHoveddiagram = 0
-	noOversiktsdiagram = 0
-
-	'find all diagrams in the package 
-	dim i
-	for i = 0 to diagrams.Count - 1
-		dim currentDiagram as EA.Diagram
-		set currentDiagram = diagrams.GetAt( i )
-		if UCase(Mid(currentDiagram.Name,1,12)) = "HOVEDDIAGRAM" then 
-			noHoveddiagram = noHoveddiagram + 1 
-		end if	 
-		if UCase(Mid(currentDiagram.Name,1,16)) = "OVERSIKTSDIAGRAM" then
-			noOversiktsdiagram = noOversiktsdiagram + 1
-		end if	 
-	next
-	if  ((noHoveddiagram > 1) and (noOversiktsdiagram = 0)) then
-		session.output("Error: Package [" & package.Name & "] has more than one diagram with names starting with Hoveddiagram, but no diagram with name starting with Oversiktsdiagram [/krav/oversiktsdiagram]")
-		globalErrorCounter = globalErrorCounter + 1 		
-	end if
-end sub
+'
+'sub CheckOversiktsdiagram(package)
+'	
+'	dim diagrams as EA.Collection
+'	set diagrams = package.Diagrams
+'	dim noHoveddiagram
+'	dim noOversiktsdiagram
+'	
+'	noHoveddiagram = 0
+'	noOversiktsdiagram = 0
+'
+'	'find all diagrams in the package 
+'	dim i
+'	for i = 0 to diagrams.Count - 1
+'		dim currentDiagram as EA.Diagram
+'		set currentDiagram = diagrams.GetAt( i )
+'		if UCase(Mid(currentDiagram.Name,1,12)) = "HOVEDDIAGRAM" then 
+'			noHoveddiagram = noHoveddiagram + 1 
+'		end if	 
+'		if UCase(Mid(currentDiagram.Name,1,16)) = "OVERSIKTSDIAGRAM" then
+'			noOversiktsdiagram = noOversiktsdiagram + 1
+'		end if	 
+'	next
+'	if  ((noHoveddiagram > 1) and (noOversiktsdiagram = 0)) then
+'		session.output("Error: Package [" & package.Name & "] has more than one diagram with names starting with Hoveddiagram, but no diagram with name starting with Oversiktsdiagram [/krav/oversiktsdiagram]")
+'		globalErrorCounter = globalErrorCounter + 1 		
+'	end if
+'end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 'SOSIREQ - code for sub below is obsolete
@@ -2513,97 +2530,100 @@ end sub
 ' Sub name: checkRoleNames
 ' Author: Magnus Karge
 ' Date: 20170110 
-' Purpose:  sub procedure to check if a given association's role names start with lower case 
-'			(navigable ends shall have role names [krav/navning]) 
+' Purpose:  sub procedure to check if a given association's role names start with lower case (19103:2015 recommendation 11)
+'			(note:  navigable ends shall have role names [19103:2015 requirement 11]) 
 ' 			
 ' @param[in]: 	theElement (EA.Element). The element that "ownes" the association to check
 '				sourceEndName (CharacterString). role name on association's source end
 '				targetEndName (CharacterString). role name on association's target end
 '				elementOnOppositeSide (EA.Element). The element on the opposite side of the association to check
 sub checkRoleNames(theElement, sourceEndName, targetEndName, elementOnOppositeSide)
-	if not sourceEndName = "" and not Left(sourceEndName,1) = LCase(Left(sourceEndName,1)) then 
-		Session.Output("Error: Role name [" & sourceEndName & "] on association end connected to class ["& theElement.Name &"] shall start with lowercase letter. [/krav/navning]") 
-		globalErrorCounter = globalErrorCounter + 1 
-	end if 
+	if globalLogLevelIsWarning then
+		if not sourceEndName = "" and not Left(sourceEndName,1) = LCase(Left(sourceEndName,1)) then 
+			Session.Output("Warning: Role name [" & sourceEndName & "] on association end connected to class ["& theElement.Name &"] should start with lowercase letter. [19103:2015 recommendation 11]") 
+			globalWarningCounter = globalWarningCounter + 1 
+		end if 
 
-	if not (targetEndName = "") and not (Left(targetEndName,1) = LCase(Left(targetEndName,1))) then 
-		Session.Output("Error: Role name [" & targetEndName & "] on association end connected to class ["& elementOnOppositeSide.Name &"] shall start with lowercase letter. [/krav/navning]") 
-		globalErrorCounter = globalErrorCounter + 1 
-	end if 
+		if not (targetEndName = "") and not (Left(targetEndName,1) = LCase(Left(targetEndName,1))) then 
+			Session.Output("Warning: Role name [" & targetEndName & "] on association end connected to class ["& elementOnOppositeSide.Name &"] should start with lowercase letter. [19103:2015 recommendation 11]") 
+			globalWarningCounter = globalWarningCounter + 1 
+		end if 
+	end if
 end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' SOSIREQ
 ' Script Name: checkEndingOfPackageName
 ' Author: Sara Henriksen, Åsmund Tjora	
 ' Purpose: check if the package name ends with a version number. The version number could be a date or a serial number. Returns an error if the version 
 ' number contains anything other than 0-2 dots or numbers. 
 ' Packages under development should have the text "Utkast" as the final element, after the version number. 
 ' Date: 25.08.16 (original version) 10.01.17 (Updated version)
-sub checkEndingOfPackageName(thePackage)
-	if UCase(thePackage.Element.Stereotype)="APPLICATIONSCHEMA" then
-		'find the last part of the package name, after "-" 
-		dim startContent, endContent, stringContent, cleanContent 		
-		
-		'remove any "Utkast" part of the name 
-		cleanContent=replace(UCase(thePackage.Name), "UTKAST", "")
-		
-		endContent = len(cleanContent)
-	
-		startContent = InStr(cleanContent, "-") 
-	
-		stringContent = mid(cleanContent, startContent+1, endContent) 	
-		dim versionNumberInPackageName
-		versionNumberInPackageName = false 
-		'count number of dots, only allowed to use max two. 
-		dim dotCounter
-		dotCounter = 0
-
-		'check that the package name contains a "-", and thats it is just number(s) and "." after. 
-		if InStr(thePackage.Name, "-") then 			
-			'if the string is numeric or it has dots, set the valueOk true 
-			if  InStr(stringContent, ".")  or IsNumeric(stringContent)  then
-				versionNumberInPackageName = true 
-				dim i, tegn 
-				for i = 1 to len(stringContent) 
-					tegn = Mid(stringContent,i,1)
-					if tegn = "." then
-						dotCounter = dotCounter  + 1 
-					end if 
-				next 
-				'count number of dots. If it's more than 2 return an error. 
-				if dotCounter < 3 then 
-					versionNumberInPackageName = true
-				else 
-					versionNumberInPackageName = false
-				end if
-			end if 
-		end if 
-
-		'check the string for letters and symbols. If the package name contains one of the following, then return an error. 
-		if inStr(UCase(stringContent), "A") or inStr(UCase(stringContent), "B") or inStr(UCase(stringContent), "C") or inStr(UCase(stringContent), "D") or inStr(UCase(stringContent), "E") or inStr(UCase(stringContent), "F") or inStr(UCase(stringContent), "G") or inStr(UCase(stringContent), "H") or inStr(UCase(stringContent), "I") or inStr(UCase(stringContent), "J") or inStr(UCase(stringContent), "K") or inStr(UCase(stringContent), "L")  then 
-			versionNumberInPackageName = false
-		end if 	
-		if inStr(UCase(stringContent), "M") or inStr(UCase(stringContent), "N") or inStr(UCase(stringContent), "O") or inStr(UCase(stringContent), "P") or inStr(UCase(stringContent), "Q") or inStr(UCase(stringContent), "R") or inStr(UCase(stringContent), "S") or inStr(UCase(stringContent), "T") or inStr(UCase(stringContent), "U") or inStr(UCase(stringContent), "V") or inStr(UCase(stringContent), "W") or inStr(UCase(stringContent), "X") then          
-			versionNumberInPackageName = false
-		end if 
-		if inStr(UCase(stringContent), "Y") or inStr(UCase(stringContent), "Z") or inStr(UCase(stringContent), "Æ") or inStr(UCase(stringContent), "Ø") or inStr(UCase(stringContent), "Å") then 
-			versionNumberInPackageName = false
-		end if 
-		if inStr(stringContent, ",") or inStr(stringContent, "!") or inStr(stringContent, "@") or inStr(stringContent, "%") or inStr(stringContent, "&") or inStr(stringContent, """") or inStr(stringContent, "#") or inStr(stringContent, "$") or inStr(stringContent, "'") or inStr(stringContent, "(") or inStr(stringContent, ")") or inStr(stringContent, "*") or inStr(stringContent, "+") or inStr(stringContent, "/") then        
-			versionNumberInPackageName = false
-		end if
-		if inStr(stringContent, ":") or inStr(stringContent, ";") or inStr(stringContent, ">") or inStr(stringContent, "<") or inStr(stringContent, "=") then
-			versionNumberInPackageName = false
-		end if 
-	
-		if versionNumberInPackageName = false  then  
-			Session.Output("Error: Package ["&thePackage.Name&"] does not have a name ending with a version number. [/krav/SOSI-modellregister/applikasjonsskjema/versjonsnummer]")
-			globalErrorCounter = globalErrorCounter + 1	
-		end if 
-	end if	
-end sub 
+'sub checkEndingOfPackageName(thePackage)
+'	if UCase(thePackage.Element.Stereotype)="APPLICATIONSCHEMA" then
+'		'find the last part of the package name, after "-" 
+'		dim startContent, endContent, stringContent, cleanContent 		
+'		
+'		'remove any "Utkast" part of the name 
+'		cleanContent=replace(UCase(thePackage.Name), "UTKAST", "")
+'		
+'		endContent = len(cleanContent)
+'	
+'		startContent = InStr(cleanContent, "-") 
+'	
+'		stringContent = mid(cleanContent, startContent+1, endContent) 	
+'		dim versionNumberInPackageName
+'		versionNumberInPackageName = false 
+'		'count number of dots, only allowed to use max two. 
+'		dim dotCounter
+'		dotCounter = 0
+'
+'		'check that the package name contains a "-", and thats it is just number(s) and "." after. 
+'		if InStr(thePackage.Name, "-") then 			
+'			'if the string is numeric or it has dots, set the valueOk true 
+'			if  InStr(stringContent, ".")  or IsNumeric(stringContent)  then
+'				versionNumberInPackageName = true 
+'				dim i, tegn 
+'				for i = 1 to len(stringContent) 
+'					tegn = Mid(stringContent,i,1)
+'					if tegn = "." then
+'						dotCounter = dotCounter  + 1 
+'					end if 
+'				next 
+'				'count number of dots. If it's more than 2 return an error. 
+'				if dotCounter < 3 then 
+'					versionNumberInPackageName = true
+'				else 
+'					versionNumberInPackageName = false
+'				end if
+'			end if 
+'		end if 
+'
+'		'check the string for letters and symbols. If the package name contains one of the following, then return an error. 
+'		if inStr(UCase(stringContent), "A") or inStr(UCase(stringContent), "B") or inStr(UCase(stringContent), "C") or inStr(UCase(stringContent), "D") or inStr(UCase(stringContent), "E") or inStr(UCase(stringContent), "F") or inStr(UCase(stringContent), "G") or inStr(UCase(stringContent), "H") or inStr(UCase(stringContent), "I") or inStr(UCase(stringContent), "J") or inStr(UCase(stringContent), "K") or inStr(UCase(stringContent), "L")  then 
+'			versionNumberInPackageName = false
+'		end if 	
+'		if inStr(UCase(stringContent), "M") or inStr(UCase(stringContent), "N") or inStr(UCase(stringContent), "O") or inStr(UCase(stringContent), "P") or inStr(UCase(stringContent), "Q") or inStr(UCase(stringContent), "R") or inStr(UCase(stringContent), "S") or inStr(UCase(stringContent), "T") or inStr(UCase(stringContent), "U") or inStr(UCase(stringContent), "V") or inStr(UCase(stringContent), "W") or inStr(UCase(stringContent), "X") then          
+'			versionNumberInPackageName = false
+'		end if 
+'		if inStr(UCase(stringContent), "Y") or inStr(UCase(stringContent), "Z") or inStr(UCase(stringContent), "Æ") or inStr(UCase(stringContent), "Ø") or inStr(UCase(stringContent), "Å") then 
+'			versionNumberInPackageName = false
+'		end if 
+'		if inStr(stringContent, ",") or inStr(stringContent, "!") or inStr(stringContent, "@") or inStr(stringContent, "%") or inStr(stringContent, "&") or inStr(stringContent, """") or inStr(stringContent, "#") or inStr(stringContent, "$") or inStr(stringContent, "'") or inStr(stringContent, "(") or inStr(stringContent, ")") or inStr(stringContent, "*") or inStr(stringContent, "+") or inStr(stringContent, "/") then        
+'			versionNumberInPackageName = false
+'		end if
+'		if inStr(stringContent, ":") or inStr(stringContent, ";") or inStr(stringContent, ">") or inStr(stringContent, "<") or inStr(stringContent, "=") then
+'			versionNumberInPackageName = false
+'		end if 
+'	
+'		if versionNumberInPackageName = false  then  
+'			Session.Output("Error: Package ["&thePackage.Name&"] does not have a name ending with a version number. [/krav/SOSI-modellregister/applikasjonsskjema/versjonsnummer]")
+'			globalErrorCounter = globalErrorCounter + 1	
+'		end if 
+'	end if	
+'end sub 
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
@@ -2667,53 +2687,54 @@ sub checkUniqueFeatureTypeNames()
 
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' SOSIREQ
 ' Script Name: checkUtkast
 ' Author: Åsmund Tjora	
 ' Purpose: check that packages with "Utkast" as part of the package name also has "Utkast" as SOSI_modellstatus tag and that package with the "Utkast"
 ' SOSI_modellstatus tag also has "Utkast" as part of the name. 
 ' Date: 10.01.17 
-sub checkUtkast(thePackage)
-	dim utkastInName, utkastInTag
-	'check if "Utkast" is part of the name
-	if (len(thePackage.Name)=len(replace(UCase(thePackage.Name),"UTKAST",""))) then utkastInName=false else utkastInName=true
-	'check if "utkast" is part of the SOSI_modellstatus tag
-	dim taggedValuesCounter
-	dim SOSI_modellstatusTag
-	dim currentExistingTaggedValue
-	SOSI_modellstatusTag = "Missing Tag"
-	utkastInTag=false
-	for taggedValuesCounter = 0 to thePackage.Element.TaggedValues.Count - 1
-		set currentExistingTaggedValue = thePackage.Element.TaggedValues.GetAt(taggedValuesCounter)			
-		if currentExistingTaggedValue.Name = "SOSI_modellstatus" then
-			if currentExistingTaggedValue.Value = "utkast" then utkastInTag=true
-			SOSI_modellstatusTag=currentExistingTaggedValue.Value
-		end if
-	next
-	
-	if (utkastInName = true and SOSI_modellstatusTag = "") then
-		Session.Output("Error: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "] has Utkast as part of the name, but the tag [SOSI_modellstatus] has no value. Expected value [utkast]. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
-		globalErrorCounter = globalErrorCounter + 1 
-	elseif (utkastInName = true and SOSI_modellstatusTag = "Missing Tag") then
-		Session.Output("Error: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "] has Utkast as part of the name, but the tag [SOSI_modellstatus] is missing. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
-		globalErrorCounter = globalErrorCounter + 1 	
-	elseif (utkastInName=true and utkastInTag=false) then
-		Session.Output("Error: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "] has Utkast as part of the name, but the tag [SOSI_modellstatus] has the value ["&SOSI_modellstatusTag&"]. Expected value [utkast]. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
-		globalErrorCounter = globalErrorCounter + 1 
-	end if
-
-	if (utkastInName=false and utkastInTag=true) then
-		Session.Output("Error: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "] has [SOSI_modellstatus] tag with utkast value, but Utkast is not part of the package name. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
-		globalErrorCounter = globalErrorCounter + 1 
-	end if 
-
-	'check case of name.
-	if utkastInName and globalLogLevelIsWarning then
-		if not(len(replace(thePackage.Name, "Utkast",""))=len(replace(UCase(thePackage.Name),"UTKAST",""))) then
-			Session.Output("Warning: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "]. Unexpected upper/lower case of the Utkast part of the name. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
-			globalWarningCounter = globalWarningCounter + 1
-		end if
-	end if
-end sub
+'sub checkUtkast(thePackage)
+'	dim utkastInName, utkastInTag
+'	'check if "Utkast" is part of the name
+'	if (len(thePackage.Name)=len(replace(UCase(thePackage.Name),"UTKAST",""))) then utkastInName=false else utkastInName=true
+'	'check if "utkast" is part of the SOSI_modellstatus tag
+'	dim taggedValuesCounter
+'	dim SOSI_modellstatusTag
+'	dim currentExistingTaggedValue
+'	SOSI_modellstatusTag = "Missing Tag"
+'	utkastInTag=false
+'	for taggedValuesCounter = 0 to thePackage.Element.TaggedValues.Count - 1
+'		set currentExistingTaggedValue = thePackage.Element.TaggedValues.GetAt(taggedValuesCounter)			
+'		if currentExistingTaggedValue.Name = "SOSI_modellstatus" then
+'			if currentExistingTaggedValue.Value = "utkast" then utkastInTag=true
+'			SOSI_modellstatusTag=currentExistingTaggedValue.Value
+'		end if
+'	next
+'	
+'	if (utkastInName = true and SOSI_modellstatusTag = "") then
+'		Session.Output("Error: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "] has Utkast as part of the name, but the tag [SOSI_modellstatus] has no value. Expected value [utkast]. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
+'		globalErrorCounter = globalErrorCounter + 1 
+'	elseif (utkastInName = true and SOSI_modellstatusTag = "Missing Tag") then
+'		Session.Output("Error: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "] has Utkast as part of the name, but the tag [SOSI_modellstatus] is missing. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
+'		globalErrorCounter = globalErrorCounter + 1 	
+'	elseif (utkastInName=true and utkastInTag=false) then
+'		Session.Output("Error: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "] has Utkast as part of the name, but the tag [SOSI_modellstatus] has the value ["&SOSI_modellstatusTag&"]. Expected value [utkast]. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
+'		globalErrorCounter = globalErrorCounter + 1 
+'	end if
+'
+'	if (utkastInName=false and utkastInTag=true) then
+'		Session.Output("Error: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "] has [SOSI_modellstatus] tag with utkast value, but Utkast is not part of the package name. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
+'		globalErrorCounter = globalErrorCounter + 1 
+'	end if 
+'
+'	'check case of name.
+'	if utkastInName and globalLogLevelIsWarning then
+'		if not(len(replace(thePackage.Name, "Utkast",""))=len(replace(UCase(thePackage.Name),"UTKAST",""))) then
+'			Session.Output("Warning: Package [«"&thePackage.Element.Stereotype&"» "&thePackage.Element.Name& "]. Unexpected upper/lower case of the Utkast part of the name. [/krav/SOSI-modellregister/applikasjonsskjema/standard/pakkenavn/utkast]")
+'			globalWarningCounter = globalWarningCounter + 1
+'		end if
+'	end if
+'end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
@@ -2725,7 +2746,7 @@ end sub
 
 sub checkInstantiable(theClass)
 	if (UCase(theClass.Stereotype) = "INTERFACE" or theClass.Type = "Interface") then
-		Session.Output("Error:  Class [«" &theClass.Stereotype& "» " &theClass.Name& "].  Interface stereotype for classes is not allowed in ApplicationSchema. [/req/uml/structure]")
+		Session.Output("Error:  Class [«" &theClass.Stereotype& "» " &theClass.Name& "].  Interface stereotype for classes is not allowed in ApplicationSchema. [19109:2015 /req/uml/structure]")
 		globalErrorCounter = globalErrorCounter + 1
 	end if
 	if theClass.Abstract = "1" then
@@ -2748,7 +2769,7 @@ sub checkInstantiable(theClass)
 			end if
 		next
 		if not (hasSpecializations and specInSameApplicationSchema) then
-			Session.Output("Error: Class [«" &theClass.Stereotype& "» " &theClass.Name& "]. Abstract class does not have any instantiable specializations in the ApplicationSchema. [/req/uml/structure]")
+			Session.Output("Error: Class [«" &theClass.Stereotype& "» " &theClass.Name& "]. Abstract class does not have any instantiable specializations in the ApplicationSchema. [19109:2015 /req/uml/structure]")
 			globalErrorCounter = globalErrorCounter + 1
 		end if
 	end if
@@ -2798,7 +2819,7 @@ sub checkPackageDependency(thePackage)
 	'		if not globalListPackageElementIDsOfPackageDependencies.Contains(packageElementID) then
 	'			Session.Output("Error: Use of element " & investigatedElement.Name & " from package " & investigatedPackage.Name & " is not listed in model dependencies [/req/uml/integration]")
 	'		else
-			Session.Output("Error: Dependency on package [" & investigatedPackage.Name & "] needed for the use of element [" & investigatedElement.Name & "] is not shown in any package diagram [/krav/17][/krav/21]")
+			Session.Output("Error: Dependency on package [" & investigatedPackage.Name & "] needed for the use of element [" & investigatedElement.Name & "] is not shown in any package diagram [19103:2015 requirement 17][19103:2015 requirement 21]")
 			globalErrorCounter=globalErrorCounter+1 
 	'		end if
 		end if
@@ -2808,7 +2829,7 @@ sub checkPackageDependency(thePackage)
 	for each packageElementID in globalListPackageElementIDsOfPackageDependencies
 		set investigatedPackage=Repository.GetElementByID(packageElementID)
 		if not UCase(investigatedPackage.Stereotype)="APPLICATIONSCHEMA" then
-			Session.Output("Warning: Dependency to package [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] found.  Dependencies shall only be to ApplicationSchema packages or Standard schemas. Ignore this warning if [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] is a standard schema [req/uml/integration]")
+			Session.Output("Warning: Dependency to package [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] found.  Dependencies shall only be to ApplicationSchema packages or Standard schemas. Ignore this warning if [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] is a standard schema [19109:2015 req/uml/integration]")
 			globalWarningCounter = globalWarningCounter + 1
 		end if
 	next
@@ -2994,11 +3015,11 @@ sub findPackagesToBeReferenced()
 		
 		
 		if tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy.count = 0 and tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.count = 0 then
-			Session.Output("Error: Missing dependency for package ["& Repository.GetPackageByID(tempPackageIDOfPotentialPackageToBeReferenced).Name &"] (or any of its superpackages) containing external referenced class [" &currentExternalElement.Name& "] [/req/uml/integration]")
+			Session.Output("Error: Missing dependency for package ["& Repository.GetPackageByID(tempPackageIDOfPotentialPackageToBeReferenced).Name &"] (or any of its superpackages) containing external referenced class [" &currentExternalElement.Name& "] [19109:2015 /req/uml/integration]")
 			globalErrorCounter = globalErrorCounter + 1
 		end if
 		if tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy.count > 0 and tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.count = 0 then
-			Session.Output("Error: Missing dependency for package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [/req/uml/integration]")
+			Session.Output("Error: Missing dependency for package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [19109:2015 /req/uml/integration]")
 			globalErrorCounter = globalErrorCounter + 1
 		end if
 		
@@ -3008,7 +3029,7 @@ sub findPackagesToBeReferenced()
 			packageIDOfFirstAppSchemaPackageFoundInHierarchy = tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)
 			dim packageIDOfReferencedPackage
 			if not tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.contains(packageIDOfFirstAppSchemaPackageFoundInHierarchy) then
-				Session.Output("Error: Missing dependency for package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [/req/uml/integration]")
+				Session.Output("Error: Missing dependency for package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [19109:2015 /req/uml/integration]")
 				Session.Output("       Please exchange the modelled dependency to the following package(s) because of an existing applicationSchema package in the package hierarchy:")
 				globalErrorCounter = globalErrorCounter + 1
 				for each packageIDOfReferencedPackage in tmpListPackageIDsOfReferencedPackagesFoundInHierarchy
@@ -3016,7 +3037,7 @@ sub findPackagesToBeReferenced()
 					
 				next
 			elseif tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.contains(packageIDOfFirstAppSchemaPackageFoundInHierarchy) and tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.count > 1 then
-				Session.Output("Error: Found redundant dependency related to package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [/req/uml/integration]")
+				Session.Output("Error: Found redundant dependency related to package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [19109:2015 /req/uml/integration]")
 				Session.Output("       Please remove additional modelled dependency to the following package(s) in the same package hierarchy:")
 				globalErrorCounter = globalErrorCounter + 1
 				for each packageIDOfReferencedPackage in tmpListPackageIDsOfReferencedPackagesFoundInHierarchy
@@ -3131,7 +3152,7 @@ sub CheckSubPackageStereotype(rootPackage)
 	
 	for each subPackage in subPackageList
 		if UCase(subPackage.Element.Stereotype)="APPLICATIONSCHEMA" then
-			Session.Output("Error: Package [«" &subPackage.Element.Stereotype& "» " &subPackage.Name& "]. Package with stereotype ApplicationSchema cannot contain subpackages with stereotype ApplicationSchema. [/req/uml/integration]")
+			Session.Output("Error: Package [«" &subPackage.Element.Stereotype& "» " &subPackage.Name& "]. Package with stereotype ApplicationSchema cannot contain subpackages with stereotype ApplicationSchema. [19109:2015 /req/uml/integration]")
 			globalErrorCounter = globalErrorCounter + 1
 		end if	
 	next
@@ -3161,8 +3182,8 @@ sub FindInvalidElementsInPackage(package)
 		end if	
 	end if
 
-	call checkEndingOfPackageName(package)
-	call checkUtkast(package)
+' SOSIREQ	call checkEndingOfPackageName(package)
+' SOSIREQ	call checkUtkast(package)
 	
 	call checkSubPackageStereotype(package)
 	
@@ -3187,15 +3208,18 @@ sub FindInvalidElementsInPackage(package)
 	Call checkTVLanguageAndDesignation (package.Element, "definition")
 	'iterate the tagged values collection and check if the applicationSchema package has a tagged value "version" with any content [/req/uml/packaging ]	
 	Call checkValueOfTVVersion( package.Element , "version" ) 
+'SOSIREQ
 	'iterate the tagged values collection and check if the applicationSchema package has a tagged value "SOSI_modellstatus" that is valid [/krav/SOSI-modellregister/ applikasjonsskjema/status]
-	Call ValidValueSOSI_modellstatus( package.Element , "SOSI_modellstatus" )
-	'iterate the diagrams and checks if there exists one or more diagram names starting with "Hoveddiagram" if not one has been found already [/krav/hoveddiagram/navning]
-	if 	not foundHoveddiagram  then
-		call CheckPackageForHoveddiagram(package)
-	end if 
-	'iterate the diagrams in the package and count those named "Hoveddiagram" [/krav/hoveddiagram/detaljering/navning]
-	Call FindHoveddiagramsInAS(package)
-	call CheckOversiktsdiagram(package)
+	'Call ValidValueSOSI_modellstatus( package.Element , "SOSI_modellstatus" )
+' SOSIREQ
+	'	'iterate the diagrams and checks if there exists one or more diagram names starting with "Hoveddiagram" if not one has been found already [/krav/hoveddiagram/navning]
+'	if 	not foundHoveddiagram  then
+'		call CheckPackageForHoveddiagram(package)
+'	end if 
+' SOSIREQ
+'	'iterate the diagrams in the package and count those named "Hoveddiagram" [/krav/hoveddiagram/detaljering/navning]
+'	Call FindHoveddiagramsInAS(package)
+'	SOSIREQ call CheckOversiktsdiagram(package)
 					
 	'check packages' stereotype for right use of lower- and uppercase [/anbefaling/styleGuide] 	
 	call checkStereotypes(package)		 
@@ -3345,10 +3369,11 @@ sub FindInvalidElementsInPackage(package)
 			'check if there is there is multiple inheritance for the class element (/krav/enkelArv) 
 			'initialize the global variable startClass which is needed in subroutine findMultipleInheritance 
 			set startClass = currentElement 
-			loopCounterMultipleInheritance = 0
-			Call findMultipleInheritance(currentElement) 
+' SOSIREQ
+'			loopCounterMultipleInheritance = 0
+'			Call findMultipleInheritance(currentElement) 
  					 
-			'check the structure of the value for tag values: designation, description and definition [/krav/flerspråklighet/element]
+			'check the structure of the value for tag values: designation, description and definition [19109:2015 /req/multi-lingual/feature]
 			if UCase(currentElement.Stereotype) = "FEATURETYPE" then 
 				Call structurOfTVforElement( currentElement, "description")
 				Call structurOfTVforElement( currentElement, "designation") 
@@ -3387,7 +3412,7 @@ sub FindInvalidElementsInPackage(package)
 					'check if the attribute has a definition									 
 					'Call the subfunction with currentAttribute as parameter 
 					CheckDefinition(currentAttribute) 
-					'check the structure of the value for tagged values: designation, description and definition [/krav/flerspråklighet/element]
+					'check the structure of the value for tagged values: designation, description and definition [19109 /req/multi-lingual/feature]
 					Call structurOfTVforElement( currentAttribute, "description")
 					Call structurOfTVforElement( currentAttribute, "designation")
 					Call structurOfTVforElement( currentAttribute, "definition") 
@@ -3538,17 +3563,19 @@ sub FindInvalidElementsInPackage(package)
 					dim currentOperation as EA.Method		 
 					set currentOperation = operationsCollection.GetAt(operationCounter) 
  								
-					'check the structure of the value for tag values: designation, description and definition [/krav/flerspråklighet/element]
+					'check the structure of the value for tag values: designation, description and definition [19109 /req/multi-lingual/feature]
 					Call structurOfTVforElement(currentOperation, "description")
 					Call structurOfTVforElement(currentOperation, "designation")
 					Call structurOfTVforElement(currentOperation, "definition")
 								
 					'check if the operations's name starts with lower case 
 					'TODO: this rule does not apply for constructor operation 
-					if not Left(currentOperation.Name,1) = LCase(Left(currentOperation.Name,1)) then 
-						Session.Output("Error: Operation name [" & currentOperation.Name & "] in class ["&currentElement.Name&"] shall not start with capital letter. [/krav/navning]") 
-						globalErrorCounter = globalErrorCounter + 1 
-					end if 
+					if globalLogLevelIsWarning then
+						if not Left(currentOperation.Name,1) = LCase(Left(currentOperation.Name,1)) then 
+							Session.Output("Warning: Operation name [" & currentOperation.Name & "] in class ["&currentElement.Name&"] should not start with capital letter. [19103:2015 recommendation 11]") 
+							globalWarningCounter = globalWarningCounter + 1 
+						end if 
+					end if
  								 
 					'check if there is a definition for the operation (call CheckDefinition function) 
 					'call the subroutine with currentOperation as parameter 
@@ -3567,13 +3594,14 @@ dim globalLogLevelIsWarning 'boolean variable indicating if warning log level ha
 globalLogLevelIsWarning = true 'default setting for warning log level is true
  
 dim startClass as EA.Element  'the class which is the starting point for searching for multiple inheritance in the findMultipleInheritance subroutine 
-dim loopCounterMultipleInheritance 'integer value counting number of loops while searching for multiple inheritance
-dim foundHoveddiagram 'boolean to check if a diagram named Hoveddiagram is found. If found, foundHoveddiagram = true  
-foundHoveddiagram = false 
-dim numberOfHoveddiagram 'number of diagrams named Hoveddiagram
-numberOfHoveddiagram = 0
-dim numberOfHoveddiagramWithAdditionalInformationInTheName 'number of diagrams with a name starting with Hoveddiagram and including additional characters  
-numberOfHoveddiagramWithAdditionalInformationInTheName = 0
+' SOSIREQ
+' dim loopCounterMultipleInheritance 'integer value counting number of loops while searching for multiple inheritance
+' SOSIREQ dim foundHoveddiagram 'boolean to check if a diagram named Hoveddiagram is found. If found, foundHoveddiagram = true  
+' foundHoveddiagram = false 
+' SOSIREQ dim numberOfHoveddiagram 'number of diagrams named Hoveddiagram
+' numberOfHoveddiagram = 0
+' SOSIREQ dim numberOfHoveddiagramWithAdditionalInformationInTheName 'number of diagrams with a name starting with Hoveddiagram and including additional characters  
+' numberOfHoveddiagramWithAdditionalInformationInTheName = 0
 dim globalErrorCounter 'counter for number of errors 
 globalErrorCounter = 0 
 dim globalWarningCounter
