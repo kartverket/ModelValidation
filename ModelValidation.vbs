@@ -1643,9 +1643,11 @@ sub requirement14(currentElement)
 		if currentConnector.Type = "Generalization" then
 			set elementOnOppositeSide = Repository.GetElementByID(targetElementID)
 			
-			if UCase(elementOnOppositeSide.Stereotype) <> UCase(currentElement.Stereotype) then
-				session.output("Warning: Class [«"&elementOnOppositeSide.Stereotype&"» "&elementOnOppositeSide.Name&"] has a stereotype that is not the same as the stereotype of [«"&currentElement.Stereotype&"» "&currentElement.Name&"]. Check if they are at the same abstraction level. [ISO19103:2015 Requirement 14]")
-				globalErrorCounter = globalErrorCounter + 1 
+			if globalLogLevelIsWarning then
+				if UCase(elementOnOppositeSide.Stereotype) <> UCase(currentElement.Stereotype) then
+					session.output("Warning: Class [«"&elementOnOppositeSide.Stereotype&"» "&elementOnOppositeSide.Name&"] has a stereotype that is not the same as the stereotype of [«"&currentElement.Stereotype&"» "&currentElement.Name&"]. Check if they are at the same abstraction level. [ISO19103:2015 Requirement 14]")
+					globalWarningCounter = globalWarningCounter + 1
+				end if
 			end if
 		end if
 	next
