@@ -13,7 +13,7 @@
 
 ' Version: 1.2
 
-' Date: 2017-05-16 Kent
+' Date: 2017-05-16 
 
 ' Purpose: Validate model elements according to rules defined in the standard SOSI Regler for UML-modellering 5.0 
 ' Implemented rules: 
@@ -2395,8 +2395,8 @@ function AssociationsShown(theElement, diagram, diagramObject)
 	GeneralizationsFound = 0
 	
 	for each connEl in theElement.Connectors
-		'test only for Association, Aggregation (+Composition) - leave out Generalization and Realization and the rest
-		if connEl.Type = "Generalization" or connEl.Type = "Realization" then
+		'test only for Association, Aggregation (+Composition) - leave out Generalization and Realisation and the rest
+		if connEl.Type = "Generalization" or connEl.Type = "Realisation" then
 			GeneralizationsFound = GeneralizationsFound + 1
 		else
 			for each dial in diagram.DiagramLinks
