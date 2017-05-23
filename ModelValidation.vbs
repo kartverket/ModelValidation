@@ -210,6 +210,7 @@
 								call getElementIDsOfExternalReferencedElements(thePackage)
 								call findPackagesToBeReferenced()
 								call checkPackageDependency(thePackage)
+								call dependencyLoop(thePackage.Element)
 							  
                 'For /req/Uml/Profile:
 							  Set ProfileTypes = CreateObject("System.Collections.ArrayList")
@@ -353,9 +354,9 @@ function scriptBreakingStructuresInModel(thePackage)
 	dim currentElement as EA.Element
 	dim elements as EA.Collection
 	
-	'Package Dependency Loop Check
+	'Package Dependency Loop Check will not break script.  Do not check here.
 	set currentElement = thePackage.Element
-	retVal=retVal or dependencyLoop(currentElement)
+'	retVal=retVal or dependencyLoop(currentElement)
 	
 	'Inheritance Loop Check
 	set elements = thePackage.elements
@@ -381,13 +382,17 @@ function dependencyLoop(thePackageElement)
 	set checkedPackagesList = CreateObject("System.Collections.ArrayList")
 	retVal=dependencyLoopCheck(thePackageElement, checkedPackagesList)
 	if retVal then
-		Session.Output("Error:  The dependency structure originating in [«" & thePackageElement.StereoType & "» " & thePackageElement.name & "] contains dependecy loops")
+		Session.Output("Error:  The dependency structure originating in [«" & thePackageElement.StereoType & "» " & thePackageElement.name & "] contains dependency loops [ISO19109:2015 /req/uml/integration]")
+		Session.Output("          See the list above for the packages that are part of a loop.")
+		Session.Output("          Ignore this error for dependencies between packages outside the control of the current project.")
+		globalErrorCounter = globalErrorCounter+1
 	end if
 	dependencyLoop = retVal
 end function
 
 function dependencyLoopCheck(thePackageElement, dependantCheckedPackagesList)
 	dim retVal
+	dim localRetVal
 	dim dependee as EA.Element
 	dim connector as EA.Connector
 	
@@ -403,18 +408,20 @@ function dependencyLoopCheck(thePackageElement, dependantCheckedPackagesList)
 	retVal=false
 	checkedPackagesList.Add(thePackageElement.ElementID)
 	for each connector in thePackageElement.Connectors
+		localRetVal=false
 		if connector.Type="Usage" or connector.Type="Package" or connector.Type="Dependency" then
 			if thePackageElement.ElementID = connector.ClientID then
 				set dependee = Repository.GetElementByID(connector.SupplierID)
 				dim checkedPackageID
 				for each checkedPackageID in checkedPackagesList
-					if checkedPackageID = dependee.ElementID then retVal=true
+					if checkedPackageID = dependee.ElementID then localRetVal=true
 				next
-				if retVal then 
-					Session.Output("Error: Package [«" & dependee.Stereotype & "» " & dependee.Name & "] has a dependency to itself")
+				if localRetVal then 
+					Session.Output("         Package [«" & dependee.Stereotype & "» " & dependee.Name & "] is part of a dependency loop")
 				else
-					retVal=dependencyLoopCheck(dependee, checkedPackagesList)
+					localRetVal=dependencyLoopCheck(dependee, checkedPackagesList)
 				end if
+				retVal=retVal or localRetVal
 			end if
 		end if
 	next
