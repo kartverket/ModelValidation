@@ -10,6 +10,7 @@
 
 ' Date: 2017-05-24
 
+
 ' Purpose: Validate model elements according to rules defined in ISO19103:2015 & ISO19109:2015
 '
 ' Implemented rules: 
@@ -254,6 +255,7 @@
 								Msgbox "The selected rule set is 19109 - 'Rules for application schema' but package [" & thePackage.Name &"] does not have stereotype «ApplicationSchema». Please select a package with stereotype «ApplicationSchema» to start model validation with 19109 rule set. [19109:2015 /req/uml/packaging]",48 
 							else
 							
+
 								if not abortLogLevel and not abortRuleSet then
 									'give an initial feedback in system output 
 									Session.Output("SOSI model validation 1.2 started. "&Now())
@@ -263,14 +265,14 @@
 										Session.Output("Aborting Script.")
 										exit sub
 									end if
-							
-									call populatePackageIDList(thePackage)
-									call populateClassifierIDList(thePackage)
-									call findPackageDependencies(thePackage.Element)
-									call getElementIDsOfExternalReferencedElements(thePackage)
-									call findPackagesToBeReferenced()
-									call checkPackageDependency(thePackage)
-							  
+
+								call populatePackageIDList(thePackage)
+								call populateClassifierIDList(thePackage)
+								call findPackageDependencies(thePackage.Element)
+								call getElementIDsOfExternalReferencedElements(thePackage)
+								call findPackagesToBeReferenced()
+								call checkPackageDependency(thePackage)
+															             				  
 								'For /req/Uml/Profile:
 								Set ProfileTypes = CreateObject("System.Collections.ArrayList")
 								Set ExtensionTypes = CreateObject("System.Collections.ArrayList")
@@ -289,6 +291,7 @@
 									'choose between 19109 or 19103 rule set
 									if globalRuleSet19109 then
 										Session.Output("19109 rules") 
+                    call dependencyLoop(thePackage.Element)
 										FindInvalidElementsInPackage19109Rules(thePackage)
 									elseif not globalRuleSet19109 then
 										Session.Output("19103 rules")
@@ -407,9 +410,9 @@ function scriptBreakingStructuresInModel(thePackage)
 	dim currentElement as EA.Element
 	dim elements as EA.Collection
 	
-	'Package Dependency Loop Check
+	'Package Dependency Loop Check will not break script.  Do not check here.
 	set currentElement = thePackage.Element
-	retVal=retVal or dependencyLoop(currentElement)
+'	retVal=retVal or dependencyLoop(currentElement)
 	
 	'Inheritance Loop Check
 	set elements = thePackage.elements
@@ -435,13 +438,17 @@ function dependencyLoop(thePackageElement)
 	set checkedPackagesList = CreateObject("System.Collections.ArrayList")
 	retVal=dependencyLoopCheck(thePackageElement, checkedPackagesList)
 	if retVal then
-		Session.Output("Error:  The dependency structure originating in [«" & thePackageElement.StereoType & "» " & thePackageElement.name & "] contains dependecy loops")
+		Session.Output("Error:  The dependency structure originating in [«" & thePackageElement.StereoType & "» " & thePackageElement.name & "] contains dependency loops [ISO19109:2015 /req/uml/integration]")
+		Session.Output("          See the list above for the packages that are part of a loop.")
+		Session.Output("          Ignore this error for dependencies between packages outside the control of the current project.")
+		globalErrorCounter = globalErrorCounter+1
 	end if
 	dependencyLoop = retVal
 end function
 
 function dependencyLoopCheck(thePackageElement, dependantCheckedPackagesList)
 	dim retVal
+	dim localRetVal
 	dim dependee as EA.Element
 	dim connector as EA.Connector
 	
@@ -457,18 +464,20 @@ function dependencyLoopCheck(thePackageElement, dependantCheckedPackagesList)
 	retVal=false
 	checkedPackagesList.Add(thePackageElement.ElementID)
 	for each connector in thePackageElement.Connectors
+		localRetVal=false
 		if connector.Type="Usage" or connector.Type="Package" or connector.Type="Dependency" then
 			if thePackageElement.ElementID = connector.ClientID then
 				set dependee = Repository.GetElementByID(connector.SupplierID)
 				dim checkedPackageID
 				for each checkedPackageID in checkedPackagesList
-					if checkedPackageID = dependee.ElementID then retVal=true
+					if checkedPackageID = dependee.ElementID then localRetVal=true
 				next
-				if retVal then 
-					Session.Output("Error: Package [«" & dependee.Stereotype & "» " & dependee.Name & "] has a dependency to itself")
+				if localRetVal then 
+					Session.Output("         Package [«" & dependee.Stereotype & "» " & dependee.Name & "] is part of a dependency loop")
 				else
-					retVal=dependencyLoopCheck(dependee, checkedPackagesList)
+					localRetVal=dependencyLoopCheck(dependee, checkedPackagesList)
 				end if
+				retVal=retVal or localRetVal
 			end if
 		end if
 	next
@@ -1715,9 +1724,11 @@ sub requirement14(currentElement)
 		if currentConnector.Type = "Generalization" then
 			set elementOnOppositeSide = Repository.GetElementByID(targetElementID)
 			
-			if UCase(elementOnOppositeSide.Stereotype) <> UCase(currentElement.Stereotype) then
-				session.output("Warning: Class [«"&elementOnOppositeSide.Stereotype&"» "&elementOnOppositeSide.Name&"] has a stereotype that is not the same as the stereotype of [«"&currentElement.Stereotype&"» "&currentElement.Name&"]. Check if they are at the same abstraction level. [ISO19103:2015 Requirement 14]")
-				globalErrorCounter = globalErrorCounter + 1 
+			if globalLogLevelIsWarning then
+				if UCase(elementOnOppositeSide.Stereotype) <> UCase(currentElement.Stereotype) then
+					session.output("Warning: Class [«"&elementOnOppositeSide.Stereotype&"» "&elementOnOppositeSide.Name&"] has a stereotype that is not the same as the stereotype of [«"&currentElement.Stereotype&"» "&currentElement.Name&"]. Check if they are at the same abstraction level. [ISO19103:2015 Requirement 14]")
+					globalWarningCounter = globalWarningCounter + 1
+				end if
 			end if
 		end if
 	next
@@ -2458,8 +2469,8 @@ function AssociationsShown(theElement, diagram, diagramObject)
 	GeneralizationsFound = 0
 	
 	for each connEl in theElement.Connectors
-		'test only for Association, Aggregation (+Composition) - leave out Generalization and Realization and the rest
-		if connEl.Type = "Generalization" or connEl.Type = "Realization" then
+		'test only for Association, Aggregation (+Composition) - leave out Generalization and Realisation and the rest
+		if connEl.Type = "Generalization" or connEl.Type = "Realisation" then
 			GeneralizationsFound = GeneralizationsFound + 1
 		else
 			for each dial in diagram.DiagramLinks
@@ -2953,8 +2964,10 @@ sub checkPackageDependency(thePackage)
 	for each packageElementID in globalListPackageElementIDsOfPackageDependencies
 		set investigatedPackage=Repository.GetElementByID(packageElementID)
 		if not UCase(investigatedPackage.Stereotype)="APPLICATIONSCHEMA" then
-			Session.Output("Warning: Dependency to package [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] found.  Dependencies shall only be to ApplicationSchema packages or Standard schemas. Ignore this warning if [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] is a standard schema [ISO19109:2015 req/uml/integration]")
-			globalWarningCounter = globalWarningCounter + 1
+			if globalLogLevelIsWarning then
+				Session.Output("Warning: Dependency to package [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] found.  Dependencies shall only be to ApplicationSchema packages or Standard schemas. Ignore this warning if [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] is a standard schema [ISO19109:2015 req/uml/integration]")
+				globalWarningCounter = globalWarningCounter + 1
+			end if
 		end if
 	next
 end sub
