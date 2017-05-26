@@ -2,20 +2,16 @@
  
  !INC Local Scripts.EAConstants-VBScript 
  
-' 
-' This script contains code from the default Project Browser template. 
-' If you wish to modify this template, it is located in the Config\Script Templates 
-' directory of your EA install path.    
-' 
-' Script Name: SOSI model validation 
+' Script Name: Model validation 
 ' Author: Section for standardization and technology development - Norwegian Mapping Authority
 
 
-' Version: 1.2
+' Version: 1.0
 
-' Date: 2017-05-16 Kent
+' Date: 2017-05-24
 
-' Purpose: Validate model elements according to rules defined in the standard SOSI Regler for UML-modellering 5.0 
+' Purpose: Validate model elements according to rules defined in ISO19103:2015 & ISO19109:2015
+'
 ' Implemented rules: 
 '	[ISO19103:2015 Requirement 3]:  
 '			Find elements (classes, attributes, navigable association roles, operations, datatypes)  
@@ -85,7 +81,8 @@
 '			Check if packages with SOSI_modellstatus tag "utkast" has "Utkast" in package name. Also do the reverse check.
 '  	[ISO19109:2015 /req/uml/constraint]
 '			To check if a constraint lacks name or definition. 
-'  	19109:2015 /req/uml/packaging:
+'  	[19109:2015 /req/uml/packaging]:
+'			ApplicationSchema shall be described within a package carrying stereotype ApplicationSchema
 '     		To check if the value of the version-tag (tagged values) for an ApplicationSchema-package is empty or not. 
 '	19109:2015 /req/uml/structure
 '			Check that all abstract classes in application schema has at least one instantiable subclass within the same schema.  Check that no classes in application schema has stereotype interface
@@ -142,24 +139,83 @@
  			dim thePackage as EA.Package 
  			set thePackage = Repository.GetTreeSelectedObject() 
  			
+			'the selected package must not be a root package (="model" package) in the project browser 
 			if not thePackage.IsModel then
 				'check if the selected package has stereotype applicationSchema 
  			
-				if UCase(thePackage.element.stereotype) = UCase("applicationSchema") then 
+				'if UCase(thePackage.element.stereotype) = UCase("applicationSchema") then 
 				
 					dim box, mess
 					'mess = 	"Model validation 2016-08-19 Logging errors and warnings."&Chr(13)&Chr(10)
-					mess = "Model validation based on requirements and recommendations in SOSI standard 'Regler for UML-modellering 5.0'"&Chr(13)&Chr(10)
+					mess = "Model validation based on requirements and recommendations in ISO19103:2015 and ISO19109:2015"&Chr(13)&Chr(10)
 					mess = mess + ""&Chr(13)&Chr(10)
 					mess = mess + "Please find a list with the implemented rules in this script's source code (line 15++)."&Chr(13)&Chr(10)
 					mess = mess + ""&Chr(13)&Chr(10)
 					mess = mess + "Starts model validation for package [" & thePackage.Name &"]."&Chr(13)&Chr(10)
 
-					box = Msgbox (mess, vbOKCancel, "SOSI model validation 1.2")
+					box = Msgbox (mess, vbOKCancel, "Model validation 1.0")
 					select case box
 						case vbOK
+							'inputBoxGUI to receive user input regarding rule set 19109 or 19103
+							dim ruleSetFromInputBox, ruleSetInputBoxText, correctInputRuleSet, abortRuleSet
+							dim defaultRuleSet, wrongRuleSet
+							
+							'set boolean variable wrongRuleSet to false (default)
+							'this is used to identify wrong combination of 19109 rules and packages without applicationSchema stereotype
+							wrongRuleSet = false
+							
+							'default rule set is 3 (= 19103)
+							defaultRuleSet = "3"
+							if (UCase(thePackage.element.stereotype) = UCase("applicationSchema")) then
+								'if a package with stereotype applicationSchema is selected, default rule set is 9 (= 19109)
+								defaultRuleSet = "9"
+							end if
+							
+							ruleSetInputBoxText = "Please select the rule set."&Chr(13)&Chr(10)
+							ruleSetInputBoxText = ruleSetInputBoxText+ ""&Chr(13)&Chr(10)
+							ruleSetInputBoxText = ruleSetInputBoxText+ ""&Chr(13)&Chr(10)
+							ruleSetInputBoxText = ruleSetInputBoxText+ "3 - ISO 19103:2015 rules."&Chr(13)&Chr(10)
+							ruleSetInputBoxText = ruleSetInputBoxText+ ""&Chr(13)&Chr(10)
+							ruleSetInputBoxText = ruleSetInputBoxText+ "9 - ISO 19109:2015 rules (includes 19103 rules)."&Chr(13)&Chr(10)
+							ruleSetInputBoxText = ruleSetInputBoxText+ ""&Chr(13)&Chr(10)
+							ruleSetInputBoxText = ruleSetInputBoxText+ "Enter 3 or 9:"&Chr(13)&Chr(10)
+							correctInputRuleSet = false
+							abortRuleSet = false
+							
+							'todo1: default = 9 if applicationSchema-package is choosen and 3 if non-aplicationSchema is choosen
+							'todo2: exit already after first InputBox if 19109 is selected for non-appSchema NB: ok tu run 19103 ruleset on applicationschema
+							
+							do while not correctInputRuleSet
+						
+								ruleSetFromInputBox = InputBox(ruleSetInputBoxText, "Select rule set", defaultRuleSet)
+								select case true 
+									case UCase(ruleSetFromInputBox) = "3"	
+										'code for when 3 = 19103 rule set has been selected
+										globalRuleSet19109 = false
+										correctInputRuleSet = true
+									case UCase(ruleSetFromInputBox) = "9"	
+										'code for when 9 = 19109 rule set has been selected
+										globalRuleSet19109 = true
+										correctInputRuleSet = true
+										if not (UCase(thePackage.element.stereotype) = UCase("applicationSchema")) then
+											wrongRuleSet = true
+										end if
+									case IsEmpty(ruleSetFromInputBox)
+										'user pressed cancel or closed the dialog
+										MsgBox "Abort",64
+										abortRuleSet = true
+										exit do
+									case else
+										MsgBox "You made an incorrect selection! Please enter either '3' or '9'.",48
+								end select
+							
+							loop
+							
+							
+							if not abortRuleSet and not wrongRuleSet then
+							
 							'inputBoxGUI to receive user input regarding the log level
-							dim logLevelFromInputBox, logLevelInputBoxText, correctInput, abort
+							dim logLevelFromInputBox, logLevelInputBoxText, correctInputLogLevel, abortLogLevel
 							logLevelInputBoxText = "Please select the log level."&Chr(13)&Chr(10)
 							logLevelInputBoxText = logLevelInputBoxText+ ""&Chr(13)&Chr(10)
 							logLevelInputBoxText = logLevelInputBoxText+ ""&Chr(13)&Chr(10)
@@ -168,106 +224,104 @@
 							logLevelInputBoxText = logLevelInputBoxText+ "W - Warning log level (recommended): logs error and warning messages."&Chr(13)&Chr(10)
 							logLevelInputBoxText = logLevelInputBoxText+ ""&Chr(13)&Chr(10)
 							logLevelInputBoxText = logLevelInputBoxText+ "Enter E or W:"&Chr(13)&Chr(10)
-							correctInput = false
-							abort = false
-							do while not correctInput
+							correctInputLogLevel = false
+							abortLogLevel = false
+							do while not correctInputLogLevel
 						
 								logLevelFromInputBox = InputBox(logLevelInputBoxText, "Select log level", "W")
 								select case true 
 									case UCase(logLevelFromInputBox) = "E"	
 										'code for when E = Error log level has been selected, only Error messages will be shown in the Script Output window
 										globalLogLevelIsWarning = false
-										correctInput = true
+										correctInputLogLevel = true
 									case UCase(logLevelFromInputBox) = "W"	
 										'code for when W = Error log level has been selected, both Error and Warning messages will be shown in the Script Output window
 										globalLogLevelIsWarning = true
-										correctInput = true
+										correctInputLogLevel = true
 									case IsEmpty(logLevelFromInputBox)
 										'user pressed cancel or closed the dialog
 										MsgBox "Abort",64
-										abort = true
+										abortLogLevel = true
 										exit do
 									case else
 										MsgBox "You made an incorrect selection! Please enter either 'E' or 'W'.",48
 								end select
 							
 							loop
+							end if
 							
-
-							if not abort then
-								'give an initial feedback in system output 
-								Session.Output("SOSI model validation 1.2 started. "&Now())
-								'Check model for script breaking structures
-								if scriptBreakingStructuresInModel(thePackage) then
-									Session.Output("Critical Errors: The errors listed above must be corrected before the script can validate the model.")
-									Session.Output("Aborting Script.")
-									exit sub
-								end if
+							if wrongRuleSet then
+								Msgbox "The selected rule set is 19109 - 'Rules for application schema' but package [" & thePackage.Name &"] does not have stereotype «ApplicationSchema». Please select a package with stereotype «ApplicationSchema» to start model validation with 19109 rule set. [19109:2015 /req/uml/packaging]",48 
+							else
 							
-								call populatePackageIDList(thePackage)
-								call populateClassifierIDList(thePackage)
-								call findPackageDependencies(thePackage.Element)
-								call getElementIDsOfExternalReferencedElements(thePackage)
-								call findPackagesToBeReferenced()
-								call checkPackageDependency(thePackage)
+								if not abortLogLevel and not abortRuleSet then
+									'give an initial feedback in system output 
+									Session.Output("SOSI model validation 1.2 started. "&Now())
+									'Check model for script breaking structures
+									if scriptBreakingStructuresInModel(thePackage) then
+										Session.Output("Critical Errors: The errors listed above must be corrected before the script can validate the model.")
+										Session.Output("Aborting Script.")
+										exit sub
+									end if
+							
+									call populatePackageIDList(thePackage)
+									call populateClassifierIDList(thePackage)
+									call findPackageDependencies(thePackage.Element)
+									call getElementIDsOfExternalReferencedElements(thePackage)
+									call findPackagesToBeReferenced()
+									call checkPackageDependency(thePackage)
 							  
-                'For /req/Uml/Profile:
-							  Set ProfileTypes = CreateObject("System.Collections.ArrayList")
-							  Set ExtensionTypes = CreateObject("System.Collections.ArrayList")
-							  Set CoreTypes = CreateObject("System.Collections.ArrayList")
-							  reqUmlProfileLoad()
-								'For /krav/18:
-								set startPackage = thePackage
-								Set diaoList = CreateObject( "System.Collections.Sortedlist" )
-								Set diagList = CreateObject( "System.Collections.Sortedlist" )
-								recListDiagramObjects(thePackage)
+								'For /req/Uml/Profile:
+								Set ProfileTypes = CreateObject("System.Collections.ArrayList")
+								Set ExtensionTypes = CreateObject("System.Collections.ArrayList")
+								Set CoreTypes = CreateObject("System.Collections.ArrayList")
+								reqUmlProfileLoad()
+									'For /krav/18:
+									set startPackage = thePackage
+									Set diaoList = CreateObject( "System.Collections.Sortedlist" )
+									Set diagList = CreateObject( "System.Collections.Sortedlist" )
+									recListDiagramObjects(thePackage)
 
-								Dim StartTime, EndTime, Elapsed
-								StartTime = timer 
-								startPackageName = thePackage.Name
-								FindInvalidElementsInPackage(thePackage) 
-								Elapsed = formatnumber((Timer - StartTime),2)
-								'------------------------------------------------------------------ 
-								'---Check global variables--- 
-								'------------------------------------------------------------------ 
-							
-														
-								'check uniqueness of featureType names
-								checkUniqueFeatureTypeNames()
-								'SOSIREQ
-								'error-message for /krav/hoveddiagram/navning (sub procedure: CheckPackageForHoveddiagram)
-								'if the applicationSchema package got less than one diagram with a name starting with "Hoveddiagram", then return an error 	
-								'if 	not foundHoveddiagram  then
-								'	Session.Output("Error: Neither package [" &startPackageName& "] nor any of it's subpackages has a diagram with a name starting with 'Hoveddiagram' [/krav/hoveddiagram/navning]")
-								'	globalErrorCounter = globalErrorCounter + 1 
-								'
-								'end if 	
-								'SOSIREQ
-								'error-message for /krav/hoveddiagram/detaljering/navning (sub: FindHoveddiagramsInAS)
-								'if the applicationSchema package got more than one diagram named "Hoveddiagram", then return an error 
-								'if numberOfHoveddiagram > 1 or (numberOfHoveddiagram = 1 and numberOfHoveddiagramWithAdditionalInformationInTheName > 0) then 
-								'	dim sumOfHoveddiagram 
-								'	sumOfHoveddiagram = numberOfHoveddiagram + numberOfHoveddiagramWithAdditionalInformationInTheName
-								'	Session.Output("Error: Package ["&startPackageName&"] has "&sumOfHoveddiagram&" diagrams named 'Hoveddiagram' and "&numberOfHoveddiagram&" of them named exactly 'Hoveddiagram'. When there are multiple diagrams of that type additional information is expected in the diagrams' name. [/krav/hoveddiagram/detaljering/navning]")
-								'	globalErrorCounter = globalErrorCounter + 1 
-								'
-								'end if 
-								'final report
-								Session.Output("-----Report for package ["&startPackageName&"]-----") 		
-								Session.Output("   Number of errors found: " & globalErrorCounter) 
-								if globalLogLevelIsWarning then
-									Session.Output("   Number of warnings found: " & globalWarningCounter)
+									Dim StartTime, EndTime, Elapsed
+									StartTime = timer 
+									startPackageName = thePackage.Name
+								
+									'choose between 19109 or 19103 rule set
+									if globalRuleSet19109 then
+										Session.Output("19109 rules") 
+										FindInvalidElementsInPackage19109Rules(thePackage)
+									elseif not globalRuleSet19109 then
+										Session.Output("19103 rules")
+										FindInvalidElementsInPackage19103Rules(thePackage)
+									end if
+								
+									Elapsed = formatnumber((Timer - StartTime),2)
+									'------------------------------------------------------------------ 
+									'---Check global variables--- 
+									'------------------------------------------------------------------ 
+								
+									if globalRuleSet19109 then						
+										'check uniqueness of featureType names according to [ISO19109:2015 /req/uml/feature]
+										checkUniqueFeatureTypeNames()
+									end if
+								
+									'final report
+									Session.Output("-----Report for package ["&startPackageName&"]-----") 		
+									Session.Output("   Number of errors found: " & globalErrorCounter) 
+									if globalLogLevelIsWarning then
+										Session.Output("   Number of warnings found: " & globalWarningCounter)
+									end if	
+									Session.Output("   Run time: " &Elapsed& " seconds" )
 								end if	
-								Session.Output("   Run time: " &Elapsed& " seconds" )
 							end if	
 						case VBcancel
 							'nothing to do						
 					end select 
-				else 
- 				Msgbox "Package [" & thePackage.Name &"] does not have stereotype «ApplicationSchema». Select a package with stereotype «ApplicationSchema» to start model validation." 
-				end if
+				'else 
+ 				'Msgbox "Package [" & thePackage.Name &"] does not have stereotype «ApplicationSchema». Select a package with stereotype «ApplicationSchema» to start model validation." 
+				'end if
 			else
-			Msgbox "Package [" & thePackage.Name &"] is a root package and does not have stereotype «ApplicationSchema». Select a non-root-package with stereotype «ApplicationSchema» to start model validation."
+			Msgbox "Package [" & thePackage.Name &"] is a root package. Please select a non-root package to start model validation.",48
  			end if
  			 
  			 
@@ -511,8 +565,12 @@ end function
  			set currentElement = theObject 
  			 
  			If currentElement.Notes = "" then 
- 				Session.Output("Error: Class [«" &getStereotypeOfClass(currentElement)& "» "& currentElement.Name & "] has no definition. [ISO19103:2015 Requirement 3], [ISO19109:2015 /req/uml/documentation] & [ISO19103:2015 Requirement 19]")	 
- 				globalErrorCounter = globalErrorCounter + 1 
+ 				if globalRuleSet19109 then
+					Session.Output("Error: Class [«" &getStereotypeOfClass(currentElement)& "» "& currentElement.Name & "] has no definition. [ISO19103:2015 Requirement 3], [ISO19109:2015 /req/uml/documentation] & [ISO19103:2015 Requirement 19]")	 
+ 				elseif not globalRuleSet19109 then
+					Session.Output("Error: Class [«" &getStereotypeOfClass(currentElement)& "» "& currentElement.Name & "] has no definition. [ISO19103:2015 Requirement 3] & [ISO19103:2015 Requirement 19]")	 
+				end if
+				globalErrorCounter = globalErrorCounter + 1 
  			end if 
  		Case otAttribute 
  			' Code for when the function's parameter is an attribute 
@@ -527,7 +585,11 @@ end function
 				if Ucase(attributeParentElement.Stereotype) <> "ENUMERATION" then		
 					if attributeParentElement.Type <> "Enumeration" then	
 						if currentAttribute.Notes = "" then 
-							Session.Output( "Error: Class [«" &getStereotypeOfClass(attributeParentElement)& "» "& attributeParentElement.Name &"] \ attribute [" & currentAttribute.Name & "] has no definition. [ISO19103:2015 Requirement 3] & [ISO19109:2015 /req/uml/documentation]") 
+							if globalRuleSet19109 then
+								Session.Output( "Error: Class [«" &getStereotypeOfClass(attributeParentElement)& "» "& attributeParentElement.Name &"] \ attribute [" & currentAttribute.Name & "] has no definition. [ISO19103:2015 Requirement 3] & [ISO19109:2015 /req/uml/documentation]") 
+							elseif not globalRuleSet19109 then
+								Session.Output( "Error: Class [«" &getStereotypeOfClass(attributeParentElement)& "» "& attributeParentElement.Name &"] \ attribute [" & currentAttribute.Name & "] has no definition. [ISO19103:2015 Requirement 3]") 
+							end if
 							globalErrorCounter = globalErrorCounter + 1 
 						end if
 					end if
@@ -544,8 +606,12 @@ end function
  			set methodParentElement = Repository.GetElementByID(currentMethod.ParentID) 
  			 
  			if currentMethod.Notes = "" then 
- 				Session.Output( "Error: Class [«" &getStereotypeOfClass(methodParentElement)& "» "& methodParentElement.Name &"] \ operation [" & currentMethod.Name & "] has no definition. [ISO19103:2015 Requirement 3] & [ISO19109:2015 /req/uml/documentation]") 
- 				globalErrorCounter = globalErrorCounter + 1 
+ 				if globalRuleSet19109 then
+					Session.Output( "Error: Class [«" &getStereotypeOfClass(methodParentElement)& "» "& methodParentElement.Name &"] \ operation [" & currentMethod.Name & "] has no definition. [ISO19103:2015 Requirement 3] & [ISO19109:2015 /req/uml/documentation]") 
+ 				elseif not globalRuleSet19109 then
+					Session.Output( "Error: Class [«" &getStereotypeOfClass(methodParentElement)& "» "& methodParentElement.Name &"] \ operation [" & currentMethod.Name & "] has no definition. [ISO19103:2015 Requirement 3]") 
+				end if
+				globalErrorCounter = globalErrorCounter + 1 
  			end if 
  		Case otConnector 
  			' Code for when the function's parameter is a connector 
@@ -575,17 +641,23 @@ end function
  			if sourceEndNavigable = "Navigable" and sourceEndDefinition = "" and currentConnector.Type <> "Dependency" then
  				'get the element on the source end of the connector 
  				set sourceEndElement = Repository.GetElementByID(sourceEndElementID) 
- 				 
-				Session.Output( "Error: Class [«" &getStereotypeOfClass(sourceEndElement)& "» "& sourceEndElement.Name &"] \ association role [" & sourceEndName & "] has no definition. [ISO19103:2015 Requirement 3] & [ISO19109:2015 /req/uml/documentation]") 
- 				globalErrorCounter = globalErrorCounter + 1 
+ 				if globalRuleSet19109 then
+					Session.Output( "Error: Class [«" &getStereotypeOfClass(sourceEndElement)& "» "& sourceEndElement.Name &"] \ association role [" & sourceEndName & "] has no definition. [ISO19103:2015 Requirement 3] & [ISO19109:2015 /req/uml/documentation]") 
+ 				elseif not globalRuleSet19109 then
+					Session.Output( "Error: Class [«" &getStereotypeOfClass(sourceEndElement)& "» "& sourceEndElement.Name &"] \ association role [" & sourceEndName & "] has no definition. [ISO19103:2015 Requirement 3]") 
+				end if
+				globalErrorCounter = globalErrorCounter + 1 
  			end if 
  			 
  			if targetEndNavigable = "Navigable" and targetEndDefinition = "" and currentConnector.Type <> "Dependency" then
  				'get the element on the source end of the connector (also source end element here because error message is related to the element on the source end of the connector) 
  				set sourceEndElement = Repository.GetElementByID(sourceEndElementID) 
- 				 
-				Session.Output( "Error: Class [«"&getStereotypeOfClass(sourceEndElement)&"» "&sourceEndElement.Name &"] \ association role [" & targetEndName & "] has no definition. [ISO19103:2015 Requirement 3] & [ISO19109:2015 /req/uml/documentation]") 
- 				globalErrorCounter = globalErrorCounter + 1 
+ 				if globalRuleSet19109 then 
+					Session.Output( "Error: Class [«"&getStereotypeOfClass(sourceEndElement)&"» "&sourceEndElement.Name &"] \ association role [" & targetEndName & "] has no definition. [ISO19103:2015 Requirement 3] & [ISO19109:2015 /req/uml/documentation]") 
+ 				elseif not globalRuleSet19109 then
+					Session.Output( "Error: Class [«"&getStereotypeOfClass(sourceEndElement)&"» "&sourceEndElement.Name &"] \ association role [" & targetEndName & "] has no definition. [ISO19103:2015 Requirement 3]") 
+				end if
+				globalErrorCounter = globalErrorCounter + 1 
  			end if 
  		Case otPackage 
  			' Code for when the function's parameter is a package 
@@ -3212,11 +3284,11 @@ end sub
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
-' Sub Name: FindInvalidElementsInPackage
+' Sub Name: FindInvalidElementsInPackage19109Rules
 ' Author: Kent Jonsrud, Magnus Karge...
-' Purpose: Main loop iterating all elements in the selected package and conducting tests on those elements
+' Purpose: Main loop iterating all elements in the selected package and conducting tests on those elements. All tests based on 19109 rules.
 
-sub FindInvalidElementsInPackage(package) 
+sub FindInvalidElementsInPackage19109Rules(package) 
 			
  	dim elements as EA.Collection 
  	set elements = package.Elements 'collection of elements that belong to this package (classes, notes... BUT NO packages) 
@@ -3248,14 +3320,14 @@ sub FindInvalidElementsInPackage(package)
 
 	ClassAndPackageNames.Add UCase(package.Name)
 
-	'check if the package name is written correctly according to krav/navning
+	'check if the package name is written correctly according to [ISO19103:2015 recommendation 11]
 	checkElementName(package)
  			 
 	dim packageTaggedValues as EA.Collection 
 	set packageTaggedValues = package.Element.TaggedValues 
  			
 	'only for applicationSchema packages: 
-	'iterate the tagged values collection and check if the applicationSchema package has a tagged value "language" or "designation" with any content [/krav/flerspråklighet/pakke]
+	'iterate the tagged values collection and check if the applicationSchema package has a tagged value "language", "designation" or "definition" with correct pattern [ISO19109:2015 /req/multi-lingual/package]
 	Call checkTVLanguageAndDesignation (package.Element, "language") 
 	Call checkTVLanguageAndDesignation (package.Element, "designation")
 	Call checkTVLanguageAndDesignation (package.Element, "definition")
@@ -3280,12 +3352,12 @@ sub FindInvalidElementsInPackage(package)
 	dim packages as EA.Collection 
 	set packages = package.Packages 'collection of packages that belong to this package	
 			
-	'Navigate the package collection and call the FindNonvalidElementsInPackage function for each of them 
+	'Navigate the package collection and call the FindInvalidElementsInPackage19109Rules function for each of them 
 	dim p 
 	for p = 0 to packages.Count - 1 
 		dim currentPackage as EA.Package 
 		set currentPackage = packages.GetAt( p ) 
-		FindInvalidElementsInPackage(currentPackage) 
+		FindInvalidElementsInPackage19109Rules(currentPackage) 
 				
 		'constraints 
 		dim constraintPCollection as EA.Collection 
@@ -3435,7 +3507,7 @@ sub FindInvalidElementsInPackage(package)
 				Call structurOfTVforElement( currentElement, "definition")
 			end if 
 		
-			'check if the class name is written correctly according to krav/navning (name starts with capital letter)
+			'check if the class name is written correctly according to [ISO19103:2015 recommendation 11] (name starts with capital letter)
 			checkElementName(currentElement)
  											
 			if ((currentElement.Type = "Class") and (UCase(currentElement.Stereotype) = "CODELIST")) then
@@ -3472,7 +3544,7 @@ sub FindInvalidElementsInPackage(package)
 					Call structurOfTVforElement( currentAttribute, "designation")
 					Call structurOfTVforElement( currentAttribute, "definition") 
 															
-					'check if the attribute's name is written correctly according to krav/navning, meaning attribute name does not start with capital letter
+					'check if the attribute's name is written correctly according to [ISO19103:2015 recommendation 11], meaning attribute name does not start with capital letter
 					checkElementName(currentAttribute)
 																								
 					'constraints 
@@ -3582,7 +3654,7 @@ sub FindInvalidElementsInPackage(package)
 					
 					set elementOnOppositeSide = Repository.GetElementByID(targetElementID) 
  								 
-					'if the connector has a name (optional according to the rules), check if it starts with capital letter 
+					'if the connector has a name (optional according to the rules), check if it starts with capital letter [ISO19103:2015 recommendation 11]
 					call checkElementName(currentConnector)
 					
 					'check if elements on both sides of the association are classes with stereotype dataType or of element type DataType
@@ -3643,8 +3715,327 @@ sub FindInvalidElementsInPackage(package)
 end sub 
 '-------------------------------------------------------------END--------------------------------------------------------------------------------------------
 
+'------------------------------------------------------------START-------------------------------------------------------------------------------------------
+' Sub Name: FindInvalidElementsInPackage19103Rules
+' Author: Kent Jonsrud, Magnus Karge...
+' Purpose: Main loop iterating all elements in the selected package and conducting tests on those elements. All tests based on 19103 rules.
+
+sub FindInvalidElementsInPackage19103Rules(package) 
+			
+ 	dim elements as EA.Collection 
+ 	set elements = package.Elements 'collection of elements that belong to this package (classes, notes... BUT NO packages) 
+ 	Dim myDictionary 
+ 	dim errorsInFunctionTests 
+ 			 
+ 	'check package definition 
+ 	CheckDefinition(package) 
+			 
+	'Iso 19103 Requirement 15 - known stereotypes for packages. - warning if not a standardised stereotype
+	'this is not implemented as an error since there can be reasons for new stereotypes with different meaning than the standardised stereotypes
+	if UCase(package.element.Stereotype) <> "LEAF" and UCase(package.element.Stereotype) <> "" then
+		if globalLogLevelIsWarning then
+			Session.Output("Warning: Unknown package stereotype: [«" &package.element.Stereotype& "» " &package.Name& "]. [ISO19103 Requirement 15]")
+			globalWarningCounter = globalWarningCounter + 1
+		end if	
+	end if
+
+' SOSIREQ	call checkEndingOfPackageName(package)
+' SOSIREQ	call checkUtkast(package)
+	
+	call checkSubPackageStereotype(package)
+	
+	'Iso 19103 Requirement 16 - unique (NC?)Names on subpackages within the package.
+	if ClassAndPackageNames.IndexOf(UCase(package.Name),0) <> -1 then
+		Session.Output("Error: Package [" &startPackageName& "] has non-unique subpackage name ["&package.Name&"]. [ISO19103:2015 requirement 16]")				
+		globalErrorCounter = globalErrorCounter + 1 
+	end if
+
+	ClassAndPackageNames.Add UCase(package.Name)
+
+	'check if the package name is written correctly according to [ISO19103:2015 recommendation 11]
+	checkElementName(package)
+ 			 
+	dim packageTaggedValues as EA.Collection 
+	set packageTaggedValues = package.Element.TaggedValues 
+ 			
+	dim packages as EA.Collection 
+	set packages = package.Packages 'collection of packages that belong to this package	
+			
+	'Navigate the package collection and call the FindInvalidElementsInPackage19103Rules function for each of them 
+	dim p 
+	for p = 0 to packages.Count - 1 
+		dim currentPackage as EA.Package 
+		set currentPackage = packages.GetAt( p ) 
+		FindInvalidElementsInPackage19103Rules(currentPackage) 
+		
+	next 
+ 			 
+ 	'------------------------------------------------------------------ 
+	'---ELEMENTS--- 
+	'------------------------------------------------------------------		 
+ 			 
+	' Navigate the elements collection, pick the classes, find the definitions/notes and do sth. with it 
+	dim i 
+	for i = 0 to elements.Count - 1 
+		dim currentElement as EA.Element 
+		set currentElement = elements.GetAt( i ) 
+				
+					
+		'Is the currentElement of type Class and stereotype codelist or enumeration, check the initial values are numeric or not ([ISO19103:2015 Recommendation 1])
+		if ((currentElement.Type = "Class") and (UCase(currentElement.Stereotype) = "CODELIST"  Or UCase(currentElement.Stereotype) = "ENUMERATION") Or currentElement.Type = "Enumeration") then
+			call checkNumericinitialValues(currentElement)
+		end if
+
+		' check if inherited stereotypes are all the same
+		Call requirement14(currentElement)
+		
+		' ---ALL CLASSIFIERS---
+		'Iso 19103 Requirement 16 - unique NCNames of all properties within the classifier.
+		'Inherited properties  also included, strictly not an error situation but implicit redefinition is not well supported anyway
+		if currentElement.Type = "Class" or currentElement.Type = "DataType" or currentElement.Type = "Enumeration" or currentElement.Type = "Interface" then
+			if ClassAndPackageNames.IndexOf(UCase(currentElement.Name),0) <> -1 then
+				Session.Output("Error: Class [«" &currentElement.Stereotype& "» "&currentElement.Name&"] in package: [" &package.Name& "] has non-unique name. [ISO19103:2015 requirement 16]")				
+				globalErrorCounter = globalErrorCounter + 1 
+			end if
+
+			ClassAndPackageNames.Add UCase(currentElement.Name)
+
+			call krav16unikeNCnavn(currentElement)
+		else
+			' ---OTHER ARTIFACTS--- Do their names also need to be tested for uniqueness? (need to be different?)
+			if currentElement.Type <> "Note" and currentElement.Type <> "Text" and currentElement.Type <> "Boundary" then
+				if ClassAndPackageNames.IndexOf(UCase(currentElement.Name),0) <> -1 then
+					Session.Output("Debug: Unexpected unknown element with non-unique name [«" &currentElement.Stereotype& "» " &currentElement.Name& "]. EA-type: [" &currentElement.Type& "]. [ISO19103:2015 requirement 16]")
+					'This test is dependent on where the artifact is in the test sequence 
+				end if
+			end if
+		end if
+				
+		
+		'If the currentElement is of type Class, Enumeration or DataType continue conducting some tests. If not continue with the next element. 
+		if currentElement.Type = "Class" Or currentElement.Type = "Enumeration" Or currentElement.Type = "DataType" then 
+ 									 
+			'------------------------------------------------------------------ 
+			'---CLASSES---ENUMERATIONS---DATATYPE  								'   classifiers ???
+			'------------------------------------------------------------------		 
+			
+			'add name and elementID of the featureType (class, datatype, enumeration with stereotype <<featureType>>) to the related array variables in order to check if the names are unique
+			if UCase(currentElement.Stereotype) = "FEATURETYPE" then
+				FeatureTypeNames.Add(currentElement.Name)
+				FeatureTypeElementIDs.Add(currentElement.ElementID)
+			end if
+			
+			'Iso 19103 Requirement 6 - NCNames in codelist codes.
+			if (UCase(currentElement.Stereotype) = "CODELIST"  Or UCase(currentElement.Stereotype) = "ENUMERATION" Or currentElement.Type = "Enumeration") then
+				call requirement6(currentElement)
+			end if
+
+			'Iso 19103 Requirement 7 - definition of codelist codes.
+			if (UCase(currentElement.Stereotype) = "CODELIST"  Or UCase(currentElement.Stereotype) = "ENUMERATION" or currentElement.Type = "Enumeration") then
+				call krav7kodedefinisjon(currentElement)
+			end if
+	
+			'Iso 19103 Requirement 15 - known stereotypes for classes - warning if not a standardised stereotype
+			'this is not implemented as an error since there can be reasons for new stereotypes with different meaning than the standardised stereotypes
+
+			if UCase(currentElement.Stereotype) = "FEATURETYPE"  Or UCase(currentElement.Stereotype) = "DATATYPE" Or UCase(currentElement.Stereotype) = "UNION" or UCase(currentElement.Stereotype) = "CODELIST"  Or UCase(currentElement.Stereotype) = "ENUMERATION" Or UCase(currentElement.Stereotype) = "ESTIMATED" or UCase(currentElement.Stereotype) = "MESSAGETYPE"  Or UCase(currentElement.Stereotype) = "INTERFACE" Or currentElement.Type = "Enumeration" then
+			else
+				if globalLogLevelIsWarning then
+					Session.Output("Warning: Class [«" &currentElement.Stereotype& "» " &currentElement.Name& "] has unknown stereotype. [ISO19103 Requirement 15]")
+					globalWarningCounter = globalWarningCounter + 1
+				end if	
+			end if
+
+			'Iso 19103 Requirement 15 - known stereotypes for attributes. 
+			call checkKnownStereotypes(currentElement)
+
+			'Iso 19103 Requirements 22 and 25
+			if (UCase(currentElement.Stereotype) = "CODELIST"  Or UCase(currentElement.Stereotype) = "ENUMERATION" Or currentElement.Type = "Enumeration") then
+				'codelist code type shall be empty, <none> or <undefined>
+			else
+				call requirement25(currentElement)
+			end if
+
+			'Iso 19103 Requirement 18 - each classifier must show all its (inherited) properties together in at least one diagram.
+			call requirement18(currentElement)
+
+			'check if there is a definition for the class element (call CheckDefinition function) 
+			CheckDefinition(currentElement) 
+ 										 
+			'check if there is there is multiple inheritance for the class element (/krav/enkelArv) 
+			'initialize the global variable startClass which is needed in subroutine findMultipleInheritance 
+			set startClass = currentElement 
+' SOSIREQ
+'			loopCounterMultipleInheritance = 0
+'			Call findMultipleInheritance(currentElement) 
+ 					 
+				
+			'check if the class name is written correctly according to [ISO19103:2015 recommendation 11]
+			checkElementName(currentElement)
+ 											
+			if ((currentElement.Type = "Class") and (UCase(currentElement.Stereotype) = "CODELIST")) then
+				'Check if an external codelist has a real URL in the codeList tag [/krav/eksternKodeliste]
+				'SOSIREQ - code below is obsolete - START
+				'Call checkExternalCodelists(currentElement,  "asDictionary")
+				'SOSIREQ - code above is obsolete - END
+				Call CheckCodelistTV(currentElement, "codeList")
+			end if 
+					
+					
+			dim stereotype
+			stereotype = currentElement.Stereotype 
+ 					
+				
+			'------------------------------------------------------------------ 
+			'---ATTRIBUTES--- 
+			'------------------------------------------------------------------					 
+ 						 
+			' Retrieve all attributes for this element 
+			dim attributesCollection as EA.Collection 
+			set attributesCollection = currentElement.Attributes 
+ 			 
+			if attributesCollection.Count > 0 then 
+				dim n 
+				for n = 0 to attributesCollection.Count - 1 					 
+					dim currentAttribute as EA.Attribute		 
+					set currentAttribute = attributesCollection.GetAt(n) 
+					'check if the attribute has a definition									 
+					'Call the subfunction with currentAttribute as parameter 
+					CheckDefinition(currentAttribute) 
+																				
+					'check if the attribute's name is written correctly according to [ISO19103:2015 recommendation 11], meaning attribute name does not start with capital letter
+					checkElementName(currentAttribute)
+																								
+					'constraints 
+					dim constraintACollection as EA.Collection 
+					set constraintACollection = currentAttribute.Constraints 
+ 						
+				next 
+			end if	 
+ 					 
+			'------------------------------------------------------------------ 
+			'---ASSOCIATIONS--- 
+			'------------------------------------------------------------------ 
+ 						 
+			'retrieve all associations for this element 
+			dim connectors as EA.Collection 
+			set connectors = currentElement.Connectors 
+ 					
+			'iterate the connectors 
+			'Session.Output("Found " & connectors.Count & " connectors for featureType " & currentElement.Name) 
+			dim connectorsCounter 
+			for connectorsCounter = 0 to connectors.Count - 1 
+				dim currentConnector as EA.Connector 
+				set currentConnector = connectors.GetAt( connectorsCounter ) 
+							
+				if currentConnector.Type = "Aggregation" or currentConnector.Type = "Association" then
+								
+					'target end 
+					dim supplierEnd as EA.ConnectorEnd
+					set supplierEnd = currentConnector.SupplierEnd
+															
+					'source end 
+					dim clientEnd as EA.ConnectorEnd
+					set clientEnd = currentConnector.ClientEnd
+									
+				end if 		
+ 							
+											
+				dim sourceElementID 
+				sourceElementID = currentConnector.ClientID 
+				dim sourceEndNavigable  
+				sourceEndNavigable = currentConnector.ClientEnd.Navigable 
+				dim sourceEndName 
+				sourceEndName = currentConnector.ClientEnd.Role 
+				dim sourceEndDefinition 
+				sourceEndDefinition = currentConnector.ClientEnd.RoleNote 
+				dim sourceEndCardinality		 
+				sourceEndCardinality = currentConnector.ClientEnd.Cardinality 
+ 							 
+				dim targetElementID 
+				targetElementID = currentConnector.SupplierID 
+				dim targetEndNavigable  
+				targetEndNavigable = currentConnector.SupplierEnd.Navigable 
+				dim targetEndName 
+				targetEndName = currentConnector.SupplierEnd.Role 
+				dim targetEndDefinition 
+				targetEndDefinition = currentConnector.SupplierEnd.RoleNote 
+				dim targetEndCardinality 
+				targetEndCardinality = currentConnector.SupplierEnd.Cardinality 
+ 							
+				'if the current element is on the connectors client side conduct some tests 
+				'(this condition is needed to make sure only associations where the 
+				'source end is connected to elements within this package are  
+				'checked. Associations with source end connected to elements outside of this 
+				'package are possibly locked and not editable) 
+				 							 
+				dim elementOnOppositeSide as EA.Element 
+				if currentElement.ElementID = sourceElementID and not currentConnector.Type = "Realisation" and not currentConnector.Type = "Generalization" then 
+					
+										
+					set elementOnOppositeSide = Repository.GetElementByID(targetElementID) 
+ 								 
+					'if the connector has a name (optional according to the rules), check if it starts with capital letter [ISO19103:2015 recommendation 11]
+					call checkElementName(currentConnector)
+					
+					'check if elements on both sides of the association are classes with stereotype dataType or of element type DataType
+					call krav12(currentElement, currentConnector, elementOnOppositeSide)
+													
+					'check if there is a definition on navigable ends (navigable association roles) of the connector 
+					'Call the subfunction with currentConnector as parameter 
+					CheckDefinition(currentConnector) 
+ 																								 
+					'check if there is multiplicity on navigable ends ([ISO19103:2015 Requirement 10])
+					call krav10(currentElement, sourceEndNavigable, targetEndNavigable, sourceEndName, targetEndName, sourceEndCardinality, targetEndCardinality, currentConnector)
+					 
+					'check if there are role names on navigable ends  ([ISO19103:2015 Requirement 10])
+					call krav11(currentElement, sourceEndNavigable, targetEndNavigable, sourceEndName, targetEndName, elementOnOppositeSide, currentConnector)
+																		 
+					'check if role names on connector ends start with lower case (regardless of navigability) (krav/navning)
+					call checkRoleNames(currentElement, sourceEndName, targetEndName, elementOnOppositeSide)
+					
+				end if 
+			next 
+ 						 
+			'------------------------------------------------------------------ 
+			'---OPERATIONS--- 
+			'------------------------------------------------------------------ 
+ 						 
+			' Retrieve all operations for this element 
+			dim operationsCollection as EA.Collection 
+			set operationsCollection = currentElement.Methods 
+ 			 
+			if operationsCollection.Count > 0 then 
+				dim operationCounter 
+				for operationCounter = 0 to operationsCollection.Count - 1 					 
+					dim currentOperation as EA.Method		 
+					set currentOperation = operationsCollection.GetAt(operationCounter) 
+ 								
+					'check if the operations's name starts with lower case 
+					'TODO: this rule does not apply for constructor operation 
+					if globalLogLevelIsWarning then
+						if not Left(currentOperation.Name,1) = LCase(Left(currentOperation.Name,1)) then 
+							Session.Output("Warning: Operation name [" & currentOperation.Name & "] in class ["&currentElement.Name&"] should not start with capital letter. [ISO19103:2015 recommendation 11]") 
+							globalWarningCounter = globalWarningCounter + 1 
+						end if 
+					end if
+ 								 
+					'check if there is a definition for the operation (call CheckDefinition function) 
+					'call the subroutine with currentOperation as parameter 
+					CheckDefinition(currentOperation) 
+ 																 
+				next 
+			end if					 
+		end if 
+  	next 
+end sub 
+'-------------------------------------------------------------END--------------------------------------------------------------------------------------------
+
 
 'global variables 
+dim globalRuleSet19109 'boolean variable indicating if rule set from ISO 19109 has been choosen or not
+globalRuleSet19109=true 'default setting for rule set from ISO 19109 is true
+
 dim globalLogLevelIsWarning 'boolean variable indicating if warning log level has been choosen or not
 globalLogLevelIsWarning = true 'default setting for warning log level is true
  
@@ -3704,5 +4095,7 @@ set globalListPackageIDsOfPackagesToBeReferenced=CreateObject("System.Collection
 'global variable containing list of package element IDs of modelled dependencies
 dim globalListPackageElementIDsOfPackageDependencies
 set globalListPackageElementIDsOfPackageDependencies=CreateObject("System.Collections.ArrayList")
+
+
 
 OnProjectBrowserScript 
