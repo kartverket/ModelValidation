@@ -2,15 +2,8 @@
  
  !INC Local Scripts.EAConstants-VBScript 
  
- 
-'TODO
-'sjekk for ordene sosi, krav og anbefaling og oversett til engelsk
-'sjekk for sosi-tekst og versjonsnummerbruk i gui
-'lag installerbar xml fil med scriptet
-'lag testmodell 1 for 19103 (draft 19131?) og 1 for 19109 (engelsk landskapsarkitektur)
 ' Script Name: Model validation 
 ' Author: Section for standardization and technology development - Norwegian Mapping Authority
-
 
 ' Version: 1.0
 
@@ -30,7 +23,7 @@
 '
 '	[ISO19103:2015 Requirement 6]: 
 '			NCNames in codelist codes.
-' 	ISO19103:2015 requirement 7:	    
+' 	[ISO19103:2015 requirement 7]:	    
 '			Iso 19103 Requirement 7 - definition of codelist codes.
 '  	[ISO19103:2015 Requirement 10]: 
 '			Check if all navigable association ends have cardinality 
@@ -40,7 +33,7 @@
 '			If datatypes have associations then the datatype shall only be target in a composition 
 '  	[ISO19103:2015 Requirement 14]:
 '			Checks that there is no inheritance between classes with unequal stereotypes.
-'	[ISO19103 Requirement 15]:
+'	[ISO19103:2015 Requirement 15]:
 '			check for known stereotypes
 '  	[ISO19103:2015 requirement 16]:
 '			Iso 19103 Requirement 16 - legal NCNames case-insesnitively unique within their namespace
@@ -49,52 +42,48 @@
 '			Tests all classes and their attributes in diagrams including roles and inheritance.
 '	[ISO19103:2015 Requirement 19]:
 '			All classes shall have a definition describing its intended meaning or semantics.
-'	[ISO19109:2015 /req/uml/documentation]: 
-'			Same as [ISO19103:2015 Requirement 3] but checks also for definitions of (---> TBD: packages?) and constraints
-'			The part that checks definitions of constraints is implemented in sub checkConstraint	
-'			The rest is implemented in sub checkDefinitions
-'	/krav/eksternKodeliste
-' 			Check if the coedlist has an asDictionary with value "true", if so, checks if the taggedValue "codeList" exist and if the value is valid or not.
-'			Some parts missing. 2 subs.
-'   19109:2015 /req/multi-lingual/feature:
-' 			if tagged value: "designation", "description" or "definition" exists, the value of the tag must end with "@<language-code>". 
-' 			Checks FeatureType and PropertyType (attributes, operations, roles) 
-'	19109:2015 /req/multi-lingual/package:
-'			Check if the ApplicationSchema-package got a tagged value named "language" (error message if that is not the case) 
-'			and if the value of it is empty or not (error message if empty). 
-' 			And if there are designation-tags, checks that they have correct structure: "{name}"@{language}
-' 	19103:2015 recommendation 11:
-'			Check if names of attributes, operations, roles start with lower case and names of packages,  
-'			classes and associations start with upper case 
-'	[ISO19109:2015 /req/uml/constraint]
-'			To check if a constraint lacks name or definition. 
-'  	[19109:2015 /req/uml/packaging]:
-'			ApplicationSchema shall be described within a package carrying stereotype ApplicationSchema
-'     		To check if the value of the version-tag (tagged values) for an ApplicationSchema-package is empty or not. 
-'	19109:2015 /req/uml/structure
-'			Check that all abstract classes in application schema has at least one instantiable subclass within the same schema.  Check that no classes in application schema has stereotype interface
-'   [ISO19103:2015 Recommendation 1]
+'   [ISO19103:2015 Recommendation 1]:
 '			Checks every initial values in codeLists and enumerations for a package. If one or more initial values are numeric in one list, 
 ' 			it return a warning message. 
-'	[ISO19109:2015 /req/uml/profile]    
-'			check for valid well known types for all attributes (GM_Surface etc.), builds on iso 19103 Requirement 22 and 25.
+'	[ISO19103:2015 Recommendation 4]:
+' 			for external codelists with a taggedValue "codeList" the value must not be empty
+'	[ISO19103:2015 recommendation 11]:
+'			Check if names of attributes, operations, roles start with lower case and names of packages,  
+'			classes and associations start with upper case 
 '	[ISO19103:2015 Requirement 25]   
 '			check for valid extended types for attributes (URI etc.), builds on iso 19103 Requirement 22.
 '	[ISO19103:2015 Requirement 22]    
 '			from iso 19103 - check for valid core types for attributes (CharacterString etc.).
+'	[ISO19109:2015 /req/uml/documentation]: 
+'			Same as [ISO19103:2015 Requirement 3] but checks also for definitions of constraints
+'			The part that checks definitions of constraints is implemented in sub checkConstraint	
+'			The rest is implemented in sub checkDefinitions
+'   [ISO19109:2015 /req/multi-lingual/feature]:
+' 			if tagged value: "designation", "description" or "definition" exists, the value of the tag must end with "@<language-code>". 
+' 			Checks FeatureType and PropertyType (attributes, operations, roles) 
+'	[ISO19109:2015 /req/multi-lingual/package]:
+'			Check if the ApplicationSchema-package got a tagged value named "language" (error message if that is not the case) 
+'			and if the value of it is empty or not (error message if empty). 
+' 			And if there are designation-tags, checks that they have correct structure: "{name}"@{language}
+' 	
+'	[ISO19109:2015 /req/uml/constraint]
+'			To check if a constraint lacks name or definition. 
+'  	[ISO19109:2015 /req/uml/packaging]:
+'			ApplicationSchema shall be described within a package carrying stereotype ApplicationSchema
+'     		To check if the value of the version-tag (tagged values) for an ApplicationSchema-package is empty or not. 
+'	[ISO19109:2015 /req/uml/structure]
+'			Check that all abstract classes in application schema has at least one instantiable subclass within the same schema.  Check that no classes in application schema has stereotype interface
+
+'	[ISO19109:2015 /req/uml/profile]    
+'			check for valid well known types for all attributes (GM_Surface etc.), builds on iso 19103 Requirement 22 and 25.
+
 '	[ISO19109:2015 /req/uml/feature]
 '			featureType classes shall have unique names within the applicationSchema	
 '			Not implemented yet: instances of FeatureType shall have generalization with AnyFeature
 '	[ISO19109:2015 /req/general/feature]
 ' 			Checks that no «FeatureTypes» inherits from a class named GM_Object or TM_object. 
 '			Check that FeatureTypes within a ApplicationSchema have unique names (triggers in the sub 'checkUniqueFeatureTypeNames').
-'	19109:2015 /req/uml/integration
-'			Check correct handling of package dependency and check that there are no applicationSchemas in the package hierarchy below start package for this script.
-'			Not implemented yet: Check of package hierarchy of external referenced packages for more than one applicationSchema. Check of package hierachy above start package for more applicationSchemas.
-'	19103:2015 requirement 17
-'			Check that package dependencies are shown in at least one package diagram. 
-'	19103:2015 requirement 21
-'			Check that existing package diagrams show all existing package dependencies.
+'
 '------------------------------------------------------------START-------------------------------------------------------------------------------------------
 ' Project Browser Script main function 
  
@@ -128,11 +117,11 @@
 				
 					dim box, mess
 					'mess = 	"Model validation 2016-08-19 Logging errors and warnings."&Chr(13)&Chr(10)
-					mess = "Model validation based on requirements and recommendations in ISO19103:2015 and ISO19109:2015"&Chr(13)&Chr(10)
+					mess = "Model validation based on requirements and recommendations in ISO 19103:2015 and ISO 19109:2015"&Chr(13)&Chr(10)
 					mess = mess + ""&Chr(13)&Chr(10)
 					mess = mess + "Please find a list with the implemented rules in this script's source code (line 15++)."&Chr(13)&Chr(10)
 					mess = mess + ""&Chr(13)&Chr(10)
-					mess = mess + "Starts model validation for package [" & thePackage.Name &"]."&Chr(13)&Chr(10)
+					mess = mess + "Starting model validation for package [" & thePackage.Name &"]."&Chr(13)&Chr(10)
 
 					box = Msgbox (mess, vbOKCancel, "Model validation 1.0")
 					select case box
@@ -157,7 +146,7 @@
 							ruleSetInputBoxText = ruleSetInputBoxText+ ""&Chr(13)&Chr(10)
 							ruleSetInputBoxText = ruleSetInputBoxText+ "3 - ISO 19103:2015 rules."&Chr(13)&Chr(10)
 							ruleSetInputBoxText = ruleSetInputBoxText+ ""&Chr(13)&Chr(10)
-							ruleSetInputBoxText = ruleSetInputBoxText+ "9 - ISO 19109:2015 rules (includes 19103 rules)."&Chr(13)&Chr(10)
+							ruleSetInputBoxText = ruleSetInputBoxText+ "9 - ISO 19109:2015 rules (includes ISO 19103 rules)."&Chr(13)&Chr(10)
 							ruleSetInputBoxText = ruleSetInputBoxText+ ""&Chr(13)&Chr(10)
 							ruleSetInputBoxText = ruleSetInputBoxText+ "Enter 3 or 9:"&Chr(13)&Chr(10)
 							correctInputRuleSet = false
@@ -232,7 +221,7 @@
 							end if
 							
 							if wrongRuleSet then
-								Msgbox "The selected rule set is 19109 - 'Rules for application schema' but package [" & thePackage.Name &"] does not have stereotype «ApplicationSchema». Please select a package with stereotype «ApplicationSchema» to start model validation with 19109 rule set. [19109:2015 /req/uml/packaging]",48 
+								Msgbox "The selected rule set is ISO 19109 - 'Rules for application schema' but package [" & thePackage.Name &"] does not have stereotype «ApplicationSchema». Please select a package with stereotype «ApplicationSchema» to start model validation with ISO 19109 rule set. [19109:2015 /req/uml/packaging]",48 
 							else
 							
 
@@ -244,9 +233,9 @@
 									Session.Output("Model validation 1.0 started "&Now())
 									dim ruleSetText
 									if globalRuleSet19109 then
-										ruleSetText = "ISO19109:2015"
+										ruleSetText = "ISO 19109:2015 (includes ISO 19103 rules)"
 									else
-										ruleSetText = "ISO19103:2015"
+										ruleSetText = "ISO 19103:2015"
 									end if
 									Session.Output("Using rule set: "&ruleSetText)
 									
@@ -259,10 +248,10 @@
 
 									call populatePackageIDList(thePackage)
 									call populateClassifierIDList(thePackage)
-									call findPackageDependencies(thePackage.Element)
-									call getElementIDsOfExternalReferencedElements(thePackage)
-									call findPackagesToBeReferenced()
-									call checkPackageDependency(thePackage)
+									'call findPackageDependencies(thePackage.Element)
+									'call getElementIDsOfExternalReferencedElements(thePackage)
+									'call findPackagesToBeReferenced()
+									'call checkPackageDependency(thePackage)
 															             				  
 									'For /req/Uml/Profile:
 									Set ProfileTypes = CreateObject("System.Collections.ArrayList")
@@ -707,13 +696,13 @@ sub checkElementName(theElement)
 			case otPackage
 				'sub parameter is ObjectType oTPackage, check if first letter of the package's name is a capital letter 
 				if not Left(theElement.Name,1) = UCase(Left(theElement.Name,1)) then 
-					Session.Output("Warning: Package name [" & theElement.Name & "] should start with capital letter. [ISO19103:2015 recommendation 11]") 
+					Session.Output("Warning: Package name [" & theElement.Name & "] should start with capital letter. [ISO19103:2015 Recommendation 11]") 
 					globalWarningCounter = globalWarningCounter + 1 
 				end if
 			case otElement
 				'sub's parameter is ObjectType oTElement, check if first letter of the element's name is a capital letter (element covers class, enumeration, datatype)
 				if not Left(theElement.Name,1) = UCase(Left(theElement.Name,1)) then 
-					Session.Output("Warning: Class name [«"&getStereotypeOfClass(theElement)&"» "& theElement.Name & "] should start with capital letter. [ISO19103:2015 recommendation 11]") 
+					Session.Output("Warning: Class name [«"&getStereotypeOfClass(theElement)&"» "& theElement.Name & "] should start with capital letter. [ISO19103:2015 Recommendation 11]") 
 					globalWarningCounter = globalWarningCounter + 1 
 				end if 
 			case otAttribute
@@ -721,7 +710,7 @@ sub checkElementName(theElement)
 				if not Left(theElement.Name,1) = LCase(Left(theElement.Name,1)) then 
 					dim attributeParentElement as EA.Element
 					set attributeParentElement = Repository.GetElementByID(theElement.ParentID)
-					Session.Output("Warning: Attribute name [" & theElement.Name & "] in class [«"&getStereotypeOfClass(attributeParentElement)&"» "& attributeParentElement.Name &"] should start with lowercase letter. [ISO19103:2015 recommendation 11]") 
+					Session.Output("Warning: Attribute name [" & theElement.Name & "] in class [«"&getStereotypeOfClass(attributeParentElement)&"» "& attributeParentElement.Name &"] should start with lowercase letter. [ISO19103:2015 Recommendation 11]") 
 					globalWarningCounter = globalWarningCounter + 1
 				end if									
 			case otConnector
@@ -733,7 +722,7 @@ sub checkElementName(theElement)
 					dim associationTargetElement as EA.Element
 					set associationSourceElement = Repository.GetElementByID(connector.ClientID)
 					set associationTargetElement = Repository.GetElementByID(connector.SupplierID)
-					Session.Output("Warning: Association name [" & connector.Name & "] between class [«"&getStereotypeOfClass(associationSourceElement)&"» "& associationSourceElement.Name &"] and class [«"&getStereotypeOfClass(associationTargetElement)&"» " & associationTargetElement.Name & "] should start with capital letter. [ISO19103:2015 recommendation 11]") 
+					Session.Output("Warning: Association name [" & connector.Name & "] between class [«"&getStereotypeOfClass(associationSourceElement)&"» "& associationSourceElement.Name &"] and class [«"&getStereotypeOfClass(associationTargetElement)&"» " & associationTargetElement.Name & "] should start with capital letter. [ISO19103:2015 Recommendation 11]") 
 					globalWarningCounter = globalWarningCounter + 1 
 				end if 
 			'case otOperation
@@ -751,7 +740,7 @@ end sub
 ' Purpose: Check if the ApplicationSchema-package got a tag named "language" and  check if the value is empty or not. 
 ' Check that designation tags have correct structure: "{name}"@{language}, and that there is at least one English ("{name}"@en) designation for ApplicationSchema packages
 ' Check that definition tags have correct structure: "{name}"@{language}, and that there is at least one English ("{name}"@en) definition for ApplicationSchema packages
-' /krav/flersprålighet/pakke og /krav/taggedValueSpråk	
+	
 ' sub procedure to check if the package has the provided tags with a value with correct structure
 ' @param[in]: theElement (Package Class) and taggedValueName (String)
 
@@ -778,14 +767,14 @@ sub checkTVLanguageAndDesignation(theElement, taggedValueName)
 					exit for 
 				end if   
 				if currentTaggedValue.Name = "language" and currentTaggedValue.Value= "" then 
-					Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] tag ["& currentTaggedValue.Name &"] lacks a value. [ISO19109:2015 /req/multi-lingual/package]") '[/krav/taggedValueSpråk] 
+					Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] tag ["& currentTaggedValue.Name &"] lacks a value. [ISO19109:2015 /req/multi-lingual/package]") 
 					globalErrorCounter = globalErrorCounter + 1 
 					taggedValueLanguageMissing = false 
 					exit for 
 				end if 
  			next 
 			if taggedValueLanguageMissing then 
-				Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] lacks a [language] tag. [ISO19109:2015 /req/multi-lingual/package]") '[/krav/taggedValueSpråk] 
+				Session.Output("Error: Package [«"&theElement.Stereotype&"» " &theElement.Name&"] lacks a [language] tag. [ISO19109:2015 /req/multi-lingual/package]") 
 				globalErrorCounter = globalErrorCounter + 1 
 			end if 
 		end if 
@@ -1452,13 +1441,13 @@ sub requirement16UniqueNCname(theElement)
 		'(ignoring all association roles without name!)
 		if roleName <> "" then
 			if PropertyNames.IndexOf(UCase(roleName),0) <> -1 then
-				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has non-unique role name ["&roleName&"]. [ISO19103:2015 requirement 16]")				
+				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has non-unique role name ["&roleName&"]. [ISO19103:2015 Requirement 16]")				
  				globalErrorCounter = globalErrorCounter + 1 
 			else
 				PropertyNames.Add UCase(roleName)
 			end if
 			if NOT hasNoWhiteSpace(roleName) then
-				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has illegal role name, ["&roleName&"] contains whitespace. [ISO19103:2015 requirement 16]")				
+				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has illegal role name, ["&roleName&"] contains whitespace. [ISO19103:2015 Requirement 16]")				
  				globalErrorCounter = globalErrorCounter + 1 
 			end if
 		end if
@@ -1467,14 +1456,14 @@ sub requirement16UniqueNCname(theElement)
 	'Operation names
 	for each oper in theElement.Methods
 		if PropertyNames.IndexOf(UCase(oper.Name),0) <> -1 then
-			Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has non-unique operation property name ["& oper.Name &"]. [ISO19103:2015 requirement 16]")				
+			Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has non-unique operation property name ["& oper.Name &"]. [ISO19103:2015 Requirement 16]")				
 			globalErrorCounter = globalErrorCounter + 1 
 		else
 			PropertyNames.Add UCase(oper.Name)
 		end if
 		'check if the name is NCName
 		if NOT hasNoWhiteSpace(oper.Name) then
-				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has illegal operation name, ["& oper.Name &"] contains whitespace. [ISO19103:2015 requirement 16]")				
+				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has illegal operation name, ["& oper.Name &"] contains whitespace. [ISO19103:2015 Requirement 16]")				
  				globalErrorCounter = globalErrorCounter + 1 
 		end if 
 	next
@@ -1486,7 +1475,7 @@ sub requirement16UniqueNCname(theElement)
 		'count number of attributes in one list
 		numberInList = numberInList + 1 
 		if PropertyNames.IndexOf(UCase(attr.Name),0) <> -1 then
-			Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has non-unique attribute property name ["&attr.Name&"]. [ISO19103:2015 requirement 16]")				
+			Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has non-unique attribute property name ["&attr.Name&"]. [ISO19103:2015 Requirement 16]")				
 			globalErrorCounter = globalErrorCounter + 1 
 		else
 			PropertyNames.Add UCase(attr.Name)
@@ -1496,7 +1485,7 @@ sub requirement16UniqueNCname(theElement)
 		if NOT ((theElement.Type = "Class") and (UCase(theElement.Stereotype) = "CODELIST"  Or UCase(theElement.Stereotype) = "ENUMERATION")) then
 			if NOT hasNoWhiteSpace(attr.Name) then
 				'count number of numeric initial values for one list
-				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has illegal attribute name, ["&attr.Name&"] contains whitespace. [ISO19103:2015 requirement 16]")				
+				Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has illegal attribute name, ["&attr.Name&"] contains whitespace. [ISO19103:2015 Requirement 16]")				
  				globalErrorCounter = globalErrorCounter + 1 
 			end if
 		end if 
@@ -1558,7 +1547,7 @@ sub requirement16uniqueNCnameInherited(theElement, PropertyNames, inheritanceEle
 		if roleName <> "" then
 			if PropertyNames.IndexOf(UCase(roleName),0) <> -1 then
 				if globalLogLevelIsWarning then
-					Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] in package: ["&Repository.GetPackageByID(theElement.PackageID).Name&"] has non-unique inherited role property name ["&roleName&"] implicitly redefined from. [ISO19103:2015 requirement 16]")				
+					Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] in package: ["&Repository.GetPackageByID(theElement.PackageID).Name&"] has non-unique inherited role property name ["&roleName&"] implicitly redefined from. [ISO19103:2015 Requirement 16]")				
 					globalWarningCounter = globalWarningCounter + 1
 				end if	
 			end if
@@ -1569,7 +1558,7 @@ sub requirement16uniqueNCnameInherited(theElement, PropertyNames, inheritanceEle
 	for each oper in theElement.Methods
 		if PropertyNames.IndexOf(UCase(oper.Name),0) <> -1 then
 			if globalLogLevelIsWarning then
-				Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] in package: ["&Repository.GetPackageByID(theElement.PackageID).Name&"] has inherited and implicitly redefined non-unique operation property name ["& oper.Name&"]. [ISO19103:2015 requirement 16]")				
+				Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] in package: ["&Repository.GetPackageByID(theElement.PackageID).Name&"] has inherited and implicitly redefined non-unique operation property name ["& oper.Name&"]. [ISO19103:2015 Requirement 16]")				
 				globalWarningCounter = globalWarningCounter + 1
 			end if	
 		end if
@@ -1583,7 +1572,7 @@ sub requirement16uniqueNCnameInherited(theElement, PropertyNames, inheritanceEle
 		numberInList = numberInList + 1 
 		if PropertyNames.IndexOf(UCase(attr.Name),0) <> -1 then
 			if globalLogLevelIsWarning then
-				Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] in package: ["&Repository.GetPackageByID(theElement.PackageID).Name&"] has non-unique inherited and implicitly redefined attribute property name["&attr.Name&"]. [ISO19103:2015 requirement 16]")				
+				Session.Output("Warning: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] in package: ["&Repository.GetPackageByID(theElement.PackageID).Name&"] has non-unique inherited and implicitly redefined attribute property name["&attr.Name&"]. [ISO19103:2015 Requirement 16]")				
 				globalWarningCounter = globalWarningCounter + 1
 			end if	
 		end if
@@ -1633,7 +1622,7 @@ sub reqUmlProfile(theElement)
 			if ProfileTypes.IndexOf(attr.Type,0) = -1 then	
 				if ExtensionTypes.IndexOf(attr.Type,0) = -1 then	
 					if CoreTypes.IndexOf(attr.Type,0) = -1 then	
-						Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has unknown type for attribute ["&attr.Name&" : "&attr.Type&"]. [ISO19109:2015 /req/uml/profile & ISO19103:2015 requirement 25 & ISO19103:2015 requirement 22]")
+						Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has unknown type for attribute ["&attr.Name&" : "&attr.Type&"]. [ISO19109:2015 /req/uml/profile & ISO19103:2015 Requirement 25 & ISO19103:2015 Requirement 22]")
 						globalErrorCounter = globalErrorCounter + 1 
 					end if
 				end if
@@ -1653,7 +1642,7 @@ sub requirement25(theElement)
 				
 				if ExtensionTypes.IndexOf(attr.Type,0) = -1 then	
 					if CoreTypes.IndexOf(attr.Type,0) = -1 then	
-						Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has unknown type for attribute ["&attr.Name&" : "&attr.Type&"]. [ISO19103:2015 requirement 25 & ISO19103:2015 requirement 22]")
+						Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has unknown type for attribute ["&attr.Name&" : "&attr.Type&"]. [ISO19103:2015 Requirement 25 & ISO19103:2015 Requirement 22]")
 						globalErrorCounter = globalErrorCounter + 1 
 					end if
 				end if
@@ -1672,7 +1661,7 @@ sub requirement22(theElement)
 			'Attribute not connected to a datatype class, check if the attribute has a iso 19103 type
 			
 					if CoreTypes.IndexOf(attr.Type,0) = -1 then	
-						Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has unknown type for attribute ["&attr.Name&" : "&attr.Type&"]. [ISO19103:2015 requirement 22]")
+						Session.Output("Error: Class [«" &theElement.Stereotype& "» " &theElement.Name& "] has unknown type for attribute ["&attr.Name&" : "&attr.Type&"]. [ISO19103:2015 Requirement 22]")
 						globalErrorCounter = globalErrorCounter + 1 
 					end if
 				
@@ -2207,12 +2196,12 @@ end sub
 sub checkRoleNames(theElement, sourceEndName, targetEndName, elementOnOppositeSide)
 	if globalLogLevelIsWarning then
 		if not sourceEndName = "" and not Left(sourceEndName,1) = LCase(Left(sourceEndName,1)) then 
-			Session.Output("Warning: Role name [" & sourceEndName & "] on association end connected to class ["& theElement.Name &"] should start with lowercase letter. [ISO19103:2015 recommendation 11]") 
+			Session.Output("Warning: Role name [" & sourceEndName & "] on association end connected to class ["& theElement.Name &"] should start with lowercase letter. [ISO19103:2015 Recommendation 11]") 
 			globalWarningCounter = globalWarningCounter + 1 
 		end if 
 
 		if not (targetEndName = "") and not (Left(targetEndName,1) = LCase(Left(targetEndName,1))) then 
-			Session.Output("Warning: Role name [" & targetEndName & "] on association end connected to class ["& elementOnOppositeSide.Name &"] should start with lowercase letter. [ISO19103:2015 recommendation 11]") 
+			Session.Output("Warning: Role name [" & targetEndName & "] on association end connected to class ["& elementOnOppositeSide.Name &"] should start with lowercase letter. [ISO19103:2015 Recommendation 11]") 
 			globalWarningCounter = globalWarningCounter + 1 
 		end if 
 	end if
@@ -2371,7 +2360,7 @@ sub checkPackageDependency(thePackage)
 	'check that dependencies are between ApplicationSchema packages.
 	for each packageElementID in globalListPackageElementIDsOfPackageDependencies
 		set investigatedPackage=Repository.GetElementByID(packageElementID)
-		if not UCase(investigatedPackage.Stereotype)="APPLICATIONSCHEMA" then
+		if globalRuleSet19109 and (not UCase(investigatedPackage.Stereotype)="APPLICATIONSCHEMA") then
 			if globalLogLevelIsWarning then
 				Session.Output("Warning: Dependency to package [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] found.  Dependencies shall only be to ApplicationSchema packages or Standard schemas. Ignore this warning if [«" & investigatedPackage.Stereotype & "» " & investigatedPackage.Name & "] is a standard schema [ISO19109:2015 req/uml/integration]")
 				globalWarningCounter = globalWarningCounter + 1
@@ -2420,7 +2409,7 @@ sub findPackageDependenciesShownRecursive(diagram, investigatedPackageElementID,
 				dependencyList.Add(modelLink.SupplierID)
 				'call findPackageDependenciesShownRecursive(diagram, modelLink.SupplierID, dependencyList)
 				if diagramLink.IsHidden and globalLogLevelIsWarning then
-					Session.Output("Warning: Diagram [" & diagram.Name &"] contains hidden dependency link between elements " & supplier.Name & " and " & client.Name & ".")
+					Session.Output("Warning: Diagram [" & diagram.Name &"] contains hidden dependency link between elements " & supplier.Name & " and " & client.Name & ". [ISO19103:2015 requirement 17][ISO19103:2015 requirement 21]")
 					globalWarningCounter=globalWarningCounter+1
 				end if
 			end if
@@ -2483,15 +2472,11 @@ end sub
 sub findPackagesToBeReferenced()
 	dim externalReferencedElementID
 	
-	dim debugcount
-	debugcount=0
 	dim currentExternalElement as EA.Element
 	dim arrayCounter
 	
 	for each externalReferencedElementID in globalListClassifierIDsOfExternalReferencedElements
-		debugcount = debugcount + 1
 		set currentExternalElement = Repository.GetElementByID(externalReferencedElementID)
-		
 		dim parentPackageID
 		parentPackageID = currentExternalElement.PackageID 'here the parentPackageID is the ID of the package containing the external element
 		
@@ -2503,6 +2488,11 @@ sub findPackagesToBeReferenced()
 		dim tmpListPackageIDsOfReferencedPackagesFoundInHierarchy
 		set tmpListPackageIDsOfReferencedPackagesFoundInHierarchy=CreateObject("System.Collections.ArrayList")
 		
+		dim foundApplicationSchemaInPackageHierarchy
+		foundApplicationSchemaInPackageHierarchy = false
+		dim foundReferencedPackageInHierarchy
+		foundReferencedPackageInHierarchy = false
+		
 		dim parentPackageIsApplicationSchema
 		parentPackageIsApplicationSchema = false
 		dim parentPackage as EA.Package
@@ -2513,14 +2503,15 @@ sub findPackagesToBeReferenced()
 				if UCase(parentPackage.Element.Stereotype)="APPLICATIONSCHEMA" then
 					parentPackageIsApplicationSchema = true
 					tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy.Add(parentPackageID)
-					
+					foundApplicationSchemaInPackageHierarchy = true
 				end if
 			end if	
 			
 			'check if parentPackage has dependency from the startpackage
 			if globalListPackageElementIDsOfPackageDependencies.contains(parentPackage.Element.ElementID) then
 				tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.add(parentPackageID)
-				
+				Session.Output("Found dependency from start package to: "&parentPackage.Name)
+				foundReferencedPackageInHierarchy = true
 			end if
 			
 		end if
@@ -2540,12 +2531,13 @@ sub findPackagesToBeReferenced()
 					parentPackageIsApplicationSchema = true
 					tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy.Add(parentPackageID)
 					tempPackageIDOfPotentialPackageToBeReferenced = parentPackageID
-					
+					foundApplicationSchemaInPackageHierarchy = true
 				end if
 				'check if parentPackage has dependency from the start package
 				if globalListPackageElementIDsOfPackageDependencies.contains(parentPackage.Element.ElementID) then
 					tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.add(parentPackageID)
-					
+					Session.Output("Found dependency from start package to: "&parentPackage.Name)
+					foundReferencedPackageInHierarchy = true
 				end if
 
 			end if
@@ -2555,15 +2547,17 @@ sub findPackagesToBeReferenced()
 		'add the temporal package ID to the global list
 		'the temporal package ID is either the package containing the external element
 		'or the first package found upwards in the package hierarchy with stereotype applicationSchema
+		if not foundReferencedPackageInHierarchy then
+			globalListPackageIDsOfPackagesToBeReferenced.add(tempPackageIDOfPotentialPackageToBeReferenced)
+			
+		end if
 		
-		globalListPackageIDsOfPackagesToBeReferenced.add(tempPackageIDOfPotentialPackageToBeReferenced)
 		
-		
-		if tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy.count = 0 and tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.count = 0 then
+		if globalRuleSet19109 and tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy.count = 0 and tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.count = 0 then
 			Session.Output("Error: Missing dependency for package ["& Repository.GetPackageByID(tempPackageIDOfPotentialPackageToBeReferenced).Name &"] (or any of its superpackages) containing external referenced class [" &currentExternalElement.Name& "] [ISO19109:2015 /req/uml/integration]")
 			globalErrorCounter = globalErrorCounter + 1
 		end if
-		if tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy.count > 0 and tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.count = 0 then
+		if globalRuleSet19109 and tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy.count > 0 and tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.count = 0 then
 			Session.Output("Error: Missing dependency for package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [ISO19109:2015 /req/uml/integration]")
 			globalErrorCounter = globalErrorCounter + 1
 		end if
@@ -2573,7 +2567,7 @@ sub findPackagesToBeReferenced()
 			dim packageIDOfFirstAppSchemaPackageFoundInHierarchy
 			packageIDOfFirstAppSchemaPackageFoundInHierarchy = tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)
 			dim packageIDOfReferencedPackage
-			if not tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.contains(packageIDOfFirstAppSchemaPackageFoundInHierarchy) then
+			if globalRuleSet19109 and (not tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.contains(packageIDOfFirstAppSchemaPackageFoundInHierarchy)) then
 				Session.Output("Error: Missing dependency for package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [ISO19109:2015 /req/uml/integration]")
 				Session.Output("       Please exchange the modelled dependency to the following package(s) because of an existing applicationSchema package in the package hierarchy:")
 				globalErrorCounter = globalErrorCounter + 1
@@ -2581,7 +2575,7 @@ sub findPackagesToBeReferenced()
 					Session.Output("       Exchange dependency related to package ["& Repository.GetPackageByID(packageIDOfReferencedPackage).Name &"] with dependency to package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"]")
 					
 				next
-			elseif tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.contains(packageIDOfFirstAppSchemaPackageFoundInHierarchy) and tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.count > 1 then
+			elseif globalRuleSet19109 and tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.contains(packageIDOfFirstAppSchemaPackageFoundInHierarchy) and tmpListPackageIDsOfReferencedPackagesFoundInHierarchy.count > 1 then
 				Session.Output("Error: Found redundant dependency related to package [<<applicationSchema>> "& Repository.GetPackageByID(tmpListPackageIDsOfAppSchemaPackagesFoundInHierarchy(0)).Name &"] containing external referenced class [" &currentExternalElement.Name& "] [ISO19109:2015 /req/uml/integration]")
 				Session.Output("       Please remove additional modelled dependency to the following package(s) in the same package hierarchy:")
 				globalErrorCounter = globalErrorCounter + 1
@@ -2732,7 +2726,7 @@ sub FindInvalidElementsInPackage19109Rules(package)
 	
 	'Iso 19103 Requirement 16 - unique (NC?)Names on subpackages within the package.
 	if ClassAndPackageNames.IndexOf(UCase(package.Name),0) <> -1 then
-		Session.Output("Error: Package [" &startPackageName& "] has non-unique subpackage name ["&package.Name&"]. [ISO19103:2015 requirement 16]")				
+		Session.Output("Error: Package [" &startPackageName& "] has non-unique subpackage name ["&package.Name&"]. [ISO19103:2015 Requirement 16]")				
 		globalErrorCounter = globalErrorCounter + 1 
 	end if
 
@@ -2790,9 +2784,7 @@ sub FindInvalidElementsInPackage19109Rules(package)
 		dim currentElement as EA.Element 
 		set currentElement = elements.GetAt( i ) 
 				
-		'check elements' stereotype for right use of lower- and uppercase [/anbefaling/styleGuide]
-'		Call checkStereotypes(currentElement)	
- 				
+						
 		if (currentElement.Type="Class" or currentElement.Type="Interface") then
 			call checkInstantiable(currentElement)
 		end if
@@ -2811,7 +2803,7 @@ sub FindInvalidElementsInPackage19109Rules(package)
 		'Inherited properties  also included, strictly not an error situation but implicit redefinition is not well supported anyway
 		if currentElement.Type = "Class" or currentElement.Type = "DataType" or currentElement.Type = "Enumeration" or currentElement.Type = "Interface" then
 			if ClassAndPackageNames.IndexOf(UCase(currentElement.Name),0) <> -1 then
-				Session.Output("Error: Class [«" &currentElement.Stereotype& "» "&currentElement.Name&"] in package: [" &package.Name& "] has non-unique name. [ISO19103:2015 requirement 16]")				
+				Session.Output("Error: Class [«" &currentElement.Stereotype& "» "&currentElement.Name&"] in package: [" &package.Name& "] has non-unique name. [ISO19103:2015 Requirement 16]")				
 				globalErrorCounter = globalErrorCounter + 1 
 			end if
 
@@ -2822,7 +2814,7 @@ sub FindInvalidElementsInPackage19109Rules(package)
 			' ---OTHER ARTIFACTS--- Do their names also need to be tested for uniqueness? (need to be different?)
 			if currentElement.Type <> "Note" and currentElement.Type <> "Text" and currentElement.Type <> "Boundary" then
 				if ClassAndPackageNames.IndexOf(UCase(currentElement.Name),0) <> -1 then
-					Session.Output("Debug: Unexpected unknown element with non-unique name [«" &currentElement.Stereotype& "» " &currentElement.Name& "]. EA-type: [" &currentElement.Type& "]. [ISO19103:2015 requirement 16]")
+					Session.Output("Debug: Unexpected unknown element with non-unique name [«" &currentElement.Stereotype& "» " &currentElement.Name& "]. EA-type: [" &currentElement.Type& "]. [ISO19103:2015 Requirement 16]")
 					'This test is dependent on where the artifact is in the test sequence 
 				end if
 			end if
@@ -2871,8 +2863,8 @@ sub FindInvalidElementsInPackage19109Rules(package)
 	
 			'Iso 19103 Requirement 15 - known stereotypes for classes - warning if not a standardised stereotype
 			'this is not implemented as an error since there can be reasons for new stereotypes with different meaning than the standardised stereotypes
-
-			if UCase(currentElement.Stereotype) = "FEATURETYPE"  Or UCase(currentElement.Stereotype) = "DATATYPE" Or UCase(currentElement.Stereotype) = "UNION" or UCase(currentElement.Stereotype) = "CODELIST"  Or UCase(currentElement.Stereotype) = "ENUMERATION" Or UCase(currentElement.Stereotype) = "ESTIMATED" or UCase(currentElement.Stereotype) = "MESSAGETYPE"  Or UCase(currentElement.Stereotype) = "INTERFACE" Or currentElement.Type = "Enumeration" then
+			
+			if currentElement.Stereotype = "" Or UCase(currentElement.Stereotype) = "FEATURETYPE"  Or UCase(currentElement.Stereotype) = "DATATYPE" Or UCase(currentElement.Stereotype) = "UNION" or UCase(currentElement.Stereotype) = "CODELIST"  Or UCase(currentElement.Stereotype) = "ENUMERATION" Or UCase(currentElement.Stereotype) = "ESTIMATED" or UCase(currentElement.Stereotype) = "MESSAGETYPE"  Or UCase(currentElement.Stereotype) = "INTERFACE" Or currentElement.Type = "Enumeration" then
 			else
 				if globalLogLevelIsWarning then
 					Session.Output("Warning: Class [«" &currentElement.Stereotype& "» " &currentElement.Name& "] has unknown stereotype. [ISO19103 Requirement 15]")
@@ -3029,7 +3021,7 @@ sub FindInvalidElementsInPackage19109Rules(package)
 				if currentElement.ElementID = sourceElementID and not currentConnector.Type = "Realisation" and not currentConnector.Type = "Generalization" then 
 					
 					'------------------------------------------------------------------ 
-					'---'ASSOSIATION'S CONSTRAINTS--- 
+					'---'ASSOCIATION'S CONSTRAINTS--- 
 					'----START-------------------------------------------------------------- 
 					
 					dim constraintRCollection as EA.Collection 
@@ -3046,7 +3038,7 @@ sub FindInvalidElementsInPackage19109Rules(package)
 					end if 
 					
 					'----END-------------------------------------------------------------- 
-					'---'ASSOSIATION'S CONSTRAINTS--- 
+					'---'ASSOCIATION'S CONSTRAINTS--- 
 					'------------------------------------------------------------------ 
 					
 					set elementOnOppositeSide = Repository.GetElementByID(targetElementID) 
@@ -3096,7 +3088,7 @@ sub FindInvalidElementsInPackage19109Rules(package)
 					'TODO: this rule does not apply for constructor operation 
 					if globalLogLevelIsWarning then
 						if not Left(currentOperation.Name,1) = LCase(Left(currentOperation.Name,1)) then 
-							Session.Output("Warning: Operation name [" & currentOperation.Name & "] in class ["&currentElement.Name&"] should not start with capital letter. [ISO19103:2015 recommendation 11]") 
+							Session.Output("Warning: Operation name [" & currentOperation.Name & "] in class ["&currentElement.Name&"] should not start with capital letter. [ISO19103:2015 Recommendation 11]") 
 							globalWarningCounter = globalWarningCounter + 1 
 						end if 
 					end if
@@ -3140,7 +3132,7 @@ sub FindInvalidElementsInPackage19103Rules(package)
 	
 	'Iso 19103 Requirement 16 - unique (NC?)Names on subpackages within the package.
 	if ClassAndPackageNames.IndexOf(UCase(package.Name),0) <> -1 then
-		Session.Output("Error: Package [" &startPackageName& "] has non-unique subpackage name ["&package.Name&"]. [ISO19103:2015 requirement 16]")				
+		Session.Output("Error: Package [" &startPackageName& "] has non-unique subpackage name ["&package.Name&"]. [ISO19103:2015 Requirement 16]")				
 		globalErrorCounter = globalErrorCounter + 1 
 	end if
 
@@ -3188,7 +3180,7 @@ sub FindInvalidElementsInPackage19103Rules(package)
 		'Inherited properties  also included, strictly not an error situation but implicit redefinition is not well supported anyway
 		if currentElement.Type = "Class" or currentElement.Type = "DataType" or currentElement.Type = "Enumeration" or currentElement.Type = "Interface" then
 			if ClassAndPackageNames.IndexOf(UCase(currentElement.Name),0) <> -1 then
-				Session.Output("Error: Class [«" &currentElement.Stereotype& "» "&currentElement.Name&"] in package: [" &package.Name& "] has non-unique name. [ISO19103:2015 requirement 16]")				
+				Session.Output("Error: Class [«" &currentElement.Stereotype& "» "&currentElement.Name&"] in package: [" &package.Name& "] has non-unique name. [ISO19103:2015 Requirement 16]")				
 				globalErrorCounter = globalErrorCounter + 1 
 			end if
 
@@ -3199,7 +3191,7 @@ sub FindInvalidElementsInPackage19103Rules(package)
 			' ---OTHER ARTIFACTS--- Do their names also need to be tested for uniqueness? (need to be different?)
 			if currentElement.Type <> "Note" and currentElement.Type <> "Text" and currentElement.Type <> "Boundary" then
 				if ClassAndPackageNames.IndexOf(UCase(currentElement.Name),0) <> -1 then
-					Session.Output("Debug: Unexpected unknown element with non-unique name [«" &currentElement.Stereotype& "» " &currentElement.Name& "]. EA-type: [" &currentElement.Type& "]. [ISO19103:2015 requirement 16]")
+					Session.Output("Debug: Unexpected unknown element with non-unique name [«" &currentElement.Stereotype& "» " &currentElement.Name& "]. EA-type: [" &currentElement.Type& "]. [ISO19103:2015 Requirement 16]")
 					'This test is dependent on where the artifact is in the test sequence 
 				end if
 			end if
@@ -3231,8 +3223,7 @@ sub FindInvalidElementsInPackage19103Rules(package)
 	
 			'Iso 19103 Requirement 15 - known stereotypes for classes - warning if not a standardised stereotype
 			'this is not implemented as an error since there can be reasons for new stereotypes with different meaning than the standardised stereotypes
-
-			if UCase(currentElement.Stereotype) = "FEATURETYPE"  Or UCase(currentElement.Stereotype) = "DATATYPE" Or UCase(currentElement.Stereotype) = "UNION" or UCase(currentElement.Stereotype) = "CODELIST"  Or UCase(currentElement.Stereotype) = "ENUMERATION" Or UCase(currentElement.Stereotype) = "ESTIMATED" or UCase(currentElement.Stereotype) = "MESSAGETYPE"  Or UCase(currentElement.Stereotype) = "INTERFACE" Or currentElement.Type = "Enumeration" then
+			if currentElement.Stereotype = "" Or UCase(currentElement.Stereotype) = "FEATURETYPE"  Or UCase(currentElement.Stereotype) = "DATATYPE" Or UCase(currentElement.Stereotype) = "UNION" or UCase(currentElement.Stereotype) = "CODELIST"  Or UCase(currentElement.Stereotype) = "ENUMERATION" Or UCase(currentElement.Stereotype) = "ESTIMATED" or UCase(currentElement.Stereotype) = "MESSAGETYPE"  Or UCase(currentElement.Stereotype) = "INTERFACE" Or currentElement.Type = "Enumeration" then
 			else
 				if globalLogLevelIsWarning then
 					Session.Output("Warning: Class [«" &currentElement.Stereotype& "» " &currentElement.Name& "] has unknown stereotype. [ISO19103 Requirement 15]")
@@ -3402,7 +3393,7 @@ sub FindInvalidElementsInPackage19103Rules(package)
 					'TODO: this rule does not apply for constructor operation 
 					if globalLogLevelIsWarning then
 						if not Left(currentOperation.Name,1) = LCase(Left(currentOperation.Name,1)) then 
-							Session.Output("Warning: Operation name [" & currentOperation.Name & "] in class ["&currentElement.Name&"] should not start with capital letter. [ISO19103:2015 recommendation 11]") 
+							Session.Output("Warning: Operation name [" & currentOperation.Name & "] in class ["&currentElement.Name&"] should not start with capital letter. [ISO19103:2015 Recommendation 11]") 
 							globalWarningCounter = globalWarningCounter + 1 
 						end if 
 					end if
