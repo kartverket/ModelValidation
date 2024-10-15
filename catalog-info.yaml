@@ -1,0 +1,37 @@
+# nonk8s
+apiVersion: "backstage.io/v1alpha1"
+kind: "Component"
+metadata:
+  name: "ModelValidation"
+  tags:
+  - "private"
+spec:
+  type: "service"
+  lifecycle: "production"
+  owner: "standardisering"
+---
+apiVersion: "backstage.io/v1alpha1"
+kind: "Group"
+metadata:
+  name: "security_champion_ModelValidation"
+  title: "Security Champion ModelValidation"
+spec:
+  type: "security_champion"
+  parent: "it_security_champions"
+  members:
+  - "toreJohnsen"
+  children:
+  - "resource:ModelValidation"
+---
+apiVersion: "backstage.io/v1alpha1"
+kind: "Resource"
+metadata:
+  name: "ModelValidation"
+  links:
+  - url: "https://github.com/kartverket/ModelValidation"
+    title: "ModelValidation på GitHub"
+spec:
+  type: "repo"
+  owner: "security_champion_ModelValidation"
+  dependencyOf:
+  - "component:ModelValidation"
